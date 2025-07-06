@@ -135,7 +135,7 @@ export default function FlowPlayer() {
   const progressPercentage = progress * 100;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-blue-50 via-white to-purple-50">
       <PlayerHeader
         flowTitle={flow.title}
         current={current}
