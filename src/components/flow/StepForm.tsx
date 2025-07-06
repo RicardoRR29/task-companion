@@ -74,6 +74,8 @@ const STEP_TYPES = [
   },
 ] as const;
 
+const NO_TARGET_STEP_VALUE = "__NONE__";
+
 export default function StepForm({ step, steps, onChange, onDelete }: Props) {
   const [isPreviewMode, setIsPreviewMode] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
@@ -434,14 +436,21 @@ function OptionItem({ option, index, steps, onUpdate, onRemove }: OptionItemProp
             className="text-sm"
           />
           <Select
-            value={option.targetStepId}
-            onValueChange={(value) => onUpdate("targetStepId", value)}
+            value={
+              option.targetStepId === "" ? NO_TARGET_STEP_VALUE : option.targetStepId
+            }
+            onValueChange={(value) =>
+              onUpdate(
+                "targetStepId",
+                value === NO_TARGET_STEP_VALUE ? "" : value
+              )
+            }
           >
             <SelectTrigger>
               <SelectValue placeholder="Próximo passo (opcional)" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">Nenhum</SelectItem>
+              <SelectItem value={NO_TARGET_STEP_VALUE}>Nenhum</SelectItem>
               {steps.map((s) => (
                 <SelectItem key={s.id} value={s.id}>
                   {s.order + 1}. {s.title}
