@@ -348,7 +348,12 @@ export default function Analytics() {
         <PauseHeatmap pauseRuns={pauseRuns} steps={steps} maxCount={maxPause} />
 
         {/* Stacked Area Chart */}
-        <StackedAreaChart data={areaData} steps={steps} colors={COLORS} />
+        <StackedAreaChart
+          data={areaData}
+          steps={steps}
+          colors={COLORS}
+          runsToShow={runsToShow}
+        />
 
         {/* Network Graph */}
         <NetworkGraph flow={f} />
