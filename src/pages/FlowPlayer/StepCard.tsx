@@ -11,6 +11,7 @@ import { Button } from "../../components/ui/button";
 import { Card, CardContent } from "../../components/ui/card";
 import { Badge } from "../../components/ui/badge";
 import { cn } from "../../utils/cn";
+import { getYouTubeEmbedUrl } from "../../utils/youtube";
 import CustomRenderer from "../../components/CustomRenderer";
 import Markdown from "../../components/Markdown";
 import { parseInlineMarkdown } from "../../utils/markdown";
@@ -102,6 +103,13 @@ export default function StepCard({
                     src={step.mediaUrl}
                     controls
                     className="mx-auto mb-6 max-h-96"
+                  />
+                ) : step.mediaType === "youtube" ? (
+                  <iframe
+                    src={getYouTubeEmbedUrl(step.mediaUrl)}
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                    className="w-full mx-auto mb-6 max-h-96"
                   />
                 ) : (
                   <img
