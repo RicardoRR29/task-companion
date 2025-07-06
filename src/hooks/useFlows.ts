@@ -13,6 +13,7 @@ interface FlowStore {
   clone: (id: string) => Promise<string>;
   update: (flow: Flow) => Promise<void>;
   remove: (id: string) => Promise<void>;
+  removeMany: (ids: string[]) => Promise<void>;
   exportFlow: (id: string) => Promise<string>;
   exportFlows: (ids: string[]) => Promise<string>;
   importFlow: (jsonData: string) => Promise<string>;
@@ -125,6 +126,12 @@ export const useFlows = create<FlowStore>()(
           title: flow?.title,
           sessionsDeleted: sessionIds.length,
         });
+      },
+
+      removeMany: async (ids) => {
+        for (const id of ids) {
+          await get().remove(id);
+        }
       },
 
       exportFlow: async (id) => {
