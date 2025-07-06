@@ -12,6 +12,9 @@ import FlowPlayer from "./pages/FlowPlayer";
 import Analytics from "./pages/Analytics";
 import FlowEditor from "./pages/FlowEditor";
 import Settings from "./pages/Settings";
+import AuditTrail from "./pages/AuditTrail";
+import FlowImportExport from "./pages/FlowImportExport";
+import PathAnalytics from "./pages/PathAnalytics";
 
 registerSW({ immediate: true });
 
@@ -33,6 +36,15 @@ createRoot(document.getElementById("root")!).render(
 
         {/* Configurações do usuário */}
         <Route path="/settings" element={<Settings />} />
+
+        {/* Log de auditoria */}
+        <Route path="/audit" element={<AuditTrail />} />
+
+        {/* Importação e exportação de fluxos */}
+        <Route path="/import-export" element={<FlowImportExport />} />
+
+        {/* Path Analytics */}
+        <Route path="/path-analytics" element={<PathAnalytics />} />
 
         {/* Qualquer rota desconhecida redireciona para o Dashboard */}
         <Route path="*" element={<Navigate to="/" replace />} />
