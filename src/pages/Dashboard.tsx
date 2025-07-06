@@ -74,6 +74,18 @@ export default function Dashboard() {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [viewMode, setViewMode] = useState<ViewMode>("grid");
+  // Load view mode preference from localStorage on mount
+  useEffect(() => {
+    const saved = localStorage.getItem("taco-dashboard-view");
+    if (saved === "grid" || saved === "list") {
+      setViewMode(saved as ViewMode);
+    }
+  }, []);
+
+  // Persist view mode preference to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem("taco-dashboard-view", viewMode);
+  }, [viewMode]);
   const [isCreating, setIsCreating] = useState(false);
   const [isSelecting, setIsSelecting] = useState(false);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
