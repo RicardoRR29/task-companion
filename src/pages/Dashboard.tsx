@@ -102,6 +102,30 @@ export default function Dashboard() {
   const [showCompletionRate, setShowCompletionRate] = useState(true);
   const [showStepCount, setShowStepCount] = useState(true);
 
+  // Load persisted settings
+  useEffect(() => {
+    (async () => {
+      const saved = await db.settings.get("dashboard");
+      if (saved) {
+        setShowVisits(saved.showVisits);
+        setShowCompletions(saved.showCompletions);
+        setShowCompletionRate(saved.showCompletionRate);
+        setShowStepCount(saved.showStepCount);
+      }
+    })();
+  }, []);
+
+  // Persist settings whenever they change
+  useEffect(() => {
+    db.settings.put({
+      id: "dashboard",
+      showVisits,
+      showCompletions,
+      showCompletionRate,
+      showStepCount,
+    });
+  }, [showVisits, showCompletions, showCompletionRate, showStepCount]);
+
   useEffect(() => {
     load();
   }, [load]);
