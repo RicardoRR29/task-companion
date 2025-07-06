@@ -45,7 +45,7 @@ export default function Settings() {
         <NavItem
           to="/settings"
           icon={<SettingsIcon className="h-4 w-4" />}
-          label="Perfil"
+          label="Componentes"
           active
         />
         <NavItem
@@ -83,7 +83,7 @@ export default function Settings() {
               <NavItem
                 to="/settings"
                 icon={<SettingsIcon className="h-4 w-4" />}
-                label="Perfil"
+                label="Componentes"
                 active
               />
               <NavItem
