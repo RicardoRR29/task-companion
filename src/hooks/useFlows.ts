@@ -30,10 +30,19 @@ export const useFlows = create<FlowStore>()(
         set({ isLoading: true });
         try {
           const flowsRaw = await db.flows.orderBy("updatedAt").reverse().toArray();
-          const flows = flowsRaw.map((f) => ({
-            ...f,
-            networkGraph: f.networkGraph ?? buildNetworkGraph(f.steps),
-          }));
+          const flows: Flow[] = [];
+
+          for (const f of flowsRaw) {
+            const computed = buildNetworkGraph(f.steps);
+            const networkGraph = f.networkGraph ?? computed;
+            flows.push({ ...f, networkGraph });
+
+            // Persist grafos gerados a partir de versões antigas
+            if (!f.networkGraph) {
+              await db.flows.update(f.id, { networkGraph });
+            }
+          }
+
           set({ flows });
           await logAction("FLOWS_LOADED", "system", { count: flows.length });
         } catch (error) {
