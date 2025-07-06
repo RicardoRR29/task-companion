@@ -1,13 +1,18 @@
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Legend, CartesianGrid } from "recharts";
 import { Card, CardHeader, CardTitle, CardContent } from "../../components/ui/card";
 
+interface StepInfo {
+  id: string;
+  title: string;
+}
+
 interface Props {
   data: any[];
-  stepTitles: string[];
+  steps: StepInfo[];
   colors: string[];
 }
 
-export default function TimelineChart({ data, stepTitles, colors }: Props) {
+export default function TimelineChart({ data, steps, colors }: Props) {
   return (
     <Card>
       <CardHeader>
@@ -35,8 +40,14 @@ export default function TimelineChart({ data, stepTitles, colors }: Props) {
               />
               <Tooltip formatter={(v: number) => `${v}s`} />
               <Legend />
-              {stepTitles.map((title, idx) => (
-                <Bar key={title} dataKey={title} stackId="a" fill={colors[idx % colors.length]} />
+              {steps.map((step, idx) => (
+                <Bar
+                  key={step.id}
+                  dataKey={step.id}
+                  name={step.title}
+                  stackId="a"
+                  fill={colors[idx % colors.length]}
+                />
               ))}
             </BarChart>
           </ResponsiveContainer>

@@ -119,20 +119,20 @@ export default function Analytics() {
     }
   );
 
-  const stepTitles = f.steps.map((s) => s.title);
+  const steps = f.steps.map((s) => ({ id: s.id, title: s.title }));
   const timelineData = recentRuns.map((run, idx) => {
     const row: any = { name: `Sessão #${idx + 1}` };
-    run.path.forEach((p) => (row[p.title] = +(p.timeSpent / 1000).toFixed(1)));
+    run.path.forEach((p) => (row[p.id] = +(p.timeSpent / 1000).toFixed(1)));
     return row;
   });
 
   const allDur = recentRuns
-    .flatMap((r) => r.path.map((p) => p.timeSpent))
+    .flatMap((r) => r.path.map((p) => p.timeSpent / 1000))
     .reduce((mx, v) => (v > mx ? v : mx), 0);
 
   const areaData = recentRuns.map((run, idx) => {
     const row: any = { name: `#${idx + 1}` };
-    run.path.forEach((p) => (row[p.title] = +(p.timeSpent / 1000).toFixed(1)));
+    run.path.forEach((p) => (row[p.id] = +(p.timeSpent / 1000).toFixed(1)));
     return row;
   });
 
@@ -228,13 +228,13 @@ export default function Analytics() {
         <TotalTimeChart data={totalByStepData} />
 
         {/* Timeline Horizontal */}
-        <TimelineChart data={timelineData} stepTitles={stepTitles} colors={COLORS} />
+        <TimelineChart data={timelineData} steps={steps} colors={COLORS} />
 
         {/* Heatmap */}
-        <Heatmap recentRuns={recentRuns} stepTitles={stepTitles} maxDuration={allDur} />
+        <Heatmap recentRuns={recentRuns} steps={steps} maxDuration={allDur} />
 
         {/* Stacked Area Chart */}
-        <StackedAreaChart data={areaData} stepTitles={stepTitles} colors={COLORS} />
+        <StackedAreaChart data={areaData} steps={steps} colors={COLORS} />
       </div>
     </div>
   );
