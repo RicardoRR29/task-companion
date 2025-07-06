@@ -43,7 +43,7 @@ export default function CustomRenderer({ html, css, js }: Props) {
     <iframe
       sandbox="allow-scripts allow-popups"
       srcDoc={srcDoc}
-      style={{ width: "100%", height: "200px", border: "none" }}
+      style={{ width: "100%", height: "100%", border: "none" }}
     />
   );
 }

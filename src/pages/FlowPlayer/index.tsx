@@ -1,7 +1,12 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
-import { useParams, Link, useNavigate, useSearchParams } from "react-router-dom";
+import {
+  useParams,
+  Link,
+  useNavigate,
+  useSearchParams,
+} from "react-router-dom";
 import { Home, AlertCircle } from "lucide-react";
 import { useFlows } from "../../hooks/useFlows";
 import { usePlayer } from "../../hooks/usePlayer";
@@ -24,6 +29,20 @@ export default function FlowPlayer() {
   const [isExiting, setIsExiting] = useState(false);
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
 
+  const flow = flows.find((f) => f.id === id);
+  const {
+    step,
+    index,
+    progress,
+    next,
+    choose,
+    canGoBack,
+    goBack,
+    pause,
+    resume,
+    isPaused,
+  } = usePlayer(flow);
+
   useEffect(() => {
     load();
   }, [load]);
@@ -43,21 +62,6 @@ export default function FlowPlayer() {
     tick();
     return () => clearInterval(interval);
   }, [startTime, pausedTotal, index]);
-
-
-  const flow = flows.find((f) => f.id === id);
-  const {
-    step,
-    index,
-    progress,
-    next,
-    choose,
-    canGoBack,
-    goBack,
-    pause,
-    resume,
-    isPaused,
-  } = usePlayer(flow, sessionParam);
 
   const handleExit = () => {
     setIsExiting(true);
@@ -110,7 +114,11 @@ export default function FlowPlayer() {
 
   if (index === -1) {
     const now = Date.now();
-    const running = now - startTime - pausedTotal - (pauseStart.current ? now - pauseStart.current : 0);
+    const running =
+      now -
+      startTime -
+      pausedTotal -
+      (pauseStart.current ? now - pauseStart.current : 0);
     const elapsedTime = Math.round(running / 1000);
     return (
       <CompletionScreen
@@ -158,4 +166,3 @@ export default function FlowPlayer() {
     </div>
   );
 }
-
