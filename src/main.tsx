@@ -11,7 +11,6 @@ import Dashboard from "./pages/Dashboard";
 import FlowPlayer from "./pages/FlowPlayer";
 import Analytics from "./pages/Analytics";
 import FlowEditor from "./pages/FlowEditor";
-import Settings from "./pages/Settings";
 import Company from "./pages/Company";
 import Audit from "./pages/Audit";
 import ImportExport from "./pages/ImportExport";
@@ -19,7 +18,6 @@ import PathAnalytics from "./pages/PathAnalytics";
 import CustomComponents from "./pages/CustomComponents";
 import { useCompanySettings } from "./hooks/useCompanySettings";
 import { applyBrandColors } from "./utils/theme";
-import SidebarLayout from "./components/Sidebar";
 
 registerSW({ immediate: true });
 

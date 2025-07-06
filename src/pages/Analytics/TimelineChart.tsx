@@ -87,12 +87,14 @@ export default function TimelineChart({ data, steps, colors }: Props) {
                 }}
                 iconSize={isMobile ? 8 : 12}
                 layout={isMobile ? "horizontal" : "horizontal"}
-                payload={steps.map((step, idx) => ({
-                  value: step.title,
-                  type: "rect",
-                  color: colors[idx % colors.length],
-                  payload: { dataKey: step.id },
-                }))}
+                payload={
+                  steps.map((step, idx) => ({
+                    value: step.title,
+                    type: "rect",
+                    color: colors[idx % colors.length],
+                    payload: { dataKey: step.id },
+                  })) as any
+                }
               />
               {steps.map((step, idx) => (
                 <Bar
