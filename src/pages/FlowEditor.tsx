@@ -41,7 +41,7 @@ import {
 import { useToast } from "../hooks/use-toast";
 import { cn } from "../utils/cn";
 import StepForm from "../components/flow/StepForm";
-import type { Step } from "../types/flow";
+import type { Flow, Step } from "../types/flow";
 
 const STEP_TYPES = {
   TEXT: { label: "Texto", color: "bg-blue-100 text-blue-800" },
@@ -83,7 +83,7 @@ export default function FlowEditor() {
         description: "O fluxo foi excluído com sucesso.",
       });
       navigate("/");
-    } catch (error) {
+    } catch {
       toast({
         title: "Erro ao excluir",
         description: "Não foi possível excluir o fluxo. Tente novamente.",
@@ -367,7 +367,7 @@ export default function FlowEditor() {
 }
 
 interface StepsSidebarProps {
-  flow: any;
+  flow: Flow;
   selectedId: string | null;
   onStepSelect: (id: string) => void;
   onAddStep: () => void;
@@ -426,7 +426,7 @@ function StepsSidebar({
               strategy={verticalListSortingStrategy}
             >
               <div className="space-y-2">
-                {flow.steps.map((step: any, index: number) => (
+                {flow.steps.map((step: Step, index: number) => (
                   <StepItem
                     key={step.id}
                     id={step.id}
@@ -448,7 +448,7 @@ function StepsSidebar({
 
 interface StepItemProps {
   id: string;
-  step: any;
+  step: Step;
   index: number;
   selected: boolean;
   onSelect: () => void;

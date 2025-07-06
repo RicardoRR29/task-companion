@@ -5,7 +5,7 @@ import type { LogEntry } from "../types/flow";
 export async function logAction(
   action: string,
   actor: string,
-  payload?: any,
+  payload?: unknown,
   flowId?: string,
   stepId?: string
 ): Promise<void> {

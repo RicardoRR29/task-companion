@@ -17,6 +17,15 @@ import Heatmap from "./Analytics/Heatmap";
 import PauseHeatmap from "./Analytics/PauseHeatmap";
 import StackedAreaChart from "./Analytics/StackedAreaChart";
 
+const COLORS = [
+  "#4e73df",
+  "#1cc88a",
+  "#36b9cc",
+  "#f6c23e",
+  "#e74a3b",
+  "#858796",
+];
+
 interface SessionRun {
   sessionId: string;
   startedAt: number;
@@ -32,14 +41,6 @@ export default function Analytics() {
     { name: string; totalTime: number; color: string }[]
   >([]);
 
-  const COLORS = [
-    "#4e73df",
-    "#1cc88a",
-    "#36b9cc",
-    "#f6c23e",
-    "#e74a3b",
-    "#858796",
-  ];
 
   useEffect(() => {
     load();
@@ -67,7 +68,7 @@ export default function Analytics() {
         }))
       );
     })();
-  }, [flow?.id, stats]);
+  }, [flow, stats]);
 
   useEffect(() => {
     if (!recentRuns.length) {
@@ -114,7 +115,7 @@ export default function Analytics() {
       }));
       setTotalByStepData(arr);
     })();
-  }, [flow?.id]);
+  }, [flow]);
 
   if (!flow) return <p className="p-6">Carregando analytics…</p>;
   if (!stats) return <p className="p-6">Carregando métricas…</p>;
@@ -147,7 +148,9 @@ export default function Analytics() {
 
   const steps = f.steps.map((s) => ({ id: s.id, title: s.title }));
   const timelineData = recentRuns.map((run, idx) => {
-    const row: any = { name: `Sessão #${idx + 1}` };
+    const row: { name: string; [key: string]: number | string } = {
+      name: `Sessão #${idx + 1}`,
+    };
     run.path.forEach((p) => (row[p.id] = +(p.timeSpent / 1000).toFixed(1)));
     return row;
   });
@@ -157,7 +160,9 @@ export default function Analytics() {
     .reduce((mx, v) => (v > mx ? v : mx), 0);
 
   const areaData = recentRuns.map((run, idx) => {
-    const row: any = { name: `#${idx + 1}` };
+    const row: { name: string; [key: string]: number | string } = {
+      name: `#${idx + 1}`,
+    };
     run.path.forEach((p) => (row[p.id] = +(p.timeSpent / 1000).toFixed(1)));
     return row;
   });

@@ -1,4 +1,4 @@
-import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Legend, CartesianGrid } from "recharts";
+import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Legend } from "recharts";
 import { Card, CardHeader, CardTitle, CardContent } from "../../components/ui/card";
 
 interface StepInfo {
@@ -6,8 +6,13 @@ interface StepInfo {
   title: string;
 }
 
+interface ChartRow {
+  name: string;
+  [key: string]: number | string;
+}
+
 interface Props {
-  data: any[];
+  data: ChartRow[];
   steps: StepInfo[];
   colors: string[];
 }
