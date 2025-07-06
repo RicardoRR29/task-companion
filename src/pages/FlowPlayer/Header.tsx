@@ -13,6 +13,7 @@ import { Badge } from "../../components/ui/badge";
 import { Button } from "../../components/ui/button";
 import { Progress } from "../../components/ui/progress";
 import { Clock, Pause, Play, ArrowLeft } from "lucide-react";
+import { useCompanySettings } from "../../hooks/useCompanySettings";
 
 interface Props {
   flowTitle: string;
@@ -37,6 +38,7 @@ export default function PlayerHeader({
   onPauseResume,
   onExit,
 }: Props) {
+  const { logo } = useCompanySettings();
   return (
     <header className="bg-white/80 backdrop-blur-sm border-b sticky top-0 z-10">
       <div className="max-w-4xl mx-auto px-4 py-4">
@@ -67,6 +69,7 @@ export default function PlayerHeader({
             </AlertDialog>
 
             <div className="hidden sm:block">
+              {logo && <img src={logo} alt="Logo" className="h-6 mb-1" />}
               <h1 className="font-semibold text-lg">{flowTitle}</h1>
               <p className="text-sm text-muted-foreground">
                 Passo {current} de {total}

@@ -1,6 +1,6 @@
 /// <reference types="vite-plugin-pwa/client" />
 
-import { StrictMode } from "react";
+import { StrictMode, useEffect } from "react";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
@@ -12,15 +12,23 @@ import FlowPlayer from "./pages/FlowPlayer";
 import Analytics from "./pages/Analytics";
 import FlowEditor from "./pages/FlowEditor";
 import Settings from "./pages/Settings";
+import Company from "./pages/Company";
 import Audit from "./pages/Audit";
 import ImportExport from "./pages/ImportExport";
 import PathAnalytics from "./pages/PathAnalytics";
 import CustomComponents from "./pages/CustomComponents";
+import { useCompanySettings } from "./hooks/useCompanySettings";
+import { applyBrandColors } from "./utils/theme";
 
 registerSW({ immediate: true });
 
-createRoot(document.getElementById("root")!).render(
-  <StrictMode>
+function App() {
+  const { primary, secondary } = useCompanySettings();
+  useEffect(() => {
+    applyBrandColors(primary, secondary);
+  }, [primary, secondary]);
+
+  return (
     <BrowserRouter>
       <Routes>
         {/* Home - lista todos os fluxos */}
@@ -37,6 +45,8 @@ createRoot(document.getElementById("root")!).render(
 
         {/* Configurações do usuário */}
         <Route path="/settings" element={<Settings />} />
+        {/* Configurações da empresa */}
+        <Route path="/company" element={<Company />} />
 
         {/* Log de auditoria */}
         <Route path="/audit" element={<Audit />} />
@@ -54,5 +64,11 @@ createRoot(document.getElementById("root")!).render(
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
+  );
+}
+
+createRoot(document.getElementById("root")!).render(
+  <StrictMode>
+    <App />
   </StrictMode>
 );
