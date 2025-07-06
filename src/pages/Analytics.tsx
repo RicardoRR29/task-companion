@@ -9,6 +9,15 @@ import {
   CardHeader,
   CardTitle,
 } from "../components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../components/ui/select";
+import { Input } from "../components/ui/input";
+import { useAnalyticsConfig } from "../hooks/useAnalyticsConfig";
 import { db } from "../db";
 import type { Session, PathItem, Flow } from "../types/flow";
 import TotalTimeChart from "./Analytics/TotalTimeChart";
@@ -36,6 +45,13 @@ interface SessionRun {
 export default function Analytics() {
   const { id = "" } = useParams<{ id: string }>();
   const { flows, load, update } = useFlows();
+  const {
+    runsToShow,
+    customOptions,
+    setRunsToShow,
+    addCustomOption,
+  } = useAnalyticsConfig();
+  const [newOption, setNewOption] = useState("");
   const [recentRuns, setRecentRuns] = useState<SessionRun[]>([]);
   const [pauseRuns, setPauseRuns] = useState<{ counts: Record<string, number> }[]>([]);
   const [totalByStepData, setTotalByStepData] = useState<
@@ -57,19 +73,19 @@ export default function Analytics() {
         .where("flowId")
         .equals(flow.id)
         .toArray();
-      const lastFive = all
-        .sort((a, b) => b.startedAt - a.startedAt)
-        .slice(0, 5);
+      const sorted = all.sort((a, b) => b.startedAt - a.startedAt);
+      const limit = runsToShow === "all" ? sorted.length : runsToShow;
+      const lastRuns = sorted.slice(0, limit);
 
       setRecentRuns(
-        lastFive.map((s) => ({
+        lastRuns.map((s) => ({
           sessionId: s.id,
           startedAt: s.startedAt,
           path: Array.isArray(s.path) ? s.path : [],
         }))
       );
     })();
-  }, [flow, stats]);
+  }, [flow, stats, runsToShow]);
 
   useEffect(() => {
     if (!recentRuns.length) {
@@ -208,6 +224,55 @@ export default function Analytics() {
                   className="w-full sm:w-auto"
                 >
                   Exportar Relatório
+                </Button>
+              </div>
+            </div>
+            <div className="mt-2 flex flex-col gap-2 sm:mt-4 sm:flex-row sm:items-center sm:justify-end print:hidden">
+              <Select
+                value={runsToShow === "all" ? "all" : String(runsToShow)}
+                onValueChange={(v) =>
+                  setRunsToShow(v === "all" ? "all" : parseInt(v, 10))
+                }
+              >
+                <SelectTrigger className="w-40">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {[5, 10, 20].map((n) => (
+                    <SelectItem key={n} value={String(n)}>
+                      Últimas {n}
+                    </SelectItem>
+                  ))}
+                  <SelectItem value="all">Todas</SelectItem>
+                  {customOptions.map((n) => (
+                    <SelectItem key={`c-${n}`} value={String(n)}>
+                      Últimas {n}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <div className="flex items-center gap-2">
+                <Input
+                  type="number"
+                  min="1"
+                  value={newOption}
+                  onChange={(e) => setNewOption(e.target.value)}
+                  placeholder="Qtd"
+                  className="w-20"
+                />
+                <Button
+                  type="button"
+                  size="sm"
+                  onClick={() => {
+                    const v = parseInt(newOption, 10);
+                    if (!isNaN(v) && v > 0) {
+                      addCustomOption(v);
+                      setRunsToShow(v);
+                      setNewOption("");
+                    }
+                  }}
+                >
+                  Add
                 </Button>
               </div>
             </div>
