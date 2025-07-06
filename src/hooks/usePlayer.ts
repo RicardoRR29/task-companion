@@ -17,6 +17,9 @@ interface PlayerState {
   choose(targetStepId: string): void;
   goBack(): void;
   restart(): void;
+  pause(): void;
+  resume(): void;
+  isPaused: boolean;
 }
 
 export function usePlayer(flow?: Flow): PlayerState {
@@ -27,6 +30,10 @@ export function usePlayer(flow?: Flow): PlayerState {
   const sessionId = useRef<string | null>(null);
   const lastEnterAt = useRef<number>(Date.now());
   const pathRef = useRef<PathItem[]>([]);
+  const pauseStart = useRef<number | null>(null);
+  const pauseAccum = useRef(0);
+  const pauseEventId = useRef<string | null>(null);
+  const [isPaused, setIsPaused] = useState(false);
 
   // Inicializar sessão
   useEffect(() => {
@@ -100,10 +107,45 @@ export function usePlayer(flow?: Flow): PlayerState {
     [flow]
   );
 
+  const pause = useCallback(() => {
+    if (!flow || isPaused) return;
+    const currentStep = flow.steps[index];
+    if (!currentStep) return;
+    pauseStart.current = Date.now();
+    setIsPaused(true);
+    if (sessionId.current) {
+      const id = nanoid();
+      pauseEventId.current = id;
+      db.pauseEvents.add({
+        id,
+        sessionId: sessionId.current,
+        stepId: currentStep.id,
+        pausedAt: pauseStart.current,
+      });
+    }
+  }, [flow, isPaused, index]);
+
+  const resume = useCallback(() => {
+    if (!flow || !isPaused || pauseStart.current === null) return;
+    const delta = Date.now() - pauseStart.current;
+    pauseAccum.current += delta;
+    lastEnterAt.current += delta;
+    setIsPaused(false);
+    if (pauseEventId.current) {
+      db.pauseEvents.update(pauseEventId.current, { resumedAt: Date.now() });
+    }
+    pauseStart.current = null;
+    pauseEventId.current = null;
+  }, [flow, isPaused]);
+
   // Navegação
   const goToIndex = useCallback(
     (newIdx: number, addToHistory = true) => {
       if (!flow) return;
+
+      if (isPaused) {
+        resume();
+      }
 
       const prev = flow.steps[index];
       const next = flow.steps[newIdx] ?? null;
@@ -174,6 +216,10 @@ export function usePlayer(flow?: Flow): PlayerState {
     setHistory([0]);
     pathRef.current = [];
     lastEnterAt.current = Date.now();
+    pauseAccum.current = 0;
+    pauseStart.current = null;
+    pauseEventId.current = null;
+    setIsPaused(false);
 
     if (sessionId.current && flow) {
       db.sessions.update(sessionId.current, {
@@ -205,6 +251,9 @@ export function usePlayer(flow?: Flow): PlayerState {
       choose,
       goBack,
       restart,
+      pause,
+      resume,
+      isPaused,
     };
   }
 
@@ -223,5 +272,8 @@ export function usePlayer(flow?: Flow): PlayerState {
     choose,
     goBack,
     restart,
+    pause,
+    resume,
+    isPaused,
   };
 }
