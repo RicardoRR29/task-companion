@@ -72,7 +72,7 @@ export default function Dashboard() {
     async function fetchProgress() {
       const sessions = await db.sessions
         .where("isPaused")
-        .equals(1)
+        .equals(true)
         .and((s) => !s.finishedAt)
         .toArray();
       setProgressSessions(sessions);
