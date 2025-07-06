@@ -6,11 +6,6 @@ import { useEffect, useState, useRef } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import {
   Plus,
-  Copy,
-  Play,
-  BarChart3,
-  Edit,
-  MoreHorizontal,
   Search,
   Grid3X3,
   List,
@@ -25,8 +20,7 @@ import {
 import { useFlows } from "../hooks/useFlows";
 import { useToast } from "../hooks/use-toast";
 import { Button } from "../components/ui/button";
-import { Card, CardContent, CardHeader } from "../components/ui/card";
-import { Badge } from "../components/ui/badge";
+import { Card, CardContent } from "../components/ui/card";
 import type { Flow, Session } from "../types/flow";
 import {
   Tabs,
@@ -36,13 +30,11 @@ import {
 } from "../components/ui/tabs";
 import { db } from "../db";
 import { Input } from "../components/ui/input";
-import { Skeleton } from "../components/ui/skeleton";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "../components/ui/dropdown-menu";
+import { FlowCard } from "../components/dashboard/FlowCard";
+import { ProgressCard } from "../components/dashboard/ProgressCard";
+import { EmptyState } from "../components/dashboard/EmptyState";
+import { EmptySearchState } from "../components/dashboard/EmptySearchState";
+import { DashboardSkeleton } from "../components/dashboard/DashboardSkeleton";
 import {
   AlertDialog,
   AlertDialogAction,

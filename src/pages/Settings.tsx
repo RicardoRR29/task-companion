@@ -122,6 +122,13 @@ export default function Settings() {
             </Button>
           </div>
         </section>
+
+        <section className="pt-4 border-t">
+          <h2 className="font-semibold mb-3">Componentes personalizados</h2>
+          <Button asChild size="sm" variant="outline">
+            <Link to="/components">Gerenciar componentes</Link>
+          </Button>
+        </section>
       </main>
     </div>
   );
