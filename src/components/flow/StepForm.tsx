@@ -44,6 +44,7 @@ interface Props {
   step: Step;
   steps: Step[];
   onChange: (step: Step) => void;
+  onDelete: () => void;
 }
 
 const STEP_TYPES = [
@@ -71,7 +72,7 @@ const STEP_TYPES = [
   },
 ] as const;
 
-export default function StepForm({ step, steps, onChange }: Props) {
+export default function StepForm({ step, steps, onChange, onDelete }: Props) {
   const [isPreviewMode, setIsPreviewMode] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
@@ -209,6 +210,10 @@ export default function StepForm({ step, steps, onChange }: Props) {
           >
             <Eye className="mr-2 h-4 w-4" />
             Visualizar
+          </Button>
+          <Button variant="destructive" size="sm" onClick={onDelete}>
+            <Trash2 className="mr-2 h-4 w-4" />
+            Excluir
           </Button>
         </div>
       </div>
