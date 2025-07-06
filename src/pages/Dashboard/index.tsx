@@ -1,5 +1,3 @@
-"use client";
-
 import type React from "react";
 import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
@@ -7,7 +5,12 @@ import { useFlows } from "../../hooks/useFlows";
 import { useToast } from "../../hooks/use-toast";
 import { Card, CardContent } from "../../components/ui/card";
 import type { Flow, Session } from "../../types/flow";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "../../components/ui/tabs";
+import {
+  Tabs,
+  TabsList,
+  TabsTrigger,
+  TabsContent,
+} from "../../components/ui/tabs";
 import { db } from "../../db";
 import { FlowCard } from "../../components/dashboard/FlowCard";
 import { ProgressCard } from "../../components/dashboard/ProgressCard";
@@ -22,7 +25,16 @@ import DashboardStats from "./Stats";
 type ViewMode = "grid" | "list";
 
 export default function Dashboard() {
-  const { flows, load, create, clone, exportFlows, importFlow, removeMany, isLoading } = useFlows();
+  const {
+    flows,
+    load,
+    create,
+    clone,
+    exportFlows,
+    importFlow,
+    removeMany,
+    isLoading,
+  } = useFlows();
   const { toast } = useToast();
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
@@ -223,7 +235,9 @@ export default function Dashboard() {
                       setIsExporting(true);
                       try {
                         const data = await exportFlows([flow.id]);
-                        const blob = new Blob([data], { type: "application/json" });
+                        const blob = new Blob([data], {
+                          type: "application/json",
+                        });
                         const url = URL.createObjectURL(blob);
                         const a = document.createElement("a");
                         a.href = url;
@@ -279,4 +293,3 @@ export default function Dashboard() {
     </div>
   );
 }
-

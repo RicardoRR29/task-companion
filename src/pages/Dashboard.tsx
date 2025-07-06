@@ -1,5 +1,3 @@
-"use client";
-
 import { DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import type React from "react";
 import { useEffect, useState, useRef } from "react";
@@ -240,10 +238,10 @@ export default function Dashboard() {
   }, [load]);
 
   useEffect(() => {
-      async function fetchProgress() {
-        const sessions = await db.sessions
-          .filter((s) => s.isPaused && !s.finishedAt)
-          .toArray();
+    async function fetchProgress() {
+      const sessions = await db.sessions
+        .filter((s) => s.isPaused && !s.finishedAt)
+        .toArray();
       setProgressSessions(sessions);
     }
     fetchProgress();

@@ -1,5 +1,3 @@
-"use client";
-
 import { useEffect, useState } from "react";
 import { Trash2, Pencil, Plus, Code, Palette, Zap } from "lucide-react";
 import { useCustomComponents } from "../hooks/useCustomComponents";

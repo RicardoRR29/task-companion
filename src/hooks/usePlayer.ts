@@ -1,5 +1,3 @@
-"use client";
-
 import { useEffect, useState, useRef, useCallback } from "react";
 import { nanoid } from "nanoid";
 import type { Flow, Step, PathItem, Session } from "../types/flow";
@@ -249,7 +247,9 @@ export function usePlayer(flow?: Flow, loadSessionId?: string): PlayerState {
     const current = flow.steps[index];
     if (!current) return;
     if (current.nextStepId !== undefined) {
-      const targetIdx = flow.steps.findIndex((s) => s.id === current.nextStepId);
+      const targetIdx = flow.steps.findIndex(
+        (s) => s.id === current.nextStepId
+      );
       const newIdx = targetIdx >= 0 ? targetIdx : -1;
       goToIndex(newIdx);
     } else {

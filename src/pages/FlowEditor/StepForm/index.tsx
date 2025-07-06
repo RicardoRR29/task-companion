@@ -1,5 +1,3 @@
-"use client";
-
 import { useState, useCallback, useEffect } from "react";
 import {
   Eye,
@@ -106,7 +104,10 @@ export default function StepForm({ step, steps, onChange, onDelete }: Props) {
     const errors: string[] = [];
     if (!current.title.trim()) errors.push("Título é obrigatório");
     if (!current.content.trim()) errors.push("Conteúdo é obrigatório");
-    if (current.type === "QUESTION" && (!current.options || current.options.length === 0)) {
+    if (
+      current.type === "QUESTION" &&
+      (!current.options || current.options.length === 0)
+    ) {
       errors.push("Perguntas devem ter pelo menos uma opção");
     }
     if (current.type === "WEBHOOK" && !current.webhookUrl) {
@@ -118,12 +119,15 @@ export default function StepForm({ step, steps, onChange, onDelete }: Props) {
     return errors;
   }, []);
 
-  const setField = useCallback(<K extends keyof Step>(key: K, value: Step[K]) => {
-    const updated = { ...step, [key]: value };
-    onChange(updated);
-    setHasUnsavedChanges(true);
-    setValidationErrors(validateStep(updated));
-  }, [step, onChange, validateStep]);
+  const setField = useCallback(
+    <K extends keyof Step>(key: K, value: Step[K]) => {
+      const updated = { ...step, [key]: value };
+      onChange(updated);
+      setHasUnsavedChanges(true);
+      setValidationErrors(validateStep(updated));
+    },
+    [step, onChange, validateStep]
+  );
 
   useEffect(() => {
     if (step.type === "QUESTION" && step.nextStepId !== undefined) {
@@ -134,7 +138,9 @@ export default function StepForm({ step, steps, onChange, onDelete }: Props) {
   const currentStepType = STEP_TYPES.find((t) => t.value === step.type);
 
   if (isPreviewMode) {
-    return <StepPreview step={step} onExitPreview={() => setIsPreviewMode(false)} />;
+    return (
+      <StepPreview step={step} onExitPreview={() => setIsPreviewMode(false)} />
+    );
   }
 
   return (
@@ -160,7 +166,11 @@ export default function StepForm({ step, steps, onChange, onDelete }: Props) {
               <Save className="h-3 w-3" /> Salvando...
             </div>
           )}
-          <Button variant="outline" size="sm" onClick={() => setIsPreviewMode(true)}>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setIsPreviewMode(true)}
+          >
             <Eye className="mr-2 h-4 w-4" /> Visualizar
           </Button>
           <Button variant="destructive" size="sm" onClick={onDelete}>
@@ -214,12 +224,18 @@ export default function StepForm({ step, steps, onChange, onDelete }: Props) {
                 </SelectTrigger>
                 <SelectContent>
                   {STEP_TYPES.map((t) => (
-                    <SelectItem key={t.value} value={t.value} disabled={t.disabled}>
+                    <SelectItem
+                      key={t.value}
+                      value={t.value}
+                      disabled={t.disabled}
+                    >
                       <div className="flex items-center gap-2">
                         <t.icon className="h-4 w-4" />
                         <div>
                           <div className="font-medium">{t.label}</div>
-                          <div className="text-xs text-muted-foreground">{t.description}</div>
+                          <div className="text-xs text-muted-foreground">
+                            {t.description}
+                          </div>
                         </div>
                       </div>
                     </SelectItem>
@@ -245,48 +261,51 @@ export default function StepForm({ step, steps, onChange, onDelete }: Props) {
                   "border-destructive focus-visible:ring-destructive"
               )}
             />
-          <p className="text-xs text-muted-foreground">
-            {step.content.length} caracteres • Suporte a Markdown
-          </p>
-        </div>
-
-        {step.type !== "QUESTION" && (
-          <div className="space-y-2">
-            <Label className="text-sm font-medium">Próximo passo</Label>
-            <Select
-              value={
-                step.nextStepId === undefined
-                  ? "__DEFAULT__"
-                  : step.nextStepId === ""
-                  ? "__END__"
-                  : step.nextStepId
-              }
-              onValueChange={(val) => {
-                if (val === "__DEFAULT__") {
-                  setField("nextStepId", undefined as unknown as Step["nextStepId"]);
-                } else if (val === "__END__") {
-                  setField("nextStepId", "" as Step["nextStepId"]);
-                } else {
-                  setField("nextStepId", val as Step["nextStepId"]);
-                }
-              }}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Sequencial" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="__DEFAULT__">Sequencial</SelectItem>
-                <SelectItem value="__END__">Finalizar</SelectItem>
-                {steps.map((s) => (
-                  <SelectItem key={s.id} value={s.id}>
-                    {s.order + 1}. {s.title}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <p className="text-xs text-muted-foreground">
+              {step.content.length} caracteres • Suporte a Markdown
+            </p>
           </div>
-        )}
-      </div>
+
+          {step.type !== "QUESTION" && (
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">Próximo passo</Label>
+              <Select
+                value={
+                  step.nextStepId === undefined
+                    ? "__DEFAULT__"
+                    : step.nextStepId === ""
+                    ? "__END__"
+                    : step.nextStepId
+                }
+                onValueChange={(val) => {
+                  if (val === "__DEFAULT__") {
+                    setField(
+                      "nextStepId",
+                      undefined as unknown as Step["nextStepId"]
+                    );
+                  } else if (val === "__END__") {
+                    setField("nextStepId", "" as Step["nextStepId"]);
+                  } else {
+                    setField("nextStepId", val as Step["nextStepId"]);
+                  }
+                }}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Sequencial" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="__DEFAULT__">Sequencial</SelectItem>
+                  <SelectItem value="__END__">Finalizar</SelectItem>
+                  {steps.map((s) => (
+                    <SelectItem key={s.id} value={s.id}>
+                      {s.order + 1}. {s.title}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+        </div>
 
         {step.type === "TEXT" && <TextStepForm step={step} />}
         {step.type === "QUESTION" && (
@@ -327,9 +346,12 @@ function StepPreview({ step, onExitPreview }: StepPreviewProps) {
       <Card className="flex-1">
         <CardContent className="p-8 lg:p-12">
           <div className="max-w-2xl mx-auto">
-            <h1 className="text-3xl font-bold mb-8 text-center">{step.title}</h1>
-            {step.type === "MEDIA" && step.mediaUrl && (
-              step.mediaType === "video" ? (
+            <h1 className="text-3xl font-bold mb-8 text-center">
+              {step.title}
+            </h1>
+            {step.type === "MEDIA" &&
+              step.mediaUrl &&
+              (step.mediaType === "video" ? (
                 <video
                   src={step.mediaUrl}
                   controls
@@ -348,44 +370,49 @@ function StepPreview({ step, onExitPreview }: StepPreviewProps) {
                   alt=""
                   className="mx-auto mb-8 max-h-96"
                 />
-              )
-            )}
+              ))}
             {step.type === "CUSTOM" && custom ? (
-              <CustomRenderer html={custom.html} css={custom.css} js={custom.js} />
+              <CustomRenderer
+                html={custom.html}
+                css={custom.css}
+                js={custom.js}
+              />
             ) : (
               <Markdown
                 content={step.content}
                 className="prose prose-gray max-w-none mb-8 text-center"
               />
             )}
-            {step.type === "QUESTION" && step.options && step.options.length > 0 && (
-              <div className="space-y-4">
-                <h3 className="text-lg font-medium text-center mb-6">
-                  Escolha uma opção:
-                </h3>
-                <div className="space-y-3">
-                  {step.options.map((option, index) => (
-                    <Button
-                      key={option.id}
-                      variant="outline"
-                      size="lg"
-                      className="w-full justify-start text-left h-auto p-4 bg-white hover:bg-gray-50"
-                      disabled
-                    >
-                      <span className="mr-3 text-muted-foreground font-medium">
-                        {index + 1}.
-                      </span>
-                      <span
-                        className="text-base"
-                        dangerouslySetInnerHTML={{
-                          __html: parseInlineMarkdown(option.label),
-                        }}
-                      />
-                    </Button>
-                  ))}
+            {step.type === "QUESTION" &&
+              step.options &&
+              step.options.length > 0 && (
+                <div className="space-y-4">
+                  <h3 className="text-lg font-medium text-center mb-6">
+                    Escolha uma opção:
+                  </h3>
+                  <div className="space-y-3">
+                    {step.options.map((option, index) => (
+                      <Button
+                        key={option.id}
+                        variant="outline"
+                        size="lg"
+                        className="w-full justify-start text-left h-auto p-4 bg-white hover:bg-gray-50"
+                        disabled
+                      >
+                        <span className="mr-3 text-muted-foreground font-medium">
+                          {index + 1}.
+                        </span>
+                        <span
+                          className="text-base"
+                          dangerouslySetInnerHTML={{
+                            __html: parseInlineMarkdown(option.label),
+                          }}
+                        />
+                      </Button>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
           </div>
         </CardContent>
       </Card>

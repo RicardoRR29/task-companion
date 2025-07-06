@@ -1,5 +1,3 @@
-"use client";
-
 import { useEffect, useState } from "react";
 import {
   Clock,
@@ -248,8 +246,8 @@ export default function AuditTrail({ flowId, limit = 100 }: Props) {
               {/* Timeline line */}
               <div className="absolute left-6 top-0 bottom-0 w-px bg-border" />
 
-                <div className="space-y-6">
-                  {filteredLogs.map((log) => {
+              <div className="space-y-6">
+                {filteredLogs.map((log) => {
                   const Icon =
                     ACTION_ICONS[log.action as keyof typeof ACTION_ICONS] ||
                     Activity;
