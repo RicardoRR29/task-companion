@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
-import { useParams, Link, useNavigate } from "react-router-dom";
+import { useParams, Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Home, AlertCircle } from "lucide-react";
 import { useFlows } from "../../hooks/useFlows";
 import { usePlayer } from "../../hooks/usePlayer";
@@ -14,6 +14,8 @@ import PlayerSkeleton from "./Skeleton";
 
 export default function FlowPlayer() {
   const { id = "" } = useParams<{ id: string }>();
+  const [params] = useSearchParams();
+  const sessionParam = params.get("session") || undefined;
   const navigate = useNavigate();
   const { flows, load, isLoading } = useFlows();
   const [startTime] = useState(Date.now());
@@ -55,7 +57,7 @@ export default function FlowPlayer() {
     pause,
     resume,
     isPaused,
-  } = usePlayer(flow);
+  } = usePlayer(flow, sessionParam);
 
   const handleExit = () => {
     setIsExiting(true);
@@ -72,6 +74,7 @@ export default function FlowPlayer() {
     } else {
       pause();
       pauseStart.current = Date.now();
+      navigate("/");
     }
   };
 

@@ -22,7 +22,9 @@ import { useToast } from "../hooks/use-toast";
 import { Button } from "../components/ui/button";
 import { Card, CardContent, CardHeader } from "../components/ui/card";
 import { Badge } from "../components/ui/badge";
-import type { Flow } from "../types/flow";
+import type { Flow, Session } from "../types/flow";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "../components/ui/tabs";
+import { db } from "../db";
 import { Input } from "../components/ui/input";
 import { Skeleton } from "../components/ui/skeleton";
 import {
@@ -58,11 +60,25 @@ export default function Dashboard() {
   const [isExporting, setIsExporting] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [tab, setTab] = useState("all");
+  const [progressSessions, setProgressSessions] = useState<Session[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     load();
   }, [load]);
+
+  useEffect(() => {
+    async function fetchProgress() {
+      const sessions = await db.sessions
+        .where("isPaused")
+        .equals(1)
+        .and((s) => !s.finishedAt)
+        .toArray();
+      setProgressSessions(sessions);
+    }
+    fetchProgress();
+  }, [flows]);
 
   const filteredFlows = flows.filter((flow) =>
     flow.title.toLowerCase().includes(searchQuery.toLowerCase())
@@ -294,97 +310,156 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Content */}
-        {filteredFlows.length === 0 ? (
-          searchQuery ? (
-            <EmptySearchState
-              searchQuery={searchQuery}
-              onClearSearch={() => setSearchQuery("")}
-            />
-          ) : (
-            <EmptyState onCreateFlow={handleNew} isCreating={isCreating} />
-          )
-        ) : (
-          <div
-            className={cn(
-              "gap-6",
-              viewMode === "grid"
-                ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
-                : "flex flex-col space-y-4"
+        <Tabs value={tab} onValueChange={setTab} className="mt-6">
+          <TabsList>
+            <TabsTrigger value="all">Todos</TabsTrigger>
+            <TabsTrigger value="progress">Em Progresso</TabsTrigger>
+          </TabsList>
+          <TabsContent value="all">
+            {filteredFlows.length === 0 ? (
+              searchQuery ? (
+                <EmptySearchState
+                  searchQuery={searchQuery}
+                  onClearSearch={() => setSearchQuery("")}
+                />
+              ) : (
+                <EmptyState onCreateFlow={handleNew} isCreating={isCreating} />
+              )
+            ) : (
+              <div
+                className={cn(
+                  "gap-6",
+                  viewMode === "grid"
+                    ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+                    : "flex flex-col space-y-4"
+                )}
+              >
+                {filteredFlows.map((flow) => (
+                  <FlowCard
+                    key={flow.id}
+                    flow={flow}
+                    viewMode={viewMode}
+                    onClone={() => handleClone(flow.id)}
+                    onEdit={() => navigate(`/flows/${flow.id}/edit`)}
+                    onPlay={() => navigate(`/flows/${flow.id}/play`)}
+                    onAnalytics={() => navigate(`/flows/${flow.id}/analytics`)}
+                    onExport={async () => {
+                      setIsExporting(true);
+                      try {
+                        const data = await exportFlows([flow.id]);
+                        const blob = new Blob([data], { type: "application/json" });
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement("a");
+                        a.href = url;
+                        a.download = `flow-${flow.id}.json`;
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        URL.revokeObjectURL(url);
+                      } catch (err) {
+                        console.error("Erro ao exportar fluxo:", err);
+                      } finally {
+                        setIsExporting(false);
+                      }
+                    }}
+                    isSelecting={isSelecting}
+                    isSelected={selectedIds.includes(flow.id)}
+                    onSelect={() => toggleSelect(flow.id)}
+                  />
+                ))}
+              </div>
             )}
-          >
-            {filteredFlows.map((flow) => (
-              <FlowCard
-                key={flow.id}
-                flow={flow}
-                viewMode={viewMode}
-                onClone={() => handleClone(flow.id)}
-                onEdit={() => navigate(`/flows/${flow.id}/edit`)}
-                onPlay={() => navigate(`/flows/${flow.id}/play`)}
-                onAnalytics={() => navigate(`/flows/${flow.id}/analytics`)}
-                onExport={async () => {
-                  setIsExporting(true);
-                  try {
-                    const data = await exportFlows([flow.id]);
-                    const blob = new Blob([data], { type: "application/json" });
-                    const url = URL.createObjectURL(blob);
-                    const a = document.createElement("a");
-                    a.href = url;
-                    a.download = `flow-${flow.id}.json`;
-                    document.body.appendChild(a);
-                    a.click();
-                    document.body.removeChild(a);
-                    URL.revokeObjectURL(url);
-                  } catch (err) {
-                    console.error("Erro ao exportar fluxo:", err);
-                  } finally {
-                    setIsExporting(false);
-                  }
-                }}
-                isSelecting={isSelecting}
-                isSelected={selectedIds.includes(flow.id)}
-                onSelect={() => toggleSelect(flow.id)}
-              />
-            ))}
-          </div>
-        )}
 
-        {/* Stats */}
-        {flows.length > 0 && (
-          <div className="mt-12 pt-8 border-t">
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-              <div className="text-center">
-                <div className="text-2xl font-bold text-primary">
-                  {flows.length}
-                </div>
-                <div className="text-sm text-muted-foreground">
-                  Total de Fluxos
+            {flows.length > 0 && (
+              <div className="mt-12 pt-8 border-t">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-primary">
+                      {flows.length}
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      Total de Fluxos
+                    </div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-primary">
+                      {flows.reduce((acc, flow) => acc + (flow.visits || 0), 0)}
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      Total de Visitas
+                    </div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-primary">
+                      {flows.reduce(
+                        (acc, flow) => acc + (flow.completions || 0),
+                        0
+                      )}
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      Total de Conclusões
+                    </div>
+                  </div>
                 </div>
               </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-primary">
-                  {flows.reduce((acc, flow) => acc + (flow.visits || 0), 0)}
-                </div>
-                <div className="text-sm text-muted-foreground">
-                  Total de Visitas
-                </div>
+            )}
+          </TabsContent>
+          <TabsContent value="progress">
+            {progressSessions.length === 0 ? (
+              <Card>
+                <CardContent className="py-8 text-center">
+                  Nenhum fluxo em progresso
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="space-y-4">
+                {progressSessions.map((s) => {
+                  const flow = flows.find((f) => f.id === s.flowId);
+                  if (!flow) return null;
+                  return (
+                    <ProgressCard
+                      key={s.id}
+                      session={s}
+                      flow={flow}
+                      onResume={() =>
+                        navigate(`/flows/${flow.id}/play?session=${s.id}`)
+                      }
+                    />
+                  );
+                })}
               </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-primary">
-                  {flows.reduce(
-                    (acc, flow) => acc + (flow.completions || 0),
-                    0
-                  )}
-                </div>
-                <div className="text-sm text-muted-foreground">
-                  Total de Conclusões
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+            )}
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
+  );
+}
+
+interface ProgressCardProps {
+  session: Session;
+  flow: Flow;
+  onResume: () => void;
+}
+
+function ProgressCard({ session, flow, onResume }: ProgressCardProps) {
+  const current = (session.currentIndex ?? 0) + 1;
+  const total = flow.steps.length;
+  const pct = Math.round((current / total) * 100);
+  return (
+    <Card>
+      <CardContent className="flex items-center justify-between p-4">
+        <div>
+          <h3 className="font-semibold">{flow.title}</h3>
+          <p className="text-sm text-muted-foreground">
+            Passo {current} de {total} ({pct}%)
+          </p>
+        </div>
+        <Button size="sm" onClick={onResume}>
+          <Play className="mr-1 h-4 w-4" /> Retomar
+        </Button>
+      </CardContent>
+    </Card>
   );
 }
 

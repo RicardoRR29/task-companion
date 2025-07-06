@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef, useCallback } from "react";
 import { nanoid } from "nanoid";
-import type { Flow, Step, PathItem } from "../types/flow";
+import type { Flow, Step, PathItem, Session } from "../types/flow";
 import { db } from "../db";
 import { useFlows } from "./useFlows";
 import { logAction } from "../utils/audit";
@@ -22,7 +22,7 @@ interface PlayerState {
   isPaused: boolean;
 }
 
-export function usePlayer(flow?: Flow): PlayerState {
+export function usePlayer(flow?: Flow, loadSessionId?: string): PlayerState {
   const { update } = useFlows();
   const [index, setIndex] = useState(0);
   const [history, setHistory] = useState<number[]>([]);
@@ -40,35 +40,62 @@ export function usePlayer(flow?: Flow): PlayerState {
     if (!flow) return;
     if (sessionId.current) return;
 
-    const sid = nanoid();
-    sessionId.current = sid;
+    (async () => {
+      let existing: Session | undefined;
+      if (loadSessionId) {
+        existing = await db.sessions.get(loadSessionId);
+      } else {
+        const arr = await db.sessions
+          .where("flowId")
+          .equals(flow.id)
+          .filter((s) => !s.finishedAt && s.isPaused)
+          .toArray();
+        if (arr.length) {
+          existing = arr.sort((a, b) => b.startedAt - a.startedAt)[0];
+        }
+      }
 
-    // Incrementa visits
-    update({ ...flow, visits: (flow.visits ?? 0) + 1 });
-    pathRef.current = [];
-    setHistory([0]);
+      if (existing) {
+        sessionId.current = existing.id;
+        pathRef.current = Array.isArray(existing.path) ? existing.path : [];
+        setIndex(existing.currentIndex ?? 0);
+        setHistory(existing.history ?? [existing.currentIndex ?? 0]);
+        setIsPaused(existing.isPaused ?? false);
+      } else {
+        const sid = nanoid();
+        sessionId.current = sid;
 
-    // Cria sessão
-    db.sessions.put({
-      id: sid,
-      flowId: flow.id,
-      startedAt: Date.now(),
-      path: [],
-    });
+        // Incrementa visits
+        update({ ...flow, visits: (flow.visits ?? 0) + 1 });
+        pathRef.current = [];
+        setHistory([0]);
 
-    // Log da ação
-    logAction(
-      "SESSION_STARTED",
-      "user",
-      {
-        sessionId: sid,
-        flowTitle: flow.title,
-      },
-      flow.id
-    );
+        // Cria sessão
+        db.sessions.put({
+          id: sid,
+          flowId: flow.id,
+          startedAt: Date.now(),
+          path: [],
+          currentIndex: 0,
+          history: [0],
+          isPaused: false,
+        });
 
-    lastEnterAt.current = Date.now();
-  }, [flow, update]);
+        // Log da ação
+        logAction(
+          "SESSION_STARTED",
+          "user",
+          {
+            sessionId: sid,
+            flowTitle: flow.title,
+          },
+          flow.id
+        );
+      }
+
+      lastEnterAt.current = Date.now();
+    })();
+  }, [flow, update, loadSessionId]);
 
   // Registrar saída e entrada de passos
   const registerLeaveEnter = useCallback(
@@ -122,20 +149,43 @@ export function usePlayer(flow?: Flow): PlayerState {
         stepId: currentStep.id,
         pausedAt: pauseStart.current,
       });
+      db.sessions.update(sessionId.current, {
+        isPaused: true,
+        currentIndex: index,
+        history,
+      });
     }
-  }, [flow, isPaused, index]);
+  }, [flow, isPaused, index, history]);
 
-  const resume = useCallback(() => {
-    if (!flow || !isPaused || pauseStart.current === null) return;
-    const delta = Date.now() - pauseStart.current;
+  const resume = useCallback(async () => {
+    if (!flow || !isPaused) return;
+
+    let pausedAt = pauseStart.current;
+    let eventId = pauseEventId.current;
+    if ((!pausedAt || !eventId) && sessionId.current) {
+      const last = await db.pauseEvents
+        .where("sessionId")
+        .equals(sessionId.current)
+        .reverse()
+        .filter((e) => !e.resumedAt)
+        .first();
+      pausedAt = last?.pausedAt ?? pausedAt;
+      eventId = last?.id ?? eventId;
+    }
+    if (pausedAt == null) return;
+
+    const delta = Date.now() - pausedAt;
     pauseAccum.current += delta;
     lastEnterAt.current += delta;
     setIsPaused(false);
-    if (pauseEventId.current) {
-      db.pauseEvents.update(pauseEventId.current, { resumedAt: Date.now() });
+    if (eventId) {
+      await db.pauseEvents.update(eventId, { resumedAt: Date.now() });
     }
     pauseStart.current = null;
     pauseEventId.current = null;
+    if (sessionId.current) {
+      db.sessions.update(sessionId.current, { isPaused: false });
+    }
   }, [flow, isPaused]);
 
   // Navegação
@@ -154,17 +204,26 @@ export function usePlayer(flow?: Flow): PlayerState {
         registerLeaveEnter(prev.id, next?.id ?? null);
       }
 
-      setIndex(newIdx);
+      const newHistory = addToHistory
+        ? [...history, newIdx]
+        : [...history.slice(0, -1), newIdx];
 
-      if (addToHistory) {
-        setHistory((prev) => [...prev, newIdx]);
+      setIndex(newIdx);
+      setHistory(newHistory);
+
+      if (sessionId.current) {
+        const upd: any = { currentIndex: newIdx, history: newHistory };
+        if (newIdx === -1) {
+          upd.finishedAt = Date.now();
+          upd.isPaused = false;
+        }
+        db.sessions.update(sessionId.current, upd);
       }
 
       if (newIdx === -1) {
         // Conclusão
         update({ ...flow, completions: (flow.completions ?? 0) + 1 });
         if (sessionId.current) {
-          db.sessions.update(sessionId.current, { finishedAt: Date.now() });
           logAction(
             "SESSION_COMPLETED",
             "user",
@@ -226,6 +285,9 @@ export function usePlayer(flow?: Flow): PlayerState {
         path: [],
         startedAt: Date.now(),
         finishedAt: undefined,
+        currentIndex: 0,
+        history: [0],
+        isPaused: false,
       });
 
       logAction(

@@ -86,6 +86,9 @@ export interface Session {
   startedAt: number;
   finishedAt?: number;
   path: PathItem[];
+  currentIndex?: number;
+  history?: number[];
+  isPaused?: boolean;
 }
 
 /**
