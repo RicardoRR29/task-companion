@@ -1,6 +1,6 @@
 import Dexie from "dexie";
 import type { Table } from "dexie";
-import type { Flow, LogEntry, Session, StepEvent, PauseEvent } from "../types/flow";
+import type { Flow, LogEntry, Session, StepEvent, PauseEvent, CustomComponent } from "../types/flow";
 
 class TacoDB extends Dexie {
   flows!: Table<Flow, string>;
@@ -8,6 +8,7 @@ class TacoDB extends Dexie {
   stepEvents!: Table<StepEvent, string>;
   pauseEvents!: Table<PauseEvent, string>;
   logs!: Table<LogEntry, string>;
+  customComponents!: Table<CustomComponent, string>;
 
   constructor() {
     super("taco");
@@ -18,6 +19,15 @@ class TacoDB extends Dexie {
       stepEvents: "id, sessionId, stepId, enterAt, leaveAt",
       pauseEvents: "id, sessionId, stepId, pausedAt, resumedAt",
       logs: "id, ts, actor, action, flowId, stepId",
+    });
+
+    this.version(2).stores({
+      flows: "id, title, status, updatedAt",
+      sessions: "id, flowId, startedAt, finishedAt",
+      stepEvents: "id, sessionId, stepId, enterAt, leaveAt",
+      pauseEvents: "id, sessionId, stepId, pausedAt, resumedAt",
+      logs: "id, ts, actor, action, flowId, stepId",
+      customComponents: "id, name",
     });
   }
 }

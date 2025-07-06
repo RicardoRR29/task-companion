@@ -4,6 +4,8 @@ import { Button } from "../../components/ui/button";
 import { Card, CardContent } from "../../components/ui/card";
 import { Badge } from "../../components/ui/badge";
 import { cn } from "../../utils/cn";
+import CustomRenderer from "../../components/CustomRenderer";
+import { useCustomComponents } from "../../hooks/useCustomComponents";
 
 interface Props {
   step: Step;
@@ -24,6 +26,10 @@ export default function StepCard({
   goBack,
   canGoBack,
 }: Props) {
+  const { components } = useCustomComponents();
+  const custom = step.componentId
+    ? components.find((c) => c.id === step.componentId)
+    : null;
   return (
     <Card className="shadow-xl border-0 bg-white/95 backdrop-blur-sm">
       <CardContent className="p-8 sm:p-12">
@@ -42,11 +48,15 @@ export default function StepCard({
 
           {/* Step Content */}
           <div className="text-center">
-            <div className="prose prose-lg max-w-none text-muted-foreground">
-              <p className="whitespace-pre-wrap leading-relaxed">
-                {step.content}
-              </p>
-            </div>
+            {step.type === "CUSTOM" && custom ? (
+              <CustomRenderer html={custom.html} css={custom.css} js={custom.js} />
+            ) : (
+              <div className="prose prose-lg max-w-none text-muted-foreground">
+                <p className="whitespace-pre-wrap leading-relaxed">
+                  {step.content}
+                </p>
+              </div>
+            )}
           </div>
 
           {/* Step Actions */}
