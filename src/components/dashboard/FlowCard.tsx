@@ -1,4 +1,11 @@
-import { Play, BarChart3, Edit, MoreHorizontal, Copy, Download } from "lucide-react";
+import {
+  Play,
+  BarChart3,
+  Edit,
+  MoreHorizontal,
+  Copy,
+  Download,
+} from "lucide-react";
 import { Card, CardContent, CardHeader } from "../../components/ui/card";
 import { Button } from "../../components/ui/button";
 import { Badge } from "../../components/ui/badge";
@@ -8,7 +15,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
 } from "../../components/ui/dropdown-menu";
-import { Flow } from "../../types/flow";
+import type { Flow } from "@/types/flow";
 
 type ViewMode = "grid" | "list";
 
@@ -61,7 +68,8 @@ export function FlowCard({
               <div className="flex items-center gap-3 mb-2">
                 <h3 className="font-semibold text-lg truncate">{flow.title}</h3>
                 <Badge variant="secondary" className="shrink-0">
-                  {flow.steps.length} {flow.steps.length === 1 ? "passo" : "passos"}
+                  {flow.steps.length}{" "}
+                  {flow.steps.length === 1 ? "passo" : "passos"}
                 </Badge>
               </div>
               <div className="flex items-center gap-4 text-sm text-muted-foreground">
@@ -185,7 +193,9 @@ export function FlowCard({
             <div>
               <div className="flex justify-between text-sm mb-1">
                 <span className="text-muted-foreground">Taxa de conclusão</span>
-                <span className="font-medium">{completionRate.toFixed(1)}%</span>
+                <span className="font-medium">
+                  {completionRate.toFixed(1)}%
+                </span>
               </div>
               <div className="w-full bg-gray-200 rounded-full h-2">
                 <div
