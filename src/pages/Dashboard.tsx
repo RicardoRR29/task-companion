@@ -78,6 +78,10 @@ export default function Dashboard() {
     );
   }
 
+  function handleSelectAll() {
+    setSelectedIds(filteredFlows.map((f) => f.id));
+  }
+
   async function handleExportSelected() {
     if (selectedIds.length === 0) return;
     setIsExporting(true);
@@ -197,15 +201,20 @@ export default function Dashboard() {
                 <List className="h-4 w-4" />
               </Button>
               {isSelecting && (
-                <Button
-                  onClick={handleExportSelected}
-                  disabled={isExporting || selectedIds.length === 0}
-                  size="sm"
-                  variant="outline"
-                >
-                  <Download className="h-4 w-4" />
-                  {isExporting ? "Exportando..." : "Exportar Selecionados"}
-                </Button>
+                <>
+                  <Button onClick={handleSelectAll} size="sm" variant="outline">
+                    Selecionar Todos
+                  </Button>
+                  <Button
+                    onClick={handleExportSelected}
+                    disabled={isExporting || selectedIds.length === 0}
+                    size="sm"
+                    variant="outline"
+                  >
+                    <Download className="h-4 w-4" />
+                    {isExporting ? "Exportando..." : "Exportar Selecionados"}
+                  </Button>
+                </>
               )}
             </div>
           </div>
