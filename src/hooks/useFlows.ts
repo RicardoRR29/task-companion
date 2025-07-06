@@ -31,10 +31,11 @@ export const useFlows = create<FlowStore>()(
           set({ flows });
           await logAction("FLOWS_LOADED", "system", { count: flows.length });
         } catch (error) {
+          const err = error as Error;
           await logAction("FLOWS_LOAD_ERROR", "system", {
-            error: error.message,
+            error: err.message,
           });
-          throw error;
+          throw err;
         } finally {
           set({ isLoading: false });
         }
@@ -197,10 +198,11 @@ export const useFlows = create<FlowStore>()(
           });
           return id;
         } catch (error) {
+          const err = error as Error;
           await logAction("FLOW_IMPORT_ERROR", "user", {
-            error: error.message,
+            error: err.message,
           });
-          throw new Error(`Erro ao importar fluxo: ${error.message}`);
+          throw new Error(`Erro ao importar fluxo: ${err.message}`);
         }
       },
     }),

@@ -51,9 +51,10 @@ export default function FlowImportExport({ flowId, onImportSuccess }: Props) {
         description: "O arquivo foi baixado com sucesso.",
       });
     } catch (error) {
+      const err = error as Error;
       toast({
         title: "Erro ao exportar",
-        description: error.message,
+        description: err.message,
         variant: "destructive",
       });
     } finally {
@@ -77,9 +78,10 @@ export default function FlowImportExport({ flowId, onImportSuccess }: Props) {
 
       onImportSuccess?.(newFlowId);
     } catch (error) {
+      const err = error as Error;
       toast({
         title: "Erro ao importar",
-        description: error.message,
+        description: err.message,
         variant: "destructive",
       });
     } finally {

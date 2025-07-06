@@ -165,7 +165,7 @@ export default function AuditTrail({ flowId, limit = 100 }: Props) {
                         {formatTimestamp(log.ts)}
                       </div>
 
-                      {log.payload && (
+                      {Boolean(log.payload) && (
                         <div className="text-xs bg-muted p-2 rounded">
                           {typeof log.payload === "string"
                             ? log.payload

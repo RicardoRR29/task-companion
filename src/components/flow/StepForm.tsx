@@ -54,6 +54,7 @@ const STEP_TYPES = [
     description: "Exibe conteúdo textual",
     icon: Type,
     color: "bg-blue-50 text-blue-700 border-blue-200",
+    disabled: false,
   },
   {
     value: "QUESTION",
@@ -61,6 +62,7 @@ const STEP_TYPES = [
     description: "Pergunta com opções",
     icon: HelpCircle,
     color: "bg-green-50 text-green-700 border-green-200",
+    disabled: false,
   },
   {
     value: "MEDIA",
