@@ -1,13 +1,18 @@
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, Legend, CartesianGrid } from "recharts";
 import { Card, CardHeader, CardTitle, CardContent } from "../../components/ui/card";
 
+interface StepInfo {
+  id: string;
+  title: string;
+}
+
 interface Props {
   data: any[];
-  stepTitles: string[];
+  steps: StepInfo[];
   colors: string[];
 }
 
-export default function StackedAreaChart({ data, stepTitles, colors }: Props) {
+export default function StackedAreaChart({ data, steps, colors }: Props) {
   return (
     <Card>
       <CardHeader>
@@ -25,11 +30,12 @@ export default function StackedAreaChart({ data, stepTitles, colors }: Props) {
               <YAxis unit="s" fontSize={window.innerWidth < 640 ? 10 : 12} />
               <Tooltip formatter={(v: number) => `${v}s`} />
               <Legend />
-              {stepTitles.map((title, idx) => (
+              {steps.map((step, idx) => (
                 <Area
-                  key={title}
+                  key={step.id}
                   type="monotone"
-                  dataKey={title}
+                  dataKey={step.id}
+                  name={step.title}
                   stackId="1"
                   stroke={colors[idx % colors.length]}
                   fill={colors[idx % colors.length]}
