@@ -33,6 +33,7 @@ const STEP_TYPES = {
   QUESTION: { label: "Pergunta", color: "bg-green-100 text-green-800" },
   MEDIA: { label: "Mídia", color: "bg-purple-100 text-purple-800" },
   CUSTOM: { label: "Personalizado", color: "bg-orange-100 text-orange-800" },
+  WEBHOOK: { label: "Webhook", color: "bg-cyan-100 text-cyan-800" },
 } as const;
 
 export default function FlowEditor() {
