@@ -1,5 +1,12 @@
 import { Link } from "react-router-dom";
-import { Home, Settings as SettingsIcon, User } from "lucide-react";
+import {
+  Home,
+  Settings as SettingsIcon,
+  User,
+  Activity,
+  FileText,
+  BarChart3,
+} from "lucide-react";
 
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
@@ -44,6 +51,21 @@ export default function Settings() {
           icon={<SettingsIcon className="h-4 w-4" />}
           label="Perfil"
           active
+        />
+        <NavItem
+          to="/audit"
+          icon={<Activity className="h-4 w-4" />}
+          label="Auditoria"
+        />
+        <NavItem
+          to="/import-export"
+          icon={<FileText className="h-4 w-4" />}
+          label="Import/Export"
+        />
+        <NavItem
+          to="/path-analytics"
+          icon={<BarChart3 className="h-4 w-4" />}
+          label="Path Analytics"
         />
       </aside>
 
