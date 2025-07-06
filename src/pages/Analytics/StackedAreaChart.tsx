@@ -1,4 +1,5 @@
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, Legend, CartesianGrid } from "recharts";
+import useIsMobile from "../../hooks/use-is-mobile";
 import { Card, CardHeader, CardTitle, CardContent } from "../../components/ui/card";
 
 interface StepInfo {
@@ -18,6 +19,7 @@ interface Props {
 }
 
 export default function StackedAreaChart({ data, steps, colors }: Props) {
+  const isMobile = useIsMobile();
   return (
     <Card>
       <CardHeader>
@@ -31,10 +33,14 @@ export default function StackedAreaChart({ data, steps, colors }: Props) {
               margin={{ top: 20, right: 20, left: 20, bottom: 20 }}
             >
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" fontSize={window.innerWidth < 640 ? 10 : 12} />
-              <YAxis unit="s" fontSize={window.innerWidth < 640 ? 10 : 12} />
+              <XAxis dataKey="name" fontSize={isMobile ? 10 : 12} />
+              <YAxis unit="s" fontSize={isMobile ? 10 : 12} />
               <Tooltip formatter={(v: number) => `${v}s`} />
-              <Legend />
+              <Legend
+                verticalAlign="bottom"
+                align="center"
+                wrapperStyle={{ paddingTop: 8 }}
+              />
               {steps.map((step, idx) => (
                 <Area
                   key={step.id}
