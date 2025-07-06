@@ -143,7 +143,7 @@ export default function CustomStepForm({ step, setField }: Props) {
       </div>
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="sm:max-w-lg">
+        <DialogContent className="sm:max-w-3xl">
           <DialogHeader>
             <DialogTitle>{isNew ? "Novo Componente" : "Editar Componente"}</DialogTitle>
           </DialogHeader>
