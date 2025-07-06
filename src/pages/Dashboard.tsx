@@ -14,8 +14,10 @@ import {
   List,
   Download,
   Upload,
+  Trash2,
 } from "lucide-react";
 import { useFlows } from "../hooks/useFlows";
+import { useToast } from "../hooks/use-toast";
 import { Button } from "../components/ui/button";
 import { Card, CardContent, CardHeader } from "../components/ui/card";
 import { Badge } from "../components/ui/badge";
@@ -28,12 +30,24 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "../components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "../components/ui/alert-dialog";
 import { cn } from "../utils/cn";
 
 type ViewMode = "grid" | "list";
 
 export default function Dashboard() {
-  const { flows, load, create, clone, exportFlows, importFlow, isLoading } = useFlows();
+  const { flows, load, create, clone, exportFlows, importFlow, removeMany, isLoading } = useFlows();
+  const { toast } = useToast();
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [viewMode, setViewMode] = useState<ViewMode>("grid");
@@ -42,6 +56,7 @@ export default function Dashboard() {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [isExporting, setIsExporting] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -101,6 +116,28 @@ export default function Dashboard() {
       console.error("Erro ao exportar fluxos:", error);
     } finally {
       setIsExporting(false);
+      setIsSelecting(false);
+      setSelectedIds([]);
+    }
+  }
+
+  async function handleDeleteSelected() {
+    if (selectedIds.length === 0) return;
+    setIsDeleting(true);
+    try {
+      await removeMany(selectedIds);
+      toast({
+        title: "Fluxos excluídos",
+        description: "Os fluxos selecionados foram removidos.",
+      });
+    } catch {
+      toast({
+        title: "Erro ao excluir",
+        description: "Não foi possível excluir os fluxos. Tente novamente.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsDeleting(false);
       setIsSelecting(false);
       setSelectedIds([]);
     }
@@ -215,6 +252,36 @@ export default function Dashboard() {
                     <Download className="h-4 w-4" />
                     {isExporting ? "Exportando..." : "Exportar Selecionados"}
                   </Button>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button
+                        onClick={(e) => e.stopPropagation()}
+                        disabled={isDeleting || selectedIds.length === 0}
+                        size="sm"
+                        variant="destructive"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                        {isDeleting ? "Excluindo..." : "Excluir Selecionados"}
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Excluir fluxos</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Esta ação não pode ser desfeita. Os fluxos selecionados serão permanentemente excluídos.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                        <AlertDialogAction
+                          onClick={handleDeleteSelected}
+                          className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                        >
+                          Confirmar Exclusão
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
                 </>
               )}
             </div>
