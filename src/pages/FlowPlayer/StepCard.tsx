@@ -96,6 +96,21 @@ export default function StepCard({
 
             {/* Step Content */}
             <div className="text-center">
+              {step.type === "MEDIA" && step.mediaUrl && (
+                step.mediaType === "video" ? (
+                  <video
+                    src={step.mediaUrl}
+                    controls
+                    className="mx-auto mb-6 max-h-96"
+                  />
+                ) : (
+                  <img
+                    src={step.mediaUrl}
+                    alt=""
+                    className="mx-auto mb-6 max-h-96"
+                  />
+                )
+              )}
               {step.type === "CUSTOM" && custom ? (
                 <CustomRenderer
                   html={custom.html}
