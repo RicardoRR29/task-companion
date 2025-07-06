@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import {
   Plus,
   Copy,
@@ -15,6 +15,7 @@ import {
   Download,
   Upload,
   Trash2,
+  Settings,
 } from "lucide-react";
 import { useFlows } from "../hooks/useFlows";
 import { useToast } from "../hooks/use-toast";
@@ -175,6 +176,11 @@ export default function Dashboard() {
               </p>
             </div>
             <div className="flex gap-2">
+              <Button variant="ghost" size="icon" asChild>
+                <Link to="/settings">
+                  <Settings className="h-5 w-5" />
+                </Link>
+              </Button>
               <Button onClick={handleNew} disabled={isCreating} size="lg">
                 <Plus className="mr-2 h-4 w-4" />
                 {isCreating ? "Criando..." : "Novo Fluxo"}
