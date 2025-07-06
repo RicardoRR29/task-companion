@@ -15,6 +15,7 @@ import Settings from "./pages/Settings";
 import AuditTrail from "./pages/AuditTrail";
 import FlowImportExport from "./pages/FlowImportExport";
 import PathAnalytics from "./pages/PathAnalytics";
+import CustomComponents from "./pages/CustomComponents";
 
 registerSW({ immediate: true });
 
@@ -45,6 +46,9 @@ createRoot(document.getElementById("root")!).render(
 
         {/* Path Analytics */}
         <Route path="/path-analytics" element={<PathAnalytics />} />
+
+        {/* Componentes personalizados */}
+        <Route path="/components" element={<CustomComponents />} />
 
         {/* Qualquer rota desconhecida redireciona para o Dashboard */}
         <Route path="*" element={<Navigate to="/" replace />} />
