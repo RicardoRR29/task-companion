@@ -83,7 +83,7 @@ export function FlowCard({
             <div className="flex items-center gap-2">
               <Button variant="ghost" size="sm" onClick={onPlay}>
                 <Play className="h-4 w-4 mr-1" />
-                Testar
+                Executar
               </Button>
               <Button variant="ghost" size="sm" onClick={onAnalytics}>
                 <BarChart3 className="h-4 w-4 mr-1" />
@@ -216,7 +216,7 @@ export function FlowCard({
               }}
             >
               <Play className="h-3 w-3 mr-1" />
-              Testar
+              Executar
             </Button>
             <Button
               variant="outline"

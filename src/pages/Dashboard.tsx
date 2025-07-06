@@ -69,7 +69,6 @@ const loadBooleanSetting = (key: string, defaultValue = false): boolean => {
   try {
     const saved = localStorage.getItem(key);
     console.log(`Carregando ${key}:`, { saved, defaultValue });
-
     // Só usa o valor padrão se realmente não existir no localStorage
     if (saved === null || saved === undefined) {
       console.log(`${key} não encontrado, usando padrão:`, defaultValue);
@@ -137,80 +136,41 @@ export default function Dashboard() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Campos visíveis nos cards
-  const [showVisits, setShowVisits] = useState(false);
-  const [showCompletions, setShowCompletions] = useState(false);
-  const [showCompletionRate, setShowCompletionRate] = useState(false);
-  const [showStepCount, setShowStepCount] = useState(false);
+  const [showVisits, setShowVisits] = useState(true);
+  const [showCompletions, setShowCompletions] = useState(true);
+  const [showCompletionRate, setShowCompletionRate] = useState(true);
+  const [showStepCount, setShowStepCount] = useState(true);
 
   // Estado para controlar se as configurações já foram carregadas
   const [configsLoaded, setConfigsLoaded] = useState(false);
 
   // Carregar configurações do localStorage na inicialização
   useEffect(() => {
-    // Evita recarregamento se já foi carregado
-    if (configsLoaded) {
-      console.log("Configurações já foram carregadas, pulando...");
-      return;
-    }
-
     console.log("Carregando configurações do localStorage...");
+    const loadedViewMode = loadViewMode();
+    const loadedShowVisits = loadBooleanSetting(
+      STORAGE_KEYS.SHOW_VISITS,
+      false
+    );
+    const loadedShowCompletions = loadBooleanSetting(
+      STORAGE_KEYS.SHOW_COMPLETIONS,
+      false
+    );
+    const loadedShowCompletionRate = loadBooleanSetting(
+      STORAGE_KEYS.SHOW_COMPLETION_RATE,
+      false
+    );
+    const loadedShowStepCount = loadBooleanSetting(
+      STORAGE_KEYS.SHOW_STEP_COUNT,
+      false
+    );
 
-    try {
-      const loadedViewMode = loadViewMode();
-      const loadedShowVisits = loadBooleanSetting(
-        STORAGE_KEYS.SHOW_VISITS,
-        false
-      );
-      const loadedShowCompletions = loadBooleanSetting(
-        STORAGE_KEYS.SHOW_COMPLETIONS,
-        false
-      );
-      const loadedShowCompletionRate = loadBooleanSetting(
-        STORAGE_KEYS.SHOW_COMPLETION_RATE,
-        false
-      );
-      const loadedShowStepCount = loadBooleanSetting(
-        STORAGE_KEYS.SHOW_STEP_COUNT,
-        false
-      );
-
-      console.log("Valores brutos do localStorage:", {
-        [STORAGE_KEYS.VIEW_MODE]: localStorage.getItem(STORAGE_KEYS.VIEW_MODE),
-        [STORAGE_KEYS.SHOW_VISITS]: localStorage.getItem(
-          STORAGE_KEYS.SHOW_VISITS
-        ),
-        [STORAGE_KEYS.SHOW_COMPLETIONS]: localStorage.getItem(
-          STORAGE_KEYS.SHOW_COMPLETIONS
-        ),
-        [STORAGE_KEYS.SHOW_COMPLETION_RATE]: localStorage.getItem(
-          STORAGE_KEYS.SHOW_COMPLETION_RATE
-        ),
-        [STORAGE_KEYS.SHOW_STEP_COUNT]: localStorage.getItem(
-          STORAGE_KEYS.SHOW_STEP_COUNT
-        ),
-      });
-
-      console.log("Configurações carregadas:", {
-        viewMode: loadedViewMode,
-        showVisits: loadedShowVisits,
-        showCompletions: loadedShowCompletions,
-        showCompletionRate: loadedShowCompletionRate,
-        showStepCount: loadedShowStepCount,
-      });
-
-      setViewMode(loadedViewMode);
-      setShowVisits(loadedShowVisits);
-      setShowCompletions(loadedShowCompletions);
-      setShowCompletionRate(loadedShowCompletionRate);
-      setShowStepCount(loadedShowStepCount);
-
-      // Marca como carregado para evitar recarregamentos
-      setConfigsLoaded(true);
-    } catch (error) {
-      console.error("Erro ao carregar configurações:", error);
-      setConfigsLoaded(true); // Marca como carregado mesmo com erro
-    }
-  }, [configsLoaded]);
+    setViewMode(loadedViewMode);
+    setShowVisits(loadedShowVisits);
+    setShowCompletions(loadedShowCompletions);
+    setShowCompletionRate(loadedShowCompletionRate);
+    setShowStepCount(loadedShowStepCount);
+  }, []);
 
   // Salvar configurações no localStorage sempre que mudarem
   useEffect(() => {
@@ -825,7 +785,7 @@ function FlowCard({
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem onClick={onPlay} className="sm:hidden">
                     <Play className="mr-2 h-4 w-4" />
-                    Testar
+                    Executar
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={onEdit} className="sm:hidden">
                     <Edit className="mr-2 h-4 w-4" />
@@ -967,7 +927,7 @@ function FlowCard({
               }}
             >
               <Play className="mr-2 h-3 w-3" />
-              Testar
+              Executar
             </Button>
             <Button
               variant="outline"
