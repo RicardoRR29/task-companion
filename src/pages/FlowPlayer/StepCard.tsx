@@ -137,7 +137,12 @@ export default function StepCard({
               ) : (
                 <div className="flex justify-center">
                   <Button size="lg" onClick={next} className="px-8">
-                    {current === total ? "Finalizar" : "Continuar"}
+                    {(
+                      step.nextStepId === "" ||
+                      (step.nextStepId === undefined && current === total)
+                    )
+                      ? "Finalizar"
+                      : "Próximo"}
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
                 </div>
