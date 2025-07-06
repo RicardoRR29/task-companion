@@ -10,6 +10,7 @@ interface CustomComponentsStore {
   load: () => Promise<void>;
   add: (data: Omit<CustomComponent, "id">) => Promise<string>;
   update: (component: CustomComponent) => Promise<void>;
+  remove: (id: string) => Promise<void>;
 }
 
 export const useCustomComponents = create<CustomComponentsStore>()(
@@ -38,6 +39,11 @@ export const useCustomComponents = create<CustomComponentsStore>()(
         await logAction("CUSTOM_COMPONENT_UPDATED", "user", {
           componentId: component.id,
         });
+      },
+      remove: async (id) => {
+        await db.customComponents.delete(id);
+        set({ components: get().components.filter((c) => c.id !== id) });
+        await logAction("CUSTOM_COMPONENT_DELETED", "user", { componentId: id });
       },
     }),
     { name: "taco-custom-components" }
