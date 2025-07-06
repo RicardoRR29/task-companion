@@ -1,4 +1,4 @@
-import { ArrowLeft, ArrowRight } from "lucide-react";
+import { ArrowLeft, ArrowRight, Loader2, CheckCircle, AlertCircle } from "lucide-react";
 import type { Step } from "../../types/flow";
 import { Button } from "../../components/ui/button";
 import { Card, CardContent } from "../../components/ui/card";
@@ -7,6 +7,7 @@ import { cn } from "../../utils/cn";
 import CustomRenderer from "../../components/CustomRenderer";
 import Markdown from "../../components/Markdown";
 import { useCustomComponents } from "../../hooks/useCustomComponents";
+import { useEffect, useState } from "react";
 
 interface Props {
   step: Step;
@@ -31,6 +32,41 @@ export default function StepCard({
   const custom = step.componentId
     ? components.find((c) => c.id === step.componentId)
     : null;
+  const [showWebhookModal, setShowWebhookModal] = useState(false);
+  const [webhookStatus, setWebhookStatus] = useState<"loading" | "success" | "error" | null>(null);
+  const [errorText, setErrorText] = useState<string | null>(null);
+  const [showErrorDetails, setShowErrorDetails] = useState(false);
+
+  useEffect(() => {
+    if (step.type !== "WEBHOOK") return;
+    setShowWebhookModal(true);
+    setWebhookStatus("loading");
+    setErrorText(null);
+    setShowErrorDetails(false);
+    if (step.webhookUrl) {
+      fetch(step.webhookUrl)
+        .then(async (res) => {
+          if (!res.ok) {
+            const text = await res.text();
+            throw new Error(text || res.statusText);
+          }
+        })
+        .then(() => {
+          setWebhookStatus("success");
+          setTimeout(() => {
+            setShowWebhookModal(false);
+            next();
+          }, 1000);
+        })
+        .catch((err) => {
+          setWebhookStatus("error");
+          setErrorText(String(err));
+        });
+    } else {
+      setWebhookStatus("error");
+      setErrorText("URL n\u00e3o definida");
+    }
+  }, [step.id, step.webhookUrl, step.type, next]);
   return (
     <Card className="shadow-xl border-0 bg-white/95 backdrop-blur-sm">
       <CardContent className="p-8 sm:p-12">
@@ -125,5 +161,37 @@ export default function StepCard({
         </div>
       </CardContent>
     </Card>
+    {step.type === "WEBHOOK" && showWebhookModal && (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+        <div className="bg-white rounded-lg p-6 shadow-lg w-full max-w-sm text-center space-y-4">
+          {webhookStatus === "loading" && (
+            <Loader2 className="mx-auto h-8 w-8 animate-spin" />
+          )}
+          {webhookStatus === "success" && (
+            <CheckCircle className="mx-auto h-8 w-8 text-green-500" />
+          )}
+          {webhookStatus === "error" && (
+            <AlertCircle className="mx-auto h-8 w-8 text-red-500" />
+          )}
+          <p className="font-medium">
+            {webhookStatus === "loading" && "Enviando webhook..."}
+            {webhookStatus === "success" && "Webhook executado com sucesso!"}
+            {webhookStatus === "error" && "Erro ao executar webhook."}
+          </p>
+          {webhookStatus === "error" && errorText && (
+            <div className="space-y-2">
+              <Button variant="outline" size="sm" onClick={() => setShowErrorDetails((v) => !v)}>
+                {showErrorDetails ? "Esconder erro" : "Exibir erro"}
+              </Button>
+              {showErrorDetails && (
+                <pre className="text-xs bg-gray-100 p-2 rounded max-h-40 overflow-auto text-left whitespace-pre-wrap break-words">
+                  {errorText}
+                </pre>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+    )}
   );
 }

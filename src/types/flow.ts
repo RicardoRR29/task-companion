@@ -27,12 +27,14 @@ export interface CustomComponent {
 export interface Step {
   id: string;
   order: number;
-  type: "TEXT" | "QUESTION" | "MEDIA" | "CUSTOM";
+  type: "TEXT" | "QUESTION" | "MEDIA" | "CUSTOM" | "WEBHOOK";
   title: string;
   content: string;
   options?: StepOption[];
   /** Referência para o componente customizado a ser renderizado */
   componentId?: string;
+  /** URL opcional para disparo de webhook */
+  webhookUrl?: string;
 }
 
 /**
