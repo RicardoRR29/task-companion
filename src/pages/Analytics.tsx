@@ -184,7 +184,7 @@ export default function Analytics() {
               <CardTitle className="text-xl sm:text-2xl lg:text-3xl">
                 Analytics: {f.title}
               </CardTitle>
-              <div className="flex flex-col gap-2 sm:flex-row">
+              <div className="flex flex-col gap-2 sm:flex-row print:hidden">
                 <Button
                   size="sm"
                   variant="secondary"
