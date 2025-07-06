@@ -26,4 +26,10 @@ export default defineConfig({
       "@": resolve(__dirname, "src"),
     },
   },
+  server: {
+    allowedHosts: [
+      // permita seu subdomínio ngrok aqui
+      "f35d-2804-40a8-2c3-c00-d105-d0e1-ed74-294b.ngrok-free.app",
+    ],
+  },
 });
