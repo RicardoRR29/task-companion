@@ -328,7 +328,11 @@ export default function FlowEditor() {
                     {selectedStep.title}
                   </h2>
                 </div>
-                <StepForm step={selectedStep} onChange={handleStepChange} />
+                <StepForm
+                  step={selectedStep}
+                  steps={flow.steps}
+                  onChange={handleStepChange}
+                />
               </div>
             ) : (
               <EmptyState onAddStep={handleAddStep} />
