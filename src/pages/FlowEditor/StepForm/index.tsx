@@ -235,11 +235,46 @@ export default function StepForm({ step, steps, onChange, onDelete }: Props) {
                   "border-destructive focus-visible:ring-destructive"
               )}
             />
-            <p className="text-xs text-muted-foreground">
-              {step.content.length} caracteres • Suporte a Markdown
-            </p>
-          </div>
+          <p className="text-xs text-muted-foreground">
+            {step.content.length} caracteres • Suporte a Markdown
+          </p>
         </div>
+
+        <div className="space-y-2">
+          <Label className="text-sm font-medium">Próximo passo</Label>
+          <Select
+            value={
+              step.nextStepId === undefined
+                ? "__DEFAULT__"
+                : step.nextStepId === ""
+                ? "__END__"
+                : step.nextStepId
+            }
+            onValueChange={(val) => {
+              if (val === "__DEFAULT__") {
+                setField("nextStepId", undefined as unknown as Step["nextStepId"]);
+              } else if (val === "__END__") {
+                setField("nextStepId", "" as Step["nextStepId"]);
+              } else {
+                setField("nextStepId", val as Step["nextStepId"]);
+              }
+            }}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Sequencial" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="__DEFAULT__">Sequencial</SelectItem>
+              <SelectItem value="__END__">Finalizar</SelectItem>
+              {steps.map((s) => (
+                <SelectItem key={s.id} value={s.id}>
+                  {s.order + 1}. {s.title}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
 
         {step.type === "TEXT" && <TextStepForm step={step} />}
         {step.type === "QUESTION" && (

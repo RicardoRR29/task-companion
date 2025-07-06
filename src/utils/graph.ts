@@ -9,6 +9,9 @@ export function buildNetworkGraph(steps: Step[]): GraphEdge[] {
           edges.push({ source: step.id, target: o.targetStepId });
         }
       });
+    } else if (step.nextStepId !== undefined) {
+      const target = steps.find((s) => s.id === step.nextStepId);
+      if (target) edges.push({ source: step.id, target: target.id });
     } else {
       const next = steps[idx + 1];
       if (next) edges.push({ source: step.id, target: next.id });
