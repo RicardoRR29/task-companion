@@ -246,8 +246,16 @@ export function usePlayer(flow?: Flow, loadSessionId?: string): PlayerState {
   // Funções expostas
   const next = useCallback(() => {
     if (!flow) return;
-    const newIdx = index + 1 < flow.steps.length ? index + 1 : -1;
-    goToIndex(newIdx);
+    const current = flow.steps[index];
+    if (!current) return;
+    if (current.nextStepId !== undefined) {
+      const targetIdx = flow.steps.findIndex((s) => s.id === current.nextStepId);
+      const newIdx = targetIdx >= 0 ? targetIdx : -1;
+      goToIndex(newIdx);
+    } else {
+      const newIdx = index + 1 < flow.steps.length ? index + 1 : -1;
+      goToIndex(newIdx);
+    }
   }, [flow, index, goToIndex]);
 
   const choose = useCallback(

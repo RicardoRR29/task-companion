@@ -30,6 +30,8 @@ export interface Step {
   type: "TEXT" | "QUESTION" | "MEDIA" | "CUSTOM" | "WEBHOOK";
   title: string;
   content: string;
+  /** ID do passo para o qual este passo deve redirecionar. Se vazio, finaliza o fluxo. */
+  nextStepId?: string;
   options?: StepOption[];
   /** Referência para o componente customizado a ser renderizado */
   componentId?: string;
