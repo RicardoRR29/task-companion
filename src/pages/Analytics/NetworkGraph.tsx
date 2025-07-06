@@ -1,45 +1,104 @@
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "../../components/ui/card";
+import { useEffect, useMemo, useState } from "react";
+import type { Flow, Session } from "../../types/flow";
+import { db } from "../../db";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from "../../components/ui/card";
 
 interface NetworkNode {
   id: string;
   x: number;
   y: number;
   label: string;
-  connections: number;
 }
 
 interface NetworkLink {
   source: string;
   target: string;
-  strength: number;
+  count: number;
 }
 
-const networkNodes: NetworkNode[] = [
-  { id: "inicio", x: 50, y: 300, label: "Início", connections: 5 },
-  { id: "email", x: 150, y: 200, label: "Verificação Email", connections: 4 },
-  { id: "social", x: 150, y: 400, label: "Login Social", connections: 1 },
-  { id: "dados", x: 300, y: 300, label: "Dados Básicos", connections: 5 },
-  { id: "escolha", x: 450, y: 300, label: "Escolha Plano", connections: 4 },
-  { id: "premium", x: 600, y: 200, label: "Plano Premium", connections: 2 },
-  { id: "gratuito", x: 600, y: 400, label: "Plano Gratuito", connections: 2 },
-  { id: "pagamento", x: 750, y: 200, label: "Pagamento", connections: 2 },
-  { id: "confirmacao", x: 900, y: 300, label: "Confirmação", connections: 4 },
-];
+interface Props {
+  flow: Flow;
+}
 
-const networkLinks: NetworkLink[] = [
-  { source: "inicio", target: "email", strength: 4 },
-  { source: "inicio", target: "social", strength: 1 },
-  { source: "email", target: "dados", strength: 4 },
-  { source: "social", target: "dados", strength: 1 },
-  { source: "dados", target: "escolha", strength: 5 },
-  { source: "escolha", target: "premium", strength: 2 },
-  { source: "escolha", target: "gratuito", strength: 2 },
-  { source: "premium", target: "pagamento", strength: 2 },
-  { source: "pagamento", target: "confirmacao", strength: 2 },
-  { source: "gratuito", target: "confirmacao", strength: 2 },
-];
+export default function NetworkGraph({ flow }: Props) {
+  const [links, setLinks] = useState<NetworkLink[]>([]);
 
-export default function NetworkGraph() {
+  const nodes: NetworkNode[] = useMemo(
+    () =>
+      flow.steps.map((s, idx) => ({
+        id: s.id,
+        label: s.title,
+        x: 80 + idx * 120,
+        y: 200,
+      })),
+    [flow.steps]
+  );
+
+  useEffect(() => {
+    async function load() {
+      const sessions: Session[] = await db.sessions
+        .where("flowId")
+        .equals(flow.id)
+        .toArray();
+
+      const counts: Record<string, number> = {};
+      sessions.forEach((s) => {
+        const path = Array.isArray(s.path) ? s.path : [];
+        for (let i = 0; i < path.length - 1; i++) {
+          const from = path[i].id;
+          const to = path[i + 1].id;
+          const key = `${from}->${to}`;
+          counts[key] = (counts[key] || 0) + 1;
+        }
+      });
+
+      const defined: { source: string; target: string }[] = [];
+      flow.steps.forEach((step, idx) => {
+        if (step.type === "QUESTION" && step.options) {
+          step.options.forEach((o) =>
+            defined.push({ source: step.id, target: o.targetStepId })
+          );
+        } else {
+          const next = flow.steps[idx + 1];
+          if (next) defined.push({ source: step.id, target: next.id });
+        }
+      });
+
+      const seen = new Set<string>();
+      const arr: NetworkLink[] = [];
+      defined.forEach(({ source, target }) => {
+        const key = `${source}->${target}`;
+        if (seen.has(key)) return;
+        seen.add(key);
+        arr.push({
+          source,
+          target,
+          count: counts[key] || 0,
+        });
+      });
+
+      Object.entries(counts).forEach(([key, count]) => {
+        if (!seen.has(key)) {
+          const [source, target] = key.split("->");
+          arr.push({ source, target, count });
+        }
+      });
+
+      setLinks(arr);
+    }
+
+    load();
+  }, [flow]);
+
+  const maxCount = links.reduce((m, l) => (l.count > m ? l.count : m), 0) || 1;
+  const viewWidth = nodes.length * 120 + 160;
+
   return (
     <Card>
       <CardHeader>
@@ -49,34 +108,30 @@ export default function NetworkGraph() {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="h-[400px] w-full">
-          <svg width="100%" height="100%" viewBox="0 0 1000 400">
-            {networkLinks.map((link, index) => {
-              const sourceNode = networkNodes.find((n) => n.id === link.source)!;
-              const targetNode = networkNodes.find((n) => n.id === link.target)!;
+        <div className="h-[400px] w-full overflow-x-auto">
+          <svg width="100%" height="100%" viewBox={`0 0 ${viewWidth} 400`}>
+            {links.map((link, index) => {
+              const source = nodes.find((n) => n.id === link.source);
+              const target = nodes.find((n) => n.id === link.target);
+              if (!source || !target) return null;
+              const width = 1 + (link.count / maxCount) * 6;
               return (
                 <line
                   key={index}
-                  x1={sourceNode.x}
-                  y1={sourceNode.y}
-                  x2={targetNode.x}
-                  y2={targetNode.y}
+                  x1={source.x}
+                  y1={source.y}
+                  x2={target.x}
+                  y2={target.y}
                   stroke="#94a3b8"
-                  strokeWidth={link.strength * 2}
-                  opacity="0.6"
+                  strokeWidth={width}
+                  opacity="0.7"
                 />
               );
             })}
 
-            {networkNodes.map((node, index) => (
+            {nodes.map((node, index) => (
               <g key={index}>
-                <circle
-                  cx={node.x}
-                  cy={node.y}
-                  r={Math.sqrt(node.connections) * 8}
-                  fill="#3b82f6"
-                  opacity="0.8"
-                />
+                <circle cx={node.x} cy={node.y} r={18} fill="#3b82f6" opacity="0.8" />
                 <text
                   x={node.x}
                   y={node.y + 5}
@@ -85,16 +140,7 @@ export default function NetworkGraph() {
                   fontSize="10"
                   fontWeight="bold"
                 >
-                  {node.label.split(" ")[0]}
-                </text>
-                <text
-                  x={node.x}
-                  y={node.y + 30}
-                  textAnchor="middle"
-                  fontSize="8"
-                  fill="#374151"
-                >
-                  {node.connections} usuários
+                  {node.label}
                 </text>
               </g>
             ))}

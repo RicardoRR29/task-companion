@@ -278,7 +278,7 @@ export default function Analytics() {
         <StackedAreaChart data={areaData} steps={steps} colors={COLORS} />
 
         {/* Network Graph */}
-        <NetworkGraph />
+        <NetworkGraph flow={f} />
       </div>
     </div>
   );
