@@ -14,6 +14,26 @@ import type { Step } from "../../../types/flow";
 import type { CustomComponent } from "../../../types/flow";
 import { useCustomComponents } from "../../../hooks/useCustomComponents";
 
+function sanitizeHtml(html: string) {
+  const template = document.createElement("template");
+  template.innerHTML = html;
+  for (const script of template.content.querySelectorAll("script")) {
+    script.remove();
+  }
+  for (const element of template.content.querySelectorAll("*")) {
+    for (const attr of Array.from(element.attributes)) {
+      if (attr.name.startsWith("on")) {
+        element.removeAttribute(attr.name);
+      }
+    }
+  }
+  return template.innerHTML;
+}
+
+function sanitizeCss(css: string) {
+  return css.replace(/<[^>]*>?/gm, "");
+}
+
 interface Props {
   step: Step;
   setField: <K extends keyof Step>(key: K, value: Step[K]) => void;
@@ -30,19 +50,32 @@ export default function CustomStepForm({ step, setField }: Props) {
     load();
   }, [load]);
 
+  const DEFAULT_COMPONENT: CustomComponent = {
+    id: "",
+    name: "Novo componente",
+    html: "",
+    css: "",
+    js: "",
+  };
+
   useEffect(() => {
-    const comp = components.find((c) => c.id === step.componentId) || null;
-    setCurrent(comp);
-    setIsNew(!comp && step.componentId === "");
+    const comp = components.find((c) => c.id === step.componentId);
+    if (comp) {
+      setCurrent(comp);
+      setIsNew(false);
+    } else {
+      setCurrent(DEFAULT_COMPONENT);
+      setIsNew(true);
+    }
   }, [components, step.componentId]);
 
   const handleSelect = (value: string) => {
-    if (value === NEW_VALUE) {
-      setCurrent({ id: "", name: "Novo componente", html: "", css: "", js: "" });
+    if (value === NEW_VALUE || value === "") {
+      setCurrent(DEFAULT_COMPONENT);
       setIsNew(true);
       setField("componentId", "");
     } else {
-      const comp = components.find((c) => c.id === value) || null;
+      const comp = components.find((c) => c.id === value) || DEFAULT_COMPONENT;
       setCurrent(comp);
       setIsNew(false);
       setField("componentId", value);
@@ -51,18 +84,26 @@ export default function CustomStepForm({ step, setField }: Props) {
 
   const handleSave = async () => {
     if (!current) return;
+
+    const sanitized = {
+      ...current,
+      html: sanitizeHtml(current.html),
+      css: sanitizeCss(current.css),
+    };
+
     if (isNew) {
       const id = await add({
-        name: current.name || `Componente ${components.length + 1}`,
-        html: current.html,
-        css: current.css,
-        js: current.js,
+        name: sanitized.name || `Componente ${components.length + 1}`,
+        html: sanitized.html,
+        css: sanitized.css,
+        js: sanitized.js,
       });
       setField("componentId", id);
       setIsNew(false);
-      setCurrent({ ...current, id });
+      setCurrent({ ...sanitized, id });
     } else {
-      await update(current);
+      await update(sanitized);
+      setCurrent(sanitized);
     }
   };
 
