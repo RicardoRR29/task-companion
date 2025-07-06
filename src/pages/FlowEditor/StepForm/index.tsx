@@ -69,7 +69,7 @@ const STEP_TYPES = [
     description: "Imagens e vídeos",
     icon: ImageIcon,
     color: "bg-purple-50 text-purple-700 border-purple-200",
-    disabled: true,
+    disabled: false,
   },
   {
     value: "CUSTOM",
@@ -110,6 +110,9 @@ export default function StepForm({ step, steps, onChange, onDelete }: Props) {
     }
     if (current.type === "WEBHOOK" && !current.webhookUrl) {
       errors.push("URL do webhook é obrigatória");
+    }
+    if (current.type === "MEDIA" && !current.mediaUrl) {
+      errors.push("URL da mídia é obrigatória");
     }
     return errors;
   }, []);
@@ -288,7 +291,9 @@ export default function StepForm({ step, steps, onChange, onDelete }: Props) {
         {step.type === "QUESTION" && (
           <QuestionStepForm step={step} steps={steps} setField={setField} />
         )}
-        {step.type === "MEDIA" && <MediaStepForm />}
+        {step.type === "MEDIA" && (
+          <MediaStepForm step={step} setField={setField} />
+        )}
         {step.type === "CUSTOM" && (
           <CustomStepForm step={step} setField={setField} />
         )}
@@ -322,6 +327,21 @@ function StepPreview({ step, onExitPreview }: StepPreviewProps) {
         <CardContent className="p-8 lg:p-12">
           <div className="max-w-2xl mx-auto">
             <h1 className="text-3xl font-bold mb-8 text-center">{step.title}</h1>
+            {step.type === "MEDIA" && step.mediaUrl && (
+              step.mediaType === "video" ? (
+                <video
+                  src={step.mediaUrl}
+                  controls
+                  className="mx-auto mb-8 max-h-96"
+                />
+              ) : (
+                <img
+                  src={step.mediaUrl}
+                  alt=""
+                  className="mx-auto mb-8 max-h-96"
+                />
+              )
+            )}
             {step.type === "CUSTOM" && custom ? (
               <CustomRenderer html={custom.html} css={custom.css} js={custom.js} />
             ) : (
