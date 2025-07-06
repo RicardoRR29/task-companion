@@ -340,8 +340,9 @@ function FlowCard({
   isSelected,
   onSelect,
 }: FlowCardProps) {
-  const completionRate =
-    flow.visits > 0 ? (flow.completions / flow.visits) * 100 : 0;
+  const visits = flow.visits ?? 0;
+  const completions = flow.completions ?? 0;
+  const completionRate = visits > 0 ? (completions / visits) * 100 : 0;
 
   if (viewMode === "list") {
     return (

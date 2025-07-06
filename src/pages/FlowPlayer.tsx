@@ -39,19 +39,12 @@ export default function FlowPlayer() {
   const [startTime] = useState(Date.now());
   const pauseStart = useRef<number | null>(null);
   const [pausedTotal, setPausedTotal] = useState(0);
-  const [tick, setTick] = useState(0);
   const [isExiting, setIsExiting] = useState(false);
 
   useEffect(() => {
     load();
   }, [load]);
 
-  useEffect(() => {
-    const id = setInterval(() => {
-      setTick((t) => t + 1);
-    }, 1000);
-    return () => clearInterval(id);
-  }, []);
 
   const flow = flows.find((f) => f.id === id);
   const {
@@ -177,7 +170,7 @@ export default function FlowPlayer() {
                 <Clock className="mr-1 h-3 w-3" />
                 {Math.round((Date.now() - startTime - pausedTotal - (pauseStart.current ? Date.now() - pauseStart.current : 0)) / 1000)}s
               </Badge>
-              <Button variant="ghost" size="sm" onClick={handlePauseResume}">
+              <Button variant="ghost" size="sm" onClick={handlePauseResume}>
                 {isPaused ? (
                   <Play className="mr-1 h-3 w-3" />
                 ) : (
@@ -203,8 +196,8 @@ export default function FlowPlayer() {
         <div className="w-full max-w-3xl">
           <Card className="shadow-xl border-0 bg-white/95 backdrop-blur-sm">
             <CardContent className="p-8 sm:p-12">
-              {step && (
-                <div className="space-y-8">
+                {step && (
+                  <div className="space-y-8">
                   {/* Step Header */}
                   <div className="text-center space-y-4">
                     <div className="sm:hidden">
@@ -213,7 +206,7 @@ export default function FlowPlayer() {
                       </Badge>
                     </div>
                     <h2 className="text-2xl sm:text-3xl font-bold leading-tight">
-                      {step.title}
+                        {step!.title}
                     </h2>
                   </div>
 
@@ -221,20 +214,20 @@ export default function FlowPlayer() {
                   <div className="text-center">
                     <div className="prose prose-lg max-w-none text-muted-foreground">
                       <p className="whitespace-pre-wrap leading-relaxed">
-                        {step.content}
+                          {step!.content}
                       </p>
                     </div>
                   </div>
 
                   {/* Step Actions */}
                   <div className="space-y-6">
-                    {step.type === "QUESTION" ? (
+                      {step!.type === "QUESTION" ? (
                       <div className="space-y-3">
                         <h3 className="text-lg font-medium text-center mb-6">
                           Escolha uma opção:
                         </h3>
                         <div className="grid gap-3">
-                          {step.options?.map((opt, optIndex) => (
+                          {step!.options?.map((opt, optIndex) => (
                             <Button
                               key={`${opt.label}-${opt.targetStepId}-${optIndex}`}
                               variant="outline"
