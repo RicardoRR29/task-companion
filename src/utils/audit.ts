@@ -21,6 +21,7 @@ export async function logAction(
     };
 
     await db.logs.add(entry);
+    console.log("[Audit] log saved:", entry);
 
     // Mantém apenas os últimos 1000 logs para evitar crescimento excessivo
     const count = await db.logs.count();
