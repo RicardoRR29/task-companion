@@ -42,6 +42,7 @@ import { cn } from "../../utils/cn";
 
 interface Props {
   step: Step;
+  steps: Step[];
   onChange: (step: Step) => void;
 }
 
@@ -70,7 +71,7 @@ const STEP_TYPES = [
   },
 ] as const;
 
-export default function StepForm({ step, onChange }: Props) {
+export default function StepForm({ step, steps, onChange }: Props) {
   const [isPreviewMode, setIsPreviewMode] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
@@ -351,6 +352,7 @@ export default function StepForm({ step, onChange }: Props) {
                         key={option.id}
                         option={option}
                         index={index}
+                        steps={steps}
                         onUpdate={(key, value) =>
                           updateOption(option.id, key, value)
                         }
@@ -371,11 +373,12 @@ export default function StepForm({ step, onChange }: Props) {
 interface OptionItemProps {
   option: StepOption;
   index: number;
+  steps: Step[];
   onUpdate: (key: keyof StepOption, value: string) => void;
   onRemove: () => void;
 }
 
-function OptionItem({ option, index, onUpdate, onRemove }: OptionItemProps) {
+function OptionItem({ option, index, steps, onUpdate, onRemove }: OptionItemProps) {
   const {
     attributes,
     listeners,
@@ -423,12 +426,22 @@ function OptionItem({ option, index, onUpdate, onRemove }: OptionItemProps) {
             placeholder="Texto da opção..."
             className="text-sm"
           />
-          <Input
+          <Select
             value={option.targetStepId}
-            onChange={(e) => onUpdate("targetStepId", e.target.value)}
-            placeholder="ID do próximo passo (opcional)"
-            className="text-sm"
-          />
+            onValueChange={(value) => onUpdate("targetStepId", value)}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Próximo passo (opcional)" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="">Nenhum</SelectItem>
+              {steps.map((s) => (
+                <SelectItem key={s.id} value={s.id}>
+                  {s.order + 1}. {s.title}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
       </div>
 
