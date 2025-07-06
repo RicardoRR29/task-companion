@@ -30,8 +30,9 @@ import type { Step } from "../../types/flow";
 
 const STEP_TYPES = {
   TEXT: { label: "Texto", color: "bg-blue-100 text-blue-800" },
-  FORM: { label: "Formulário", color: "bg-green-100 text-green-800" },
+  QUESTION: { label: "Pergunta", color: "bg-green-100 text-green-800" },
   MEDIA: { label: "Mídia", color: "bg-purple-100 text-purple-800" },
+  CUSTOM: { label: "Personalizado", color: "bg-orange-100 text-orange-800" },
 } as const;
 
 export default function FlowEditor() {

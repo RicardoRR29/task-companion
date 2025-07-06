@@ -10,16 +10,29 @@ export interface StepOption {
 }
 
 /**
+ * Componente customizado salvo pelo usuário para reutilização.
+ */
+export interface CustomComponent {
+  id: string;
+  name: string;
+  html: string;
+  css: string;
+  js: string;
+}
+
+/**
  * Representa um passo dentro de um Flow.
  * Inclui título, conteúdo e, opcionalmente, opções de ramificação.
  */
 export interface Step {
   id: string;
   order: number;
-  type: "TEXT" | "QUESTION" | "MEDIA";
+  type: "TEXT" | "QUESTION" | "MEDIA" | "CUSTOM";
   title: string;
   content: string;
   options?: StepOption[];
+  /** Referência para o componente customizado a ser renderizado */
+  componentId?: string;
 }
 
 /**

@@ -31,6 +31,9 @@ import { cn } from "../../../utils/cn";
 import TextStepForm from "./Text";
 import QuestionStepForm from "./Question";
 import MediaStepForm from "./Media";
+import CustomStepForm from "./Custom";
+import CustomRenderer from "../../../components/CustomRenderer";
+import { useCustomComponents } from "../../../hooks/useCustomComponents";
 
 interface Props {
   step: Step;
@@ -63,6 +66,14 @@ const STEP_TYPES = [
     icon: ImageIcon,
     color: "bg-purple-50 text-purple-700 border-purple-200",
     disabled: true,
+  },
+  {
+    value: "CUSTOM",
+    label: "Personalizado",
+    description: "HTML/CSS/JS",
+    icon: Save,
+    color: "bg-orange-50 text-orange-700 border-orange-200",
+    disabled: false,
   },
 ] as const;
 
@@ -220,6 +231,9 @@ export default function StepForm({ step, steps, onChange, onDelete }: Props) {
           <QuestionStepForm step={step} steps={steps} setField={setField} />
         )}
         {step.type === "MEDIA" && <MediaStepForm />}
+        {step.type === "CUSTOM" && (
+          <CustomStepForm step={step} setField={setField} />
+        )}
       </div>
     </div>
   );
@@ -231,6 +245,10 @@ interface StepPreviewProps {
 }
 
 function StepPreview({ step, onExitPreview }: StepPreviewProps) {
+  const { components } = useCustomComponents();
+  const custom = step.componentId
+    ? components.find((c) => c.id === step.componentId)
+    : null;
   return (
     <div className="h-full flex flex-col max-w-4xl mx-auto">
       <div className="flex items-center justify-between mb-8">
@@ -243,11 +261,15 @@ function StepPreview({ step, onExitPreview }: StepPreviewProps) {
         <CardContent className="p-8 lg:p-12">
           <div className="max-w-2xl mx-auto">
             <h1 className="text-3xl font-bold mb-8 text-center">{step.title}</h1>
-            <div className="prose prose-gray max-w-none mb-8">
-              <p className="text-lg leading-relaxed whitespace-pre-wrap text-center">
-                {step.content}
-              </p>
-            </div>
+            {step.type === "CUSTOM" && custom ? (
+              <CustomRenderer html={custom.html} css={custom.css} js={custom.js} />
+            ) : (
+              <div className="prose prose-gray max-w-none mb-8">
+                <p className="text-lg leading-relaxed whitespace-pre-wrap text-center">
+                  {step.content}
+                </p>
+              </div>
+            )}
             {step.type === "QUESTION" && step.options && step.options.length > 0 && (
               <div className="space-y-4">
                 <h3 className="text-lg font-medium text-center mb-6">
