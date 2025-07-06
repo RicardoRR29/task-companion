@@ -6,6 +6,7 @@ import { Badge } from "../../components/ui/badge";
 import { cn } from "../../utils/cn";
 import CustomRenderer from "../../components/CustomRenderer";
 import Markdown from "../../components/Markdown";
+import { parseInlineMarkdown } from "../../utils/markdown";
 import { useCustomComponents } from "../../hooks/useCustomComponents";
 
 interface Props {
@@ -78,7 +79,12 @@ export default function StepCard({
                       <span className="mr-3 text-muted-foreground font-medium">
                         {optIndex + 1}.
                       </span>
-                      <span className="text-base">{opt.label}</span>
+                      <span
+                        className="text-base"
+                        dangerouslySetInnerHTML={{
+                          __html: parseInlineMarkdown(opt.label),
+                        }}
+                      />
                     </Button>
                   ))}
                 </div>
