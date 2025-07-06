@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { nanoid } from "nanoid";
 import type { Flow, Step } from "../types/flow";
+import { buildNetworkGraph } from "../utils/graph";
 import { db } from "../db";
 import { logAction } from "../utils/audit";
 
@@ -28,7 +29,11 @@ export const useFlows = create<FlowStore>()(
       load: async () => {
         set({ isLoading: true });
         try {
-          const flows = await db.flows.orderBy("updatedAt").reverse().toArray();
+          const flowsRaw = await db.flows.orderBy("updatedAt").reverse().toArray();
+          const flows = flowsRaw.map((f) => ({
+            ...f,
+            networkGraph: f.networkGraph ?? buildNetworkGraph(f.steps),
+          }));
           set({ flows });
           await logAction("FLOWS_LOADED", "system", { count: flows.length });
         } catch (error) {
@@ -50,6 +55,7 @@ export const useFlows = create<FlowStore>()(
           title,
           status: "DRAFT",
           steps: [],
+          networkGraph: [],
           visits: 0,
           completions: 0,
           updatedAt: now,
@@ -71,6 +77,10 @@ export const useFlows = create<FlowStore>()(
           throw new Error("Flow not found");
         }
 
+        const newSteps = orig.steps.map((step) => ({
+          ...step,
+          id: nanoid(), // Gera novos IDs para os passos
+        }));
         const copy: Flow = {
           ...orig,
           id: nanoid(),
@@ -79,10 +89,8 @@ export const useFlows = create<FlowStore>()(
           visits: 0,
           completions: 0,
           updatedAt: Date.now(),
-          steps: orig.steps.map((step) => ({
-            ...step,
-            id: nanoid(), // Gera novos IDs para os passos
-          })),
+          steps: newSteps,
+          networkGraph: buildNetworkGraph(newSteps),
         };
 
         await db.flows.put(copy);
@@ -97,6 +105,7 @@ export const useFlows = create<FlowStore>()(
 
       update: async (flow) => {
         flow.updatedAt = Date.now();
+        flow.networkGraph = buildNetworkGraph(flow.steps);
         await db.flows.put(flow);
         set((s) => ({
           flows: s.flows.map((f) => (f.id === flow.id ? flow : f)),
@@ -181,6 +190,10 @@ export const useFlows = create<FlowStore>()(
 
           const id = nanoid();
           const now = Date.now();
+          const newSteps = data.flow.steps.map((step: Step) => ({
+            ...step,
+            id: nanoid(), // Gera novos IDs para os passos
+          }));
           const flow: Flow = {
             ...data.flow,
             id,
@@ -189,10 +202,8 @@ export const useFlows = create<FlowStore>()(
             visits: 0,
             completions: 0,
             updatedAt: now,
-            steps: data.flow.steps.map((step: Step) => ({
-              ...step,
-              id: nanoid(), // Gera novos IDs para os passos
-            })),
+            steps: newSteps,
+            networkGraph: buildNetworkGraph(newSteps),
           };
 
           await db.flows.put(flow);
