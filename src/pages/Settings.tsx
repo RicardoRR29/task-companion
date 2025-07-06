@@ -17,6 +17,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../components/ui/select";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "../components/ui/tabs";
+import CustomComponentManager from "../components/CustomComponentManager";
 
 interface NavItemProps {
   to: string;
@@ -70,9 +72,16 @@ export default function Settings() {
       </aside>
 
       <main className="flex-1 p-6 space-y-6">
-        <h1 className="text-2xl font-bold">Seu perfil</h1>
+        <h1 className="text-2xl font-bold">Configurações</h1>
 
-        <section className="flex items-center gap-4">
+        <Tabs defaultValue="profile">
+          <TabsList>
+            <TabsTrigger value="profile">Perfil</TabsTrigger>
+            <TabsTrigger value="components">Componentes</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="profile" className="space-y-6">
+            <section className="flex items-center gap-4">
           <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center">
             <User className="h-8 w-8 text-muted-foreground" />
           </div>
@@ -86,7 +95,7 @@ export default function Settings() {
           </div>
         </section>
 
-        <section className="bg-background rounded-md shadow p-4 space-y-4">
+            <section className="bg-background rounded-md shadow p-4 space-y-4">
           <div>
             <label className="block text-sm font-medium mb-1">Nome</label>
             <Input placeholder="Seu nome" />
@@ -97,7 +106,7 @@ export default function Settings() {
           </div>
         </section>
 
-        <section className="bg-background rounded-md shadow p-4 space-y-2">
+            <section className="bg-background rounded-md shadow p-4 space-y-2">
           <label className="block text-sm font-medium mb-1">Uso do sistema</label>
           <Select>
             <SelectTrigger className="w-48">
@@ -113,7 +122,7 @@ export default function Settings() {
           </p>
         </section>
 
-        <section className="pt-4 border-t">
+            <section className="pt-4 border-t">
           <h2 className="font-semibold mb-3">Contas conectadas</h2>
           <div className="flex items-center justify-between rounded-md border p-3">
             <span>Google</span>
@@ -123,12 +132,12 @@ export default function Settings() {
           </div>
         </section>
 
-        <section className="pt-4 border-t">
-          <h2 className="font-semibold mb-3">Componentes personalizados</h2>
-          <Button asChild size="sm" variant="outline">
-            <Link to="/components">Gerenciar componentes</Link>
-          </Button>
-        </section>
+          </TabsContent>
+
+          <TabsContent value="components" className="space-y-6">
+            <CustomComponentManager />
+          </TabsContent>
+        </Tabs>
       </main>
     </div>
   );
