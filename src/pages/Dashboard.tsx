@@ -1,9 +1,7 @@
 "use client";
 
 import { DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-
 import type React from "react";
-
 import { useEffect, useState, useRef } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import {
@@ -59,6 +57,62 @@ import { cn } from "../utils/cn";
 
 type ViewMode = "grid" | "list";
 
+// Configurações do localStorage
+const STORAGE_KEYS = {
+  VIEW_MODE: "taco-dashboard-view-mode",
+  SHOW_VISITS: "taco-dashboard-show-visits",
+  SHOW_COMPLETIONS: "taco-dashboard-show-completions",
+  SHOW_COMPLETION_RATE: "taco-dashboard-show-completion-rate",
+  SHOW_STEP_COUNT: "taco-dashboard-show-step-count",
+};
+
+// Funções helper para localStorage - VERSÃO CORRIGIDA
+const loadBooleanSetting = (key: string, defaultValue = false): boolean => {
+  try {
+    const saved = localStorage.getItem(key);
+    console.log(`Carregando ${key}:`, { saved, defaultValue });
+
+    // Só usa o valor padrão se realmente não existir no localStorage
+    if (saved === null || saved === undefined) {
+      console.log(`${key} não encontrado, usando padrão:`, defaultValue);
+      return defaultValue;
+    }
+
+    const parsed = JSON.parse(saved);
+    console.log(`${key} carregado:`, parsed);
+    return parsed;
+  } catch (error) {
+    console.warn(`Erro ao carregar configuração ${key}:`, error);
+    return defaultValue;
+  }
+};
+
+const saveBooleanSetting = (key: string, value: boolean): void => {
+  try {
+    localStorage.setItem(key, JSON.stringify(value));
+  } catch (error) {
+    console.warn(`Erro ao salvar configuração ${key}:`, error);
+  }
+};
+
+const loadViewMode = (): ViewMode => {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEYS.VIEW_MODE);
+    return saved === "grid" || saved === "list" ? (saved as ViewMode) : "grid";
+  } catch (error) {
+    console.warn("Erro ao carregar modo de visualização:", error);
+    return "grid";
+  }
+};
+
+const saveViewMode = (mode: ViewMode): void => {
+  try {
+    localStorage.setItem(STORAGE_KEYS.VIEW_MODE, mode);
+  } catch (error) {
+    console.warn("Erro ao salvar modo de visualização:", error);
+  }
+};
+
 export default function Dashboard() {
   const {
     flows,
@@ -90,45 +144,96 @@ export default function Dashboard() {
   const [showCompletionRate, setShowCompletionRate] = useState(false);
   const [showStepCount, setShowStepCount] = useState(false);
 
-  // Load persisted settings
-  useEffect(() => {
-    (async () => {
-      const saved = await db.settings.get("dashboard");
-      if (saved) {
-        setShowVisits(saved.showVisits);
-        setShowCompletions(saved.showCompletions);
-        setShowCompletionRate(saved.showCompletionRate);
-        setShowStepCount(saved.showStepCount);
-        if (saved.viewMode === "grid" || saved.viewMode === "list") {
-          setViewMode(saved.viewMode);
-        }
-      } else {
-        const local = localStorage.getItem("taco-dashboard-view");
-        if (local === "grid" || local === "list") {
-          setViewMode(local as ViewMode);
-        }
-      }
-    })();
-  }, []);
+  // Estado para controlar se as configurações já foram carregadas
+  const [configsLoaded, setConfigsLoaded] = useState(false);
 
-  // Persist settings whenever they change
+  // Carregar configurações do localStorage na inicialização
   useEffect(() => {
-    localStorage.setItem("taco-dashboard-view", viewMode);
-    db.settings.put({
-      id: "dashboard",
-      viewMode,
-      showVisits,
-      showCompletions,
-      showCompletionRate,
-      showStepCount,
-    });
-  }, [
-    viewMode,
-    showVisits,
-    showCompletions,
-    showCompletionRate,
-    showStepCount,
-  ]);
+    // Evita recarregamento se já foi carregado
+    if (configsLoaded) {
+      console.log("Configurações já foram carregadas, pulando...");
+      return;
+    }
+
+    console.log("Carregando configurações do localStorage...");
+
+    try {
+      const loadedViewMode = loadViewMode();
+      const loadedShowVisits = loadBooleanSetting(
+        STORAGE_KEYS.SHOW_VISITS,
+        false
+      );
+      const loadedShowCompletions = loadBooleanSetting(
+        STORAGE_KEYS.SHOW_COMPLETIONS,
+        false
+      );
+      const loadedShowCompletionRate = loadBooleanSetting(
+        STORAGE_KEYS.SHOW_COMPLETION_RATE,
+        false
+      );
+      const loadedShowStepCount = loadBooleanSetting(
+        STORAGE_KEYS.SHOW_STEP_COUNT,
+        false
+      );
+
+      console.log("Valores brutos do localStorage:", {
+        [STORAGE_KEYS.VIEW_MODE]: localStorage.getItem(STORAGE_KEYS.VIEW_MODE),
+        [STORAGE_KEYS.SHOW_VISITS]: localStorage.getItem(
+          STORAGE_KEYS.SHOW_VISITS
+        ),
+        [STORAGE_KEYS.SHOW_COMPLETIONS]: localStorage.getItem(
+          STORAGE_KEYS.SHOW_COMPLETIONS
+        ),
+        [STORAGE_KEYS.SHOW_COMPLETION_RATE]: localStorage.getItem(
+          STORAGE_KEYS.SHOW_COMPLETION_RATE
+        ),
+        [STORAGE_KEYS.SHOW_STEP_COUNT]: localStorage.getItem(
+          STORAGE_KEYS.SHOW_STEP_COUNT
+        ),
+      });
+
+      console.log("Configurações carregadas:", {
+        viewMode: loadedViewMode,
+        showVisits: loadedShowVisits,
+        showCompletions: loadedShowCompletions,
+        showCompletionRate: loadedShowCompletionRate,
+        showStepCount: loadedShowStepCount,
+      });
+
+      setViewMode(loadedViewMode);
+      setShowVisits(loadedShowVisits);
+      setShowCompletions(loadedShowCompletions);
+      setShowCompletionRate(loadedShowCompletionRate);
+      setShowStepCount(loadedShowStepCount);
+
+      // Marca como carregado para evitar recarregamentos
+      setConfigsLoaded(true);
+    } catch (error) {
+      console.error("Erro ao carregar configurações:", error);
+      setConfigsLoaded(true); // Marca como carregado mesmo com erro
+    }
+  }, [configsLoaded]);
+
+  // Salvar configurações no localStorage sempre que mudarem
+  useEffect(() => {
+    saveViewMode(viewMode);
+  }, [viewMode]);
+
+  useEffect(() => {
+    saveBooleanSetting(STORAGE_KEYS.SHOW_VISITS, showVisits);
+  }, [showVisits]);
+
+  useEffect(() => {
+    saveBooleanSetting(STORAGE_KEYS.SHOW_COMPLETIONS, showCompletions);
+  }, [showCompletions]);
+
+  useEffect(() => {
+    saveBooleanSetting(STORAGE_KEYS.SHOW_COMPLETION_RATE, showCompletionRate);
+  }, [showCompletionRate]);
+
+  useEffect(() => {
+    saveBooleanSetting(STORAGE_KEYS.SHOW_STEP_COUNT, showStepCount);
+  }, [showStepCount]);
 
   useEffect(() => {
     load();
@@ -674,7 +779,6 @@ function FlowCard({
                 </div>
               </Button>
             )}
-
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-3">
                 <h3 className="truncate font-medium text-gray-900">
@@ -699,7 +803,6 @@ function FlowCard({
                 </div>
               )}
             </div>
-
             <div className="flex items-center gap-2 shrink-0">
               <Button
                 variant="ghost"
@@ -776,7 +879,6 @@ function FlowCard({
           </Button>
         </div>
       )}
-
       <CardContent className="p-6">
         <div className="flex items-start justify-between mb-4">
           <div className="min-w-0 flex-1">
@@ -856,6 +958,7 @@ function FlowCard({
             </div>
           </div>
         )}
+
         <div>
           <div className="flex gap-3">
             <Button
