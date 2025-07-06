@@ -33,6 +33,7 @@ import QuestionStepForm from "./Question";
 import MediaStepForm from "./Media";
 import CustomStepForm from "./Custom";
 import CustomRenderer from "../../../components/CustomRenderer";
+import Markdown from "../../../components/Markdown";
 import { useCustomComponents } from "../../../hooks/useCustomComponents";
 
 interface Props {
@@ -264,11 +265,10 @@ function StepPreview({ step, onExitPreview }: StepPreviewProps) {
             {step.type === "CUSTOM" && custom ? (
               <CustomRenderer html={custom.html} css={custom.css} js={custom.js} />
             ) : (
-              <div className="prose prose-gray max-w-none mb-8">
-                <p className="text-lg leading-relaxed whitespace-pre-wrap text-center">
-                  {step.content}
-                </p>
-              </div>
+              <Markdown
+                content={step.content}
+                className="prose prose-gray max-w-none mb-8 text-center"
+              />
             )}
             {step.type === "QUESTION" && step.options && step.options.length > 0 && (
               <div className="space-y-4">

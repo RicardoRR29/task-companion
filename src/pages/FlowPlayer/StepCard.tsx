@@ -5,6 +5,7 @@ import { Card, CardContent } from "../../components/ui/card";
 import { Badge } from "../../components/ui/badge";
 import { cn } from "../../utils/cn";
 import CustomRenderer from "../../components/CustomRenderer";
+import Markdown from "../../components/Markdown";
 import { useCustomComponents } from "../../hooks/useCustomComponents";
 
 interface Props {
@@ -51,11 +52,10 @@ export default function StepCard({
             {step.type === "CUSTOM" && custom ? (
               <CustomRenderer html={custom.html} css={custom.css} js={custom.js} />
             ) : (
-              <div className="prose prose-lg max-w-none text-muted-foreground">
-                <p className="whitespace-pre-wrap leading-relaxed">
-                  {step.content}
-                </p>
-              </div>
+              <Markdown
+                content={step.content}
+                className="prose prose-lg max-w-none text-muted-foreground"
+              />
             )}
           </div>
 
