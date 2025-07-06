@@ -41,7 +41,7 @@ export default function FlowPlayer() {
     pause,
     resume,
     isPaused,
-  } = usePlayer(flow);
+  } = usePlayer(flow, sessionParam);
 
   useEffect(() => {
     load();

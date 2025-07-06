@@ -2,11 +2,9 @@ import { useState } from "react";
 import { NavLink } from "react-router-dom";
 import {
   Home,
-  Settings as SettingsIcon,
   Activity,
   FileText,
   User,
-  Building2,
   Menu,
 } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -20,7 +18,7 @@ interface SidebarLayoutProps {
 
 interface NavItem {
   to: string;
-  icon: JSX.Element;
+  icon: ReactNode;
   label: string;
 }
 

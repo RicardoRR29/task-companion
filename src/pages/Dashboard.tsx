@@ -240,12 +240,10 @@ export default function Dashboard() {
   }, [load]);
 
   useEffect(() => {
-    async function fetchProgress() {
-      const sessions = await db.sessions
-        .where("isPaused")
-        .equals(true)
-        .and((s) => !s.finishedAt)
-        .toArray();
+      async function fetchProgress() {
+        const sessions = await db.sessions
+          .filter((s) => s.isPaused && !s.finishedAt)
+          .toArray();
       setProgressSessions(sessions);
     }
     fetchProgress();
