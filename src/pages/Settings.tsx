@@ -11,6 +11,7 @@ import {
 
 import CustomComponentManager from "../components/CustomComponentManager";
 import { Sheet, SheetContent, SheetTrigger } from "../components/ui/sheet";
+import { Button } from "@/components/ui/button";
 
 interface NavItemProps {
   to: string;
@@ -74,11 +75,32 @@ export default function Settings() {
               </Button>
             </SheetTrigger>
             <SheetContent side="left" className="w-56 p-4 space-y-2">
-              <NavItem to="/" icon={<Home className="h-4 w-4" />} label="Dashboard" />
-              <NavItem to="/settings" icon={<SettingsIcon className="h-4 w-4" />} label="Perfil" active />
-              <NavItem to="/audit" icon={<Activity className="h-4 w-4" />} label="Auditoria" />
-              <NavItem to="/import-export" icon={<FileText className="h-4 w-4" />} label="Import/Export" />
-              <NavItem to="/path-analytics" icon={<BarChart3 className="h-4 w-4" />} label="Path Analytics" />
+              <NavItem
+                to="/"
+                icon={<Home className="h-4 w-4" />}
+                label="Dashboard"
+              />
+              <NavItem
+                to="/settings"
+                icon={<SettingsIcon className="h-4 w-4" />}
+                label="Perfil"
+                active
+              />
+              <NavItem
+                to="/audit"
+                icon={<Activity className="h-4 w-4" />}
+                label="Auditoria"
+              />
+              <NavItem
+                to="/import-export"
+                icon={<FileText className="h-4 w-4" />}
+                label="Import/Export"
+              />
+              <NavItem
+                to="/path-analytics"
+                icon={<BarChart3 className="h-4 w-4" />}
+                label="Path Analytics"
+              />
             </SheetContent>
           </Sheet>
         </div>
