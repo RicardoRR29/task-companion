@@ -1,12 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import {
   ArrowLeft,
   ArrowRight,
   Home,
   Clock,
+  Pause,
+  Play,
   CheckCircle,
   AlertCircle,
 } from "lucide-react";
@@ -35,19 +37,52 @@ export default function FlowPlayer() {
   const navigate = useNavigate();
   const { flows, load, isLoading } = useFlows();
   const [startTime] = useState(Date.now());
+  const pauseStart = useRef<number | null>(null);
+  const [pausedTotal, setPausedTotal] = useState(0);
+  const [tick, setTick] = useState(0);
   const [isExiting, setIsExiting] = useState(false);
 
   useEffect(() => {
     load();
   }, [load]);
 
+  useEffect(() => {
+    const id = setInterval(() => {
+      setTick((t) => t + 1);
+    }, 1000);
+    return () => clearInterval(id);
+  }, []);
+
   const flow = flows.find((f) => f.id === id);
-  const { step, index, progress, next, choose, canGoBack, goBack } =
-    usePlayer(flow);
+  const {
+    step,
+    index,
+    progress,
+    next,
+    choose,
+    canGoBack,
+    goBack,
+    pause,
+    resume,
+    isPaused,
+  } = usePlayer(flow);
 
   const handleExit = () => {
     setIsExiting(true);
     navigate("/");
+  };
+
+  const handlePauseResume = () => {
+    if (isPaused) {
+      resume();
+      if (pauseStart.current) {
+        setPausedTotal((p) => p + Date.now() - pauseStart.current!);
+        pauseStart.current = null;
+      }
+    } else {
+      pause();
+      pauseStart.current = Date.now();
+    }
   };
 
   if (isLoading) {
@@ -81,7 +116,9 @@ export default function FlowPlayer() {
   }
 
   if (index === -1) {
-    const elapsedTime = Math.round((Date.now() - startTime) / 1000);
+    const now = Date.now();
+    const running = now - startTime - pausedTotal - (pauseStart.current ? now - pauseStart.current : 0);
+    const elapsedTime = Math.round(running / 1000);
     return (
       <CompletionScreen
         flowTitle={flow.title}
@@ -138,8 +175,16 @@ export default function FlowPlayer() {
             <div className="flex items-center gap-3">
               <Badge variant="secondary" className="hidden sm:inline-flex">
                 <Clock className="mr-1 h-3 w-3" />
-                {Math.round((Date.now() - startTime) / 1000)}s
+                {Math.round((Date.now() - startTime - pausedTotal - (pauseStart.current ? Date.now() - pauseStart.current : 0)) / 1000)}s
               </Badge>
+              <Button variant="ghost" size="sm" onClick={handlePauseResume}">
+                {isPaused ? (
+                  <Play className="mr-1 h-3 w-3" />
+                ) : (
+                  <Pause className="mr-1 h-3 w-3" />
+                )}
+                {isPaused ? "Retomar" : "Pausar"}
+              </Button>
               <div className="text-sm font-medium text-muted-foreground">
                 {Math.round(progressPercentage)}%
               </div>
