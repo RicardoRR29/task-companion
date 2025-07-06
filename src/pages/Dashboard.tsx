@@ -852,32 +852,33 @@ function FlowCard({
             </div>
           </div>
         )}
-
-        <div className="flex gap-3">
-          <Button
-            variant="outline"
-            size="sm"
-            className="flex-1 border-gray-200 text-gray-700 hover:bg-gray-100 bg-transparent"
-            onClick={(e) => {
-              e.stopPropagation();
-              onPlay();
-            }}
-          >
-            <Play className="mr-2 h-3 w-3" />
-            Testar
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            className="flex-1 border-gray-200 text-gray-700 hover:bg-gray-100 bg-transparent"
-            onClick={(e) => {
-              e.stopPropagation();
-              onAnalytics();
-            }}
-          >
-            <BarChart3 className="mr-2 h-3 w-3" />
-            Dados
-          </Button>
+        <div>
+          <div className="flex gap-3">
+            <Button
+              variant="outline"
+              size="sm"
+              className="flex-1 border-gray-200 text-gray-700 hover:bg-gray-100 bg-transparent"
+              onClick={(e) => {
+                e.stopPropagation();
+                onPlay();
+              }}
+            >
+              <Play className="mr-2 h-3 w-3" />
+              Testar
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="flex-1 border-gray-200 text-gray-700 hover:bg-gray-100 bg-transparent"
+              onClick={(e) => {
+                e.stopPropagation();
+                onAnalytics();
+              }}
+            >
+              <BarChart3 className="mr-2 h-3 w-3" />
+              Dados
+            </Button>
+          </div>
         </div>
       </CardContent>
     </Card>
