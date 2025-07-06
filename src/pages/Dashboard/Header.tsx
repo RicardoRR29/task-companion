@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { Plus, Upload, Settings } from "lucide-react";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
+import { useCompanySettings } from "../../hooks/useCompanySettings";
 
 interface Props {
   onNew: () => void;
@@ -24,9 +25,13 @@ export default function DashboardHeader({
   onImport,
   isImporting,
 }: Props) {
+  const { logo } = useCompanySettings();
   return (
     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
       <div className="flex flex-col items-start">
+        {logo && (
+          <img src={logo} alt="Logo" className="h-8 mb-2" />
+        )}
         <h1 className="text-3xl font-bold tracking-tight">Meus Fluxos</h1>
         <p className="text-muted-foreground">Gerencie e monitore seus fluxos de trabalho</p>
       </div>
