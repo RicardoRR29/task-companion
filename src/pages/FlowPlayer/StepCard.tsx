@@ -13,6 +13,7 @@ import { Badge } from "../../components/ui/badge";
 import { cn } from "../../utils/cn";
 import CustomRenderer from "../../components/CustomRenderer";
 import Markdown from "../../components/Markdown";
+import { parseInlineMarkdown } from "../../utils/markdown";
 import { useCustomComponents } from "../../hooks/useCustomComponents";
 
 interface Props {

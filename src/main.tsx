@@ -11,6 +11,7 @@ import Dashboard from "./pages/Dashboard";
 import FlowPlayer from "./pages/FlowPlayer";
 import Analytics from "./pages/Analytics";
 import FlowEditor from "./pages/FlowEditor";
+import Settings from "./pages/Settings";
 
 registerSW({ immediate: true });
 
@@ -29,6 +30,9 @@ createRoot(document.getElementById("root")!).render(
 
         {/* Analytics de um fluxo */}
         <Route path="/flows/:id/analytics" element={<Analytics />} />
+
+        {/* Configurações do usuário */}
+        <Route path="/settings" element={<Settings />} />
 
         {/* Qualquer rota desconhecida redireciona para o Dashboard */}
         <Route path="*" element={<Navigate to="/" replace />} />

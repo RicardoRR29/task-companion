@@ -36,6 +36,7 @@ import CustomStepForm from "./Custom";
 import WebhookStepForm from "./Webhook";
 import CustomRenderer from "../../../components/CustomRenderer";
 import Markdown from "../../../components/Markdown";
+import { parseInlineMarkdown } from "../../../utils/markdown";
 import { useCustomComponents } from "../../../hooks/useCustomComponents";
 
 interface Props {
@@ -303,7 +304,12 @@ function StepPreview({ step, onExitPreview }: StepPreviewProps) {
                       <span className="mr-3 text-muted-foreground font-medium">
                         {index + 1}.
                       </span>
-                      <span className="text-base">{option.label}</span>
+                      <span
+                        className="text-base"
+                        dangerouslySetInnerHTML={{
+                          __html: parseInlineMarkdown(option.label),
+                        }}
+                      />
                     </Button>
                   ))}
                 </div>
