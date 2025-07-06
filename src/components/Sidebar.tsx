@@ -6,6 +6,7 @@ import {
   Activity,
   FileText,
   User,
+  Building2,
   Menu,
 } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -26,6 +27,7 @@ interface NavItem {
 const navItems: NavItem[] = [
   { to: "/", icon: <Home className="h-4 w-4" />, label: "Dashboard" },
   { to: "/audit", icon: <Activity className="h-4 w-4" />, label: "Auditoria" },
+<<<<<<< HEAD
   {
     to: "/import-export",
     icon: <FileText className="h-4 w-4" />,
@@ -36,6 +38,12 @@ const navItems: NavItem[] = [
     icon: <User className="h-4 w-4" />,
     label: "Componentes",
   },
+=======
+  { to: "/import-export", icon: <FileText className="h-4 w-4" />, label: "Import/Export" },
+  { to: "/path-analytics", icon: <BarChart3 className="h-4 w-4" />, label: "Path Analytics" },
+  { to: "/components", icon: <User className="h-4 w-4" />, label: "Componentes" },
+  { to: "/company", icon: <Building2 className="h-4 w-4" />, label: "Empresa" },
+>>>>>>> 5826727b82c19e63da38ac8060e243d605c9afdd
 ];
 
 function NavItemLink({ to, icon, label }: NavItem) {

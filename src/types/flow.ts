@@ -33,7 +33,7 @@ export interface Step {
   /** URL de imagem ou vídeo para passos do tipo MEDIA */
   mediaUrl?: string;
   /** Tipo da mídia associada */
-  mediaType?: "image" | "video";
+  mediaType?: "image" | "video" | "youtube";
   /** ID do passo para o qual este passo deve redirecionar. Se vazio, finaliza o fluxo. */
   nextStepId?: string;
   options?: StepOption[];

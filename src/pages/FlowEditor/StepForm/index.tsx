@@ -28,6 +28,7 @@ import {
 import { Badge } from "../../../components/ui/badge";
 import { Alert, AlertDescription } from "../../../components/ui/alert";
 import { cn } from "../../../utils/cn";
+import { getYouTubeEmbedUrl } from "../../../utils/youtube";
 
 import TextStepForm from "./Text";
 import QuestionStepForm from "./Question";
@@ -333,6 +334,13 @@ function StepPreview({ step, onExitPreview }: StepPreviewProps) {
                   src={step.mediaUrl}
                   controls
                   className="mx-auto mb-8 max-h-96"
+                />
+              ) : step.mediaType === "youtube" ? (
+                <iframe
+                  src={getYouTubeEmbedUrl(step.mediaUrl)}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                  className="w-full mx-auto mb-8 max-h-96"
                 />
               ) : (
                 <img
