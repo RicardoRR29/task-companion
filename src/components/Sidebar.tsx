@@ -5,7 +5,6 @@ import {
   Settings as SettingsIcon,
   Activity,
   FileText,
-  BarChart3,
   User,
   Building2,
   Menu,
@@ -27,12 +26,17 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   { to: "/", icon: <Home className="h-4 w-4" />, label: "Dashboard" },
-  { to: "/settings", icon: <SettingsIcon className="h-4 w-4" />, label: "Perfil" },
   { to: "/audit", icon: <Activity className="h-4 w-4" />, label: "Auditoria" },
-  { to: "/import-export", icon: <FileText className="h-4 w-4" />, label: "Import/Export" },
-  { to: "/path-analytics", icon: <BarChart3 className="h-4 w-4" />, label: "Path Analytics" },
-  { to: "/components", icon: <User className="h-4 w-4" />, label: "Componentes" },
-  { to: "/company", icon: <Building2 className="h-4 w-4" />, label: "Empresa" },
+  {
+    to: "/import-export",
+    icon: <FileText className="h-4 w-4" />,
+    label: "Import/Export",
+  },
+  {
+    to: "/components",
+    icon: <User className="h-4 w-4" />,
+    label: "Componentes",
+  },
 ];
 
 function NavItemLink({ to, icon, label }: NavItem) {
