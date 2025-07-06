@@ -1,44 +1,47 @@
-// src/hooks/usePlayer.ts
+"use client";
 
 import { useEffect, useState, useRef, useCallback } from "react";
 import { nanoid } from "nanoid";
-
 import type { Flow, Step, PathItem } from "../types/flow";
 import { db } from "../db";
 import { useFlows } from "./useFlows";
+import { logAction } from "../utils/audit";
 
 interface PlayerState {
   step: Step | null;
   index: number;
   progress: number;
+  canGoBack: boolean;
+  history: number[];
   next(): void;
   choose(targetStepId: string): void;
+  goBack(): void;
+  restart(): void;
 }
 
 export function usePlayer(flow?: Flow): PlayerState {
   const { update } = useFlows();
   const [index, setIndex] = useState(0);
+  const [history, setHistory] = useState<number[]>([]);
 
   const sessionId = useRef<string | null>(null);
   const lastEnterAt = useRef<number>(Date.now());
   const pathRef = useRef<PathItem[]>([]);
 
-  // 1) iniciar sessão apenas uma vez
+  // Inicializar sessão
   useEffect(() => {
     if (!flow) return;
-    // se já criamos uma sessão para este fluxo, não recriamos
     if (sessionId.current) return;
 
     const sid = nanoid();
     sessionId.current = sid;
 
-    // incrementa visits
+    // Incrementa visits
     update({ ...flow, visits: (flow.visits ?? 0) + 1 });
-
-    // zera o pathRef
     pathRef.current = [];
+    setHistory([0]);
 
-    // cria sessão com path inicialmente vazio
+    // Cria sessão
     db.sessions.put({
       id: sid,
       flowId: flow.id,
@@ -46,11 +49,21 @@ export function usePlayer(flow?: Flow): PlayerState {
       path: [],
     });
 
-    // armazena timestamp de entrada no passo inicial
+    // Log da ação
+    logAction(
+      "SESSION_STARTED",
+      "user",
+      {
+        sessionId: sid,
+        flowTitle: flow.title,
+      },
+      flow.id
+    );
+
     lastEnterAt.current = Date.now();
   }, [flow, update]);
 
-  // 2) registra saída e entrada de passos
+  // Registrar saída e entrada de passos
   const registerLeaveEnter = useCallback(
     (prevStepId: string, nextStepId: string | null) => {
       if (!sessionId.current || !flow) return;
@@ -71,6 +84,15 @@ export function usePlayer(flow?: Flow): PlayerState {
       pathRef.current.push(item);
       db.sessions.update(sessionId.current, { path: pathRef.current });
 
+      // Registra evento detalhado
+      db.stepEvents.add({
+        id: nanoid(),
+        sessionId: sessionId.current,
+        stepId: prevStepId,
+        enterAt,
+        leaveAt,
+      });
+
       if (nextStepId) {
         lastEnterAt.current = leaveAt;
       }
@@ -78,29 +100,49 @@ export function usePlayer(flow?: Flow): PlayerState {
     [flow]
   );
 
-  // 3) navegação interna
+  // Navegação
   const goToIndex = useCallback(
-    (newIdx: number) => {
+    (newIdx: number, addToHistory = true) => {
       if (!flow) return;
 
       const prev = flow.steps[index];
       const next = flow.steps[newIdx] ?? null;
 
-      registerLeaveEnter(prev.id, next?.id ?? null);
+      if (prev) {
+        registerLeaveEnter(prev.id, next?.id ?? null);
+      }
+
       setIndex(newIdx);
 
+      if (addToHistory) {
+        setHistory((prev) => [...prev, newIdx]);
+      }
+
       if (newIdx === -1) {
-        // conclusão
+        // Conclusão
         update({ ...flow, completions: (flow.completions ?? 0) + 1 });
         if (sessionId.current) {
           db.sessions.update(sessionId.current, { finishedAt: Date.now() });
+          logAction(
+            "SESSION_COMPLETED",
+            "user",
+            {
+              sessionId: sessionId.current,
+              totalSteps: pathRef.current.length,
+              totalTime: pathRef.current.reduce(
+                (sum, p) => sum + p.timeSpent,
+                0
+              ),
+            },
+            flow.id
+          );
         }
       }
     },
     [flow, index, registerLeaveEnter, update]
   );
 
-  // 4) funções expostas
+  // Funções expostas
   const next = useCallback(() => {
     if (!flow) return;
     const newIdx = index + 1 < flow.steps.length ? index + 1 : -1;
@@ -116,13 +158,70 @@ export function usePlayer(flow?: Flow): PlayerState {
     [flow, goToIndex]
   );
 
-  // 5) retorna estado
+  const goBack = useCallback(() => {
+    if (history.length <= 1) return;
+
+    const newHistory = [...history];
+    newHistory.pop(); // Remove o atual
+    const prevIndex = newHistory[newHistory.length - 1];
+
+    setHistory(newHistory);
+    goToIndex(prevIndex, false);
+  }, [history, goToIndex]);
+
+  const restart = useCallback(() => {
+    setIndex(0);
+    setHistory([0]);
+    pathRef.current = [];
+    lastEnterAt.current = Date.now();
+
+    if (sessionId.current && flow) {
+      db.sessions.update(sessionId.current, {
+        path: [],
+        startedAt: Date.now(),
+        finishedAt: undefined,
+      });
+
+      logAction(
+        "SESSION_RESTARTED",
+        "user",
+        {
+          sessionId: sessionId.current,
+        },
+        flow.id
+      );
+    }
+  }, [flow]);
+
+  // Estado atual
   if (!flow) {
-    return { step: null, index: -1, progress: 0, next, choose };
+    return {
+      step: null,
+      index: -1,
+      progress: 0,
+      canGoBack: false,
+      history: [],
+      next,
+      choose,
+      goBack,
+      restart,
+    };
   }
+
   const step = index >= 0 ? flow.steps[index] : null;
   const progress =
     flow.steps.length === 0 ? 0 : Math.min((index + 1) / flow.steps.length, 1);
+  const canGoBack = history.length > 1;
 
-  return { step, index, progress, next, choose };
+  return {
+    step,
+    index,
+    progress,
+    canGoBack,
+    history,
+    next,
+    choose,
+    goBack,
+    restart,
+  };
 }

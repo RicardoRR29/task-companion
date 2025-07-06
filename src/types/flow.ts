@@ -4,6 +4,7 @@
  * Opções de ramificação de um passo do tipo QUESTION
  */
 export interface StepOption {
+  id: string;
   label: string;
   targetStepId: string;
 }

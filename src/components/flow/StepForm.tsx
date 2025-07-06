@@ -38,7 +38,7 @@ import {
 } from "../ui/select";
 import { Badge } from "../ui/badge";
 import { Alert, AlertDescription } from "../ui/alert";
-import { cn } from "../../lib/utils";
+import { cn } from "../../utils/cn";
 
 interface Props {
   step: Step;

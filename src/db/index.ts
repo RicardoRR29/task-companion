@@ -11,12 +11,11 @@ class TacoDB extends Dexie {
   constructor() {
     super("taco");
 
-    // Versão única com todos os stores definidos
     this.version(1).stores({
-      flows: "id, updatedAt",
-      sessions: "id, flowId, startedAt", // path armazenado como JSON
-      stepEvents: "id, sessionId, stepId",
-      logs: "id, ts, action",
+      flows: "id, title, status, updatedAt",
+      sessions: "id, flowId, startedAt, finishedAt",
+      stepEvents: "id, sessionId, stepId, enterAt, leaveAt",
+      logs: "id, ts, actor, action, flowId, stepId",
     });
   }
 }

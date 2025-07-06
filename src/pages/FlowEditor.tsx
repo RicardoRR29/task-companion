@@ -39,7 +39,7 @@ import {
   AlertDialogTrigger,
 } from "../components/ui/alert-dialog";
 import { useToast } from "../hooks/use-toast";
-import { cn } from "../lib/utils";
+import { cn } from "../utils/cn";
 import StepForm from "../components/flow/StepForm";
 import type { Step } from "../types/flow";
 

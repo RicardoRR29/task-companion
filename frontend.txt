@@ -15,7 +15,7 @@ _______________
   },
   "aliases": {
     "components": "@/components",
-    "utils": "@/lib/utils",
+    "utils": "@/utils/cn",
     "ui": "@/components/ui",
     "lib": "@/lib",
     "hooks": "@/hooks",
@@ -294,7 +294,7 @@ import {
 } from "../ui/select";
 import { Badge } from "../ui/badge";
 import { Alert, AlertDescription } from "../ui/alert";
-import { cn } from "../../lib/utils";
+import { cn } from "../../utils/cn";
 
 interface Props {
   step: Step;
@@ -768,7 +768,7 @@ _______________
 import * as React from "react"
 import * as AlertDialogPrimitive from "@radix-ui/react-alert-dialog"
 
-import { cn } from "@/lib/utils"
+import { cn } from "@/utils/cn"
 import { buttonVariants } from "@/components/ui/button"
 
 const AlertDialog = AlertDialogPrimitive.Root
@@ -912,7 +912,7 @@ _______________
 import * as React from "react"
 import { cva, type VariantProps } from "class-variance-authority"
 
-import { cn } from "@/lib/utils"
+import { cn } from "@/utils/cn"
 
 const alertVariants = cva(
   "relative w-full rounded-lg border px-4 py-3 text-sm [&>svg+div]:translate-y-[-3px] [&>svg]:absolute [&>svg]:left-4 [&>svg]:top-4 [&>svg]:text-foreground [&>svg~*]:pl-7",
@@ -976,7 +976,7 @@ _______________
 import * as React from "react"
 import { cva, type VariantProps } from "class-variance-authority"
 
-import { cn } from "@/lib/utils"
+import { cn } from "@/utils/cn"
 
 const badgeVariants = cva(
   "inline-flex items-center rounded-md border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
@@ -1017,7 +1017,7 @@ _______________
 import * as React from "react";
 import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
-import { cn } from "../../lib/utils";
+import { cn } from "../../utils/cn";
 
 const buttonVariants = cva(
   "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
@@ -1077,7 +1077,7 @@ ________________
 _______________
 import * as React from "react"
 
-import { cn } from "@/lib/utils"
+import { cn } from "@/utils/cn"
 
 const Card = React.forwardRef<
   HTMLDivElement,
@@ -1160,7 +1160,7 @@ import * as React from "react"
 import * as DropdownMenuPrimitive from "@radix-ui/react-dropdown-menu"
 import { Check, ChevronRight, Circle } from "lucide-react"
 
-import { cn } from "@/lib/utils"
+import { cn } from "@/utils/cn"
 
 const DropdownMenu = DropdownMenuPrimitive.Root
 
@@ -1362,7 +1362,7 @@ ________________
 _______________
 import * as React from "react"
 
-import { cn } from "@/lib/utils"
+import { cn } from "@/utils/cn"
 
 const Input = React.forwardRef<HTMLInputElement, React.ComponentProps<"input">>(
   ({ className, type, ...props }, ref) => {
@@ -1391,7 +1391,7 @@ import * as React from "react"
 import * as LabelPrimitive from "@radix-ui/react-label"
 import { cva, type VariantProps } from "class-variance-authority"
 
-import { cn } from "@/lib/utils"
+import { cn } from "@/utils/cn"
 
 const labelVariants = cva(
   "text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
@@ -1419,7 +1419,7 @@ _______________
 import * as React from "react"
 import * as ProgressPrimitive from "@radix-ui/react-progress"
 
-import { cn } from "@/lib/utils"
+import { cn } from "@/utils/cn"
 
 const Progress = React.forwardRef<
   React.ElementRef<typeof ProgressPrimitive.Root>,
@@ -1451,7 +1451,7 @@ import * as React from "react"
 import * as SelectPrimitive from "@radix-ui/react-select"
 import { Check, ChevronDown, ChevronUp } from "lucide-react"
 
-import { cn } from "@/lib/utils"
+import { cn } from "@/utils/cn"
 
 const Select = SelectPrimitive.Root
 
@@ -1614,7 +1614,7 @@ _______________
 import * as React from "react"
 import * as SeparatorPrimitive from "@radix-ui/react-separator"
 
-import { cn } from "@/lib/utils"
+import { cn } from "@/utils/cn"
 
 const Separator = React.forwardRef<
   React.ElementRef<typeof SeparatorPrimitive.Root>,
@@ -1650,7 +1650,7 @@ import * as SheetPrimitive from "@radix-ui/react-dialog"
 import { cva, type VariantProps } from "class-variance-authority"
 import { X } from "lucide-react"
 
-import { cn } from "@/lib/utils"
+import { cn } from "@/utils/cn"
 
 const Sheet = SheetPrimitive.Root
 
@@ -1788,7 +1788,7 @@ export {
 ________________
 ...src/components/ui/skeleton.tsx
 _______________
-import { cn } from "@/lib/utils"
+import { cn } from "@/utils/cn"
 
 function Skeleton({
   className,
@@ -1811,7 +1811,7 @@ _______________
 import * as React from "react"
 import * as SwitchPrimitives from "@radix-ui/react-switch"
 
-import { cn } from "@/lib/utils"
+import { cn } from "@/utils/cn"
 
 const Switch = React.forwardRef<
   React.ElementRef<typeof SwitchPrimitives.Root>,
@@ -1845,7 +1845,7 @@ _______________
 import * as React from "react"
 import * as TabsPrimitive from "@radix-ui/react-tabs"
 
-import { cn } from "@/lib/utils"
+import { cn } from "@/utils/cn"
 
 const Tabs = TabsPrimitive.Root
 
@@ -1902,7 +1902,7 @@ ________________
 _______________
 import * as React from "react"
 
-import { cn } from "@/lib/utils"
+import { cn } from "@/utils/cn"
 
 const Textarea = React.forwardRef<
   HTMLTextAreaElement,
@@ -1970,7 +1970,7 @@ import * as ToastPrimitives from "@radix-ui/react-toast"
 import { cva, type VariantProps } from "class-variance-authority"
 import { X } from "lucide-react"
 
-import { cn } from "@/lib/utils"
+import { cn } from "@/utils/cn"
 
 const ToastProvider = ToastPrimitives.Provider
 
@@ -3266,7 +3266,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "../components/ui/dropdown-menu";
-import { cn } from "../lib/utils";
+import { cn } from "../utils/cn";
 
 type ViewMode = "grid" | "list";
 
@@ -3773,7 +3773,7 @@ import {
   AlertDialogTrigger,
 } from "../components/ui/alert-dialog";
 import { useToast } from "../hooks/use-toast";
-import { cn } from "../lib/utils";
+import { cn } from "../utils/cn";
 import StepForm from "../components/flow/StepForm";
 import type { Step } from "../types/flow";
 
@@ -4309,7 +4309,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "../components/ui/alert-dialog";
-import { cn } from "../lib/utils";
+import { cn } from "../utils/cn";
 
 export default function FlowPlayer() {
   const { id = "" } = useParams<{ id: string }>();
