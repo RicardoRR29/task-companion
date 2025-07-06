@@ -23,6 +23,14 @@ export interface Step {
 }
 
 /**
+ * Aresta do grafo de conexões entre passos.
+ */
+export interface GraphEdge {
+  source: string;
+  target: string;
+}
+
+/**
  * Fluxo completo, composto por uma sequência de Steps.
  * Guarda contadores de visitas e conclusões, além de timestamp de atualização.
  */
@@ -32,6 +40,10 @@ export interface Flow {
   description?: string;
   status: "DRAFT" | "PUBLISHED";
   steps: Step[];
+  /**
+   * Grafo de transições definidas entre passos.
+   */
+  networkGraph?: GraphEdge[];
   visits?: number;
   completions?: number;
   updatedAt: number;

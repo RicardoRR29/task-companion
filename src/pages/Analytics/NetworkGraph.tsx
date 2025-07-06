@@ -58,17 +58,8 @@ export default function NetworkGraph({ flow }: Props) {
         }
       });
 
-      const defined: { source: string; target: string }[] = [];
-      flow.steps.forEach((step, idx) => {
-        if (step.type === "QUESTION" && step.options) {
-          step.options.forEach((o) =>
-            defined.push({ source: step.id, target: o.targetStepId })
-          );
-        } else {
-          const next = flow.steps[idx + 1];
-          if (next) defined.push({ source: step.id, target: next.id });
-        }
-      });
+      const defined: { source: string; target: string }[] =
+        flow.networkGraph ?? [];
 
       const seen = new Set<string>();
       const arr: NetworkLink[] = [];
