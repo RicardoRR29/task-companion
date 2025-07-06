@@ -83,5 +83,5 @@ export interface LogEntry {
   action: string;
   flowId?: string;
   stepId?: string;
-  payload?: any;
+  payload?: unknown;
 }

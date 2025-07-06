@@ -6,8 +6,13 @@ interface StepInfo {
   title: string;
 }
 
+interface ChartRow {
+  name: string;
+  [key: string]: number | string;
+}
+
 interface Props {
-  data: any[];
+  data: ChartRow[];
   steps: StepInfo[];
   colors: string[];
 }

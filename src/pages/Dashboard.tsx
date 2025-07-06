@@ -19,6 +19,7 @@ import { useFlows } from "../hooks/useFlows";
 import { Button } from "../components/ui/button";
 import { Card, CardContent, CardHeader } from "../components/ui/card";
 import { Badge } from "../components/ui/badge";
+import type { Flow } from "../types/flow";
 import { Input } from "../components/ui/input";
 import { Skeleton } from "../components/ui/skeleton";
 import {
@@ -63,7 +64,7 @@ export default function Dashboard() {
     }
   }
 
-  async function handleClone(id: string, title: string) {
+  async function handleClone(id: string) {
     try {
       const newId = await clone(id);
       navigate(`/flows/${newId}/edit`);
@@ -235,7 +236,7 @@ export default function Dashboard() {
                 key={flow.id}
                 flow={flow}
                 viewMode={viewMode}
-                onClone={() => handleClone(flow.id, flow.title)}
+                onClone={() => handleClone(flow.id)}
                 onEdit={() => navigate(`/flows/${flow.id}/edit`)}
                 onPlay={() => navigate(`/flows/${flow.id}/play`)}
                 onAnalytics={() => navigate(`/flows/${flow.id}/analytics`)}
@@ -306,7 +307,7 @@ export default function Dashboard() {
 }
 
 interface FlowCardProps {
-  flow: any;
+  flow: Flow;
   viewMode: ViewMode;
   onClone: () => void;
   onEdit: () => void;

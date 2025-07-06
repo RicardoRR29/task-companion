@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { nanoid } from "nanoid";
-import type { Flow } from "../types/flow";
+import type { Flow, Step } from "../types/flow";
 import { db } from "../db";
 import { logAction } from "../utils/audit";
 
@@ -181,7 +181,7 @@ export const useFlows = create<FlowStore>()(
             visits: 0,
             completions: 0,
             updatedAt: now,
-            steps: data.flow.steps.map((step: any) => ({
+            steps: data.flow.steps.map((step: Step) => ({
               ...step,
               id: nanoid(), // Gera novos IDs para os passos
             })),
