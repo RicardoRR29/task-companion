@@ -151,6 +151,25 @@ export default function FlowEditor() {
     [flow, update]
   );
 
+  const handleStepDelete = useCallback(
+    (stepId: string) => {
+      if (!flow) return;
+
+      const newSteps = flow.steps
+        .filter((s) => s.id !== stepId)
+        .map((s, idx) => ({ ...s, order: idx }));
+
+      update({ ...flow, steps: newSteps });
+      setSelectedId(newSteps[0]?.id ?? null);
+
+      toast({
+        title: "Passo removido",
+        description: "O passo foi excluído do fluxo.",
+      });
+    },
+    [flow, update, toast]
+  );
+
   const handleStepSelect = useCallback((stepId: string) => {
     setSelectedId(stepId);
     setIsMobileMenuOpen(false);
@@ -195,6 +214,7 @@ export default function FlowEditor() {
           onStepSelect={handleStepSelect}
           onAddStep={handleAddStep}
           onDragEnd={handleDragEnd}
+          onStepDelete={handleStepDelete}
           stepIds={stepIds}
         />
       </aside>
@@ -233,6 +253,7 @@ export default function FlowEditor() {
                   onStepSelect={handleStepSelect}
                   onAddStep={handleAddStep}
                   onDragEnd={handleDragEnd}
+                  onStepDelete={handleStepDelete}
                   stepIds={stepIds}
                   isMobile
                 />
@@ -332,6 +353,7 @@ export default function FlowEditor() {
                   step={selectedStep}
                   steps={flow.steps}
                   onChange={handleStepChange}
+                  onDelete={() => handleStepDelete(selectedStep.id)}
                 />
               </div>
             ) : (
@@ -350,6 +372,7 @@ interface StepsSidebarProps {
   onStepSelect: (id: string) => void;
   onAddStep: () => void;
   onDragEnd: (event: DragEndEvent) => void;
+  onStepDelete: (id: string) => void;
   stepIds: string[];
   isMobile?: boolean;
 }
@@ -360,6 +383,7 @@ function StepsSidebar({
   onStepSelect,
   onAddStep,
   onDragEnd,
+  onStepDelete,
   stepIds,
   isMobile = false,
 }: StepsSidebarProps) {
@@ -410,6 +434,7 @@ function StepsSidebar({
                     index={index}
                     selected={step.id === selectedId}
                     onSelect={() => onStepSelect(step.id)}
+                    onDelete={() => onStepDelete(step.id)}
                   />
                 ))}
               </div>
@@ -427,9 +452,10 @@ interface StepItemProps {
   index: number;
   selected: boolean;
   onSelect: () => void;
+  onDelete: () => void;
 }
 
-function StepItem({ id, step, index, selected, onSelect }: StepItemProps) {
+function StepItem({ id, step, index, selected, onSelect, onDelete }: StepItemProps) {
   const {
     attributes,
     listeners,
@@ -489,6 +515,17 @@ function StepItem({ id, step, index, selected, onSelect }: StepItemProps) {
           )}
         </div>
       </div>
+      <Button
+        size="sm"
+        variant="ghost"
+        onClick={(e) => {
+          e.stopPropagation();
+          onDelete();
+        }}
+        className="absolute top-2 right-2 text-muted-foreground hover:text-destructive opacity-0 group-hover:opacity-100"
+      >
+        <Trash2 className="h-4 w-4" />
+      </Button>
     </div>
   );
 }
