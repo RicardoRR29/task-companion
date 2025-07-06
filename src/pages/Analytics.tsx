@@ -201,6 +201,14 @@ export default function Analytics() {
                 >
                   Limpar Métricas
                 </Button>
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  onClick={() => window.print()}
+                  className="w-full sm:w-auto"
+                >
+                  Exportar Relatório
+                </Button>
               </div>
             </div>
           </CardHeader>
