@@ -22,6 +22,20 @@ export default function FlowPlayer() {
   const [isExiting, setIsExiting] = useState(false);
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
 
+  const flow = flows.find((f) => f.id === id);
+  const {
+    step,
+    index,
+    progress,
+    next,
+    choose,
+    canGoBack,
+    goBack,
+    pause,
+    resume,
+    isPaused,
+  } = usePlayer(flow);
+
   useEffect(() => {
     load();
   }, [load]);
@@ -41,21 +55,6 @@ export default function FlowPlayer() {
     tick();
     return () => clearInterval(interval);
   }, [startTime, pausedTotal, index]);
-
-
-  const flow = flows.find((f) => f.id === id);
-  const {
-    step,
-    index,
-    progress,
-    next,
-    choose,
-    canGoBack,
-    goBack,
-    pause,
-    resume,
-    isPaused,
-  } = usePlayer(flow);
 
   const handleExit = () => {
     setIsExiting(true);
