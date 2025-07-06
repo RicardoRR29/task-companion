@@ -16,6 +16,7 @@ import TimelineChart from "./Analytics/TimelineChart";
 import Heatmap from "./Analytics/Heatmap";
 import PauseHeatmap from "./Analytics/PauseHeatmap";
 import StackedAreaChart from "./Analytics/StackedAreaChart";
+import NetworkGraph from "./Analytics/NetworkGraph";
 
 const COLORS = [
   "#4e73df",
@@ -275,6 +276,9 @@ export default function Analytics() {
 
         {/* Stacked Area Chart */}
         <StackedAreaChart data={areaData} steps={steps} colors={COLORS} />
+
+        {/* Network Graph */}
+        <NetworkGraph />
       </div>
     </div>
   );
