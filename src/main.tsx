@@ -12,8 +12,8 @@ import FlowPlayer from "./pages/FlowPlayer";
 import Analytics from "./pages/Analytics";
 import FlowEditor from "./pages/FlowEditor";
 import Settings from "./pages/Settings";
-import AuditTrail from "./pages/AuditTrail";
-import FlowImportExport from "./pages/FlowImportExport";
+import Audit from "./pages/Audit";
+import ImportExport from "./pages/ImportExport";
 import PathAnalytics from "./pages/PathAnalytics";
 import CustomComponents from "./pages/CustomComponents";
 
@@ -39,10 +39,10 @@ createRoot(document.getElementById("root")!).render(
         <Route path="/settings" element={<Settings />} />
 
         {/* Log de auditoria */}
-        <Route path="/audit" element={<AuditTrail />} />
+        <Route path="/audit" element={<Audit />} />
 
         {/* Importação e exportação de fluxos */}
-        <Route path="/import-export" element={<FlowImportExport />} />
+        <Route path="/import-export" element={<ImportExport />} />
 
         {/* Path Analytics */}
         <Route path="/path-analytics" element={<PathAnalytics />} />
