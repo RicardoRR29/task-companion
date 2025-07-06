@@ -7,17 +7,26 @@ import {
   AlertCircle,
   CheckCircle,
   XCircle,
+  Filter,
+  Search,
+  User,
+  FileText,
 } from "lucide-react";
 import type { LogEntry } from "../types/flow";
 import { getAuditTrail, getFlowAuditTrail } from "../utils/audit";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "../components/ui/card";
-import { Badge } from "../components/ui/badge";
-import { Skeleton } from "../components/ui/skeleton";
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Separator } from "@/components/ui/separator";
 
 interface Props {
   flowId?: string;
@@ -38,23 +47,26 @@ const ACTION_ICONS = {
   ERROR: AlertCircle,
 } as const;
 
-const ACTION_COLORS = {
-  FLOW_CREATED: "bg-green-100 text-green-800",
-  FLOW_UPDATED: "bg-blue-100 text-blue-800",
-  FLOW_DELETED: "bg-red-100 text-red-800",
-  FLOW_CLONED: "bg-purple-100 text-purple-800",
-  FLOW_EXPORTED: "bg-orange-100 text-orange-800",
-  FLOW_IMPORTED: "bg-indigo-100 text-indigo-800",
-  FLOWS_LOADED: "bg-gray-100 text-gray-800",
-  FLOW_PLAYED: "bg-yellow-100 text-yellow-800",
-  SESSION_STARTED: "bg-green-100 text-green-800",
-  SESSION_COMPLETED: "bg-emerald-100 text-emerald-800",
-  ERROR: "bg-red-100 text-red-800",
+const ACTION_VARIANTS = {
+  FLOW_CREATED: { variant: "default" as const, color: "text-green-600" },
+  FLOW_UPDATED: { variant: "secondary" as const, color: "text-blue-600" },
+  FLOW_DELETED: { variant: "destructive" as const, color: "text-red-600" },
+  FLOW_CLONED: { variant: "outline" as const, color: "text-purple-600" },
+  FLOW_EXPORTED: { variant: "secondary" as const, color: "text-orange-600" },
+  FLOW_IMPORTED: { variant: "default" as const, color: "text-indigo-600" },
+  FLOWS_LOADED: { variant: "outline" as const, color: "text-gray-600" },
+  FLOW_PLAYED: { variant: "secondary" as const, color: "text-yellow-600" },
+  SESSION_STARTED: { variant: "default" as const, color: "text-green-600" },
+  SESSION_COMPLETED: { variant: "default" as const, color: "text-emerald-600" },
+  ERROR: { variant: "destructive" as const, color: "text-red-600" },
 } as const;
 
 export default function AuditTrail({ flowId, limit = 100 }: Props) {
   const [logs, setLogs] = useState<LogEntry[]>([]);
+  const [filteredLogs, setFilteredLogs] = useState<LogEntry[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [actionFilter, setActionFilter] = useState<string>("all");
 
   useEffect(() => {
     async function loadLogs() {
@@ -64,15 +76,37 @@ export default function AuditTrail({ flowId, limit = 100 }: Props) {
           ? await getFlowAuditTrail(flowId, limit)
           : await getAuditTrail(limit);
         setLogs(entries);
+        setFilteredLogs(entries);
       } catch (error) {
         console.error("Failed to load audit trail:", error);
       } finally {
         setIsLoading(false);
       }
     }
-
     loadLogs();
   }, [flowId, limit]);
+
+  useEffect(() => {
+    let filtered = logs;
+
+    if (searchTerm) {
+      filtered = filtered.filter(
+        (log) =>
+          getActionLabel(log.action)
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase()) ||
+          log.actor.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          (typeof log.payload === "string" &&
+            log.payload.toLowerCase().includes(searchTerm.toLowerCase()))
+      );
+    }
+
+    if (actionFilter !== "all") {
+      filtered = filtered.filter((log) => log.action === actionFilter);
+    }
+
+    setFilteredLogs(filtered);
+  }, [logs, searchTerm, actionFilter]);
 
   const formatTimestamp = (ts: number) => {
     const date = new Date(ts);
@@ -108,8 +142,17 @@ export default function AuditTrail({ flowId, limit = 100 }: Props) {
       FLOW_PLAYED: "Fluxo executado",
       SESSION_STARTED: "Sessão iniciada",
       SESSION_COMPLETED: "Sessão concluída",
+      ERROR: "Erro",
     };
     return labels[action] || action;
+  };
+
+  const getUniqueActions = () => {
+    const actions = Array.from(new Set(logs.map((log) => log.action)));
+    return actions.map((action) => ({
+      value: action,
+      label: getActionLabel(action),
+    }));
   };
 
   if (isLoading) {
@@ -117,99 +160,224 @@ export default function AuditTrail({ flowId, limit = 100 }: Props) {
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Activity className="h-5 w-5" />
-          {flowId ? "Histórico do Fluxo" : "Log de Auditoria"}
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="max-h-96 overflow-y-auto">
-          {logs.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">
-              <Activity className="h-8 w-8 mx-auto mb-2 opacity-50" />
-              <p>Nenhuma atividade registrada</p>
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex flex-col gap-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight flex items-center gap-3">
+              <Activity className="h-8 w-8" />
+              {flowId ? "Histórico do Fluxo" : "Log de Auditoria"}
+            </h1>
+            <p className="text-muted-foreground mt-1">
+              {filteredLogs.length}{" "}
+              {filteredLogs.length === 1
+                ? "evento registrado"
+                : "eventos registrados"}
+            </p>
+          </div>
+        </div>
+
+        {/* Filters */}
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex flex-col sm:flex-row gap-4">
+              <div className="flex-1">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Buscar por ação, usuário ou detalhes..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
+              </div>
+              <Select value={actionFilter} onValueChange={setActionFilter}>
+                <SelectTrigger className="w-full sm:w-48">
+                  <Filter className="h-4 w-4 mr-2" />
+                  <SelectValue placeholder="Filtrar por ação" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todas as ações</SelectItem>
+                  {getUniqueActions().map((action) => (
+                    <SelectItem key={action.value} value={action.value}>
+                      {action.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Timeline */}
+      <Card>
+        <CardContent className="p-6">
+          {filteredLogs.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-12">
+              <div className="rounded-full bg-muted p-4 mb-4">
+                <Activity className="h-8 w-8 text-muted-foreground" />
+              </div>
+              <h3 className="font-medium text-lg mb-2">
+                {searchTerm || actionFilter !== "all"
+                  ? "Nenhum resultado encontrado"
+                  : "Nenhuma atividade registrada"}
+              </h3>
+              <p className="text-muted-foreground text-center max-w-sm">
+                {searchTerm || actionFilter !== "all"
+                  ? "Tente ajustar os filtros para encontrar o que procura"
+                  : "As atividades aparecerão aqui conforme forem executadas"}
+              </p>
+              {(searchTerm || actionFilter !== "all") && (
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setSearchTerm("");
+                    setActionFilter("all");
+                  }}
+                  className="mt-4"
+                >
+                  Limpar filtros
+                </Button>
+              )}
             </div>
           ) : (
-            <div className="space-y-3">
-              {logs.map((log) => {
-                const Icon =
-                  ACTION_ICONS[log.action as keyof typeof ACTION_ICONS] ||
-                  Activity;
-                const colorClass =
-                  ACTION_COLORS[log.action as keyof typeof ACTION_COLORS] ||
-                  "bg-gray-100 text-gray-800";
+            <div className="relative">
+              {/* Timeline line */}
+              <div className="absolute left-6 top-0 bottom-0 w-px bg-border" />
 
-                return (
-                  <div
-                    key={log.id}
-                    className="flex items-start gap-3 p-3 rounded-lg border bg-card"
-                  >
-                    <div className={`p-1.5 rounded-full ${colorClass}`}>
-                      <Icon className="h-3 w-3" />
-                    </div>
+              <div className="space-y-6">
+                {filteredLogs.map((log, index) => {
+                  const Icon =
+                    ACTION_ICONS[log.action as keyof typeof ACTION_ICONS] ||
+                    Activity;
+                  const actionConfig = ACTION_VARIANTS[
+                    log.action as keyof typeof ACTION_VARIANTS
+                  ] || {
+                    variant: "outline" as const,
+                    color: "text-gray-600",
+                  };
 
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="font-medium text-sm">
-                          {getActionLabel(log.action)}
-                        </span>
-                        <Badge variant="outline" className="text-xs">
-                          {log.actor}
-                        </Badge>
+                  return (
+                    <div
+                      key={log.id}
+                      className="relative flex items-start gap-4"
+                    >
+                      {/* Timeline dot */}
+                      <div className="relative z-10 flex items-center justify-center w-12 h-12 rounded-full bg-background border-2 border-border">
+                        <Icon className={`h-5 w-5 ${actionConfig.color}`} />
                       </div>
 
-                      <div className="text-xs text-muted-foreground flex items-center gap-1 mb-2">
-                        <Clock className="h-3 w-3" />
-                        {formatTimestamp(log.ts)}
-                      </div>
+                      {/* Content */}
+                      <div className="flex-1 min-w-0 pb-6">
+                        <div className="bg-card border rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow">
+                          <div className="flex items-start justify-between gap-4 mb-3">
+                            <div className="flex-1">
+                              <h3 className="font-semibold text-base mb-1">
+                                {getActionLabel(log.action)}
+                              </h3>
+                              <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                                <div className="flex items-center gap-1">
+                                  <User className="h-3 w-3" />
+                                  <span>{log.actor}</span>
+                                </div>
+                                <div className="flex items-center gap-1">
+                                  <Clock className="h-3 w-3" />
+                                  <span>{formatTimestamp(log.ts)}</span>
+                                </div>
+                              </div>
+                            </div>
+                            <Badge
+                              variant={actionConfig.variant}
+                              className="shrink-0"
+                            >
+                              {getActionLabel(log.action)}
+                            </Badge>
+                          </div>
 
-                      {Boolean(log.payload) && (
-                        <div className="text-xs bg-muted p-2 rounded">
-                          {typeof log.payload === "string"
-                            ? log.payload
-                            : JSON.stringify(log.payload, null, 2)}
+                          {Boolean(log.payload) && (
+                            <>
+                              <Separator className="my-3" />
+                              <div className="space-y-2">
+                                <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                                  <FileText className="h-3 w-3" />
+                                  Detalhes
+                                </div>
+                                <div className="bg-muted/50 rounded-md p-3 text-sm font-mono">
+                                  {typeof log.payload === "string"
+                                    ? log.payload
+                                    : JSON.stringify(log.payload, null, 2)}
+                                </div>
+                              </div>
+                            </>
+                          )}
                         </div>
-                      )}
+                      </div>
                     </div>
-                  </div>
-                );
-              })}
+                  );
+                })}
+              </div>
             </div>
           )}
-        </div>
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+    </div>
   );
 }
 
 function AuditTrailSkeleton() {
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Skeleton className="h-5 w-5" />
-          <Skeleton className="h-5 w-32" />
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-3">
-          {Array.from({ length: 5 }).map((_, i) => (
-            <div
-              key={i}
-              className="flex items-start gap-3 p-3 rounded-lg border"
-            >
-              <Skeleton className="h-6 w-6 rounded-full" />
-              <div className="flex-1 space-y-2">
-                <Skeleton className="h-4 w-3/4" />
-                <Skeleton className="h-3 w-1/2" />
-                <Skeleton className="h-8 w-full" />
-              </div>
-            </div>
-          ))}
+    <div className="space-y-6">
+      {/* Header Skeleton */}
+      <div className="flex items-center justify-between">
+        <div className="space-y-2">
+          <Skeleton className="h-8 w-64" />
+          <Skeleton className="h-4 w-48" />
         </div>
-      </CardContent>
-    </Card>
+      </div>
+
+      {/* Filters Skeleton */}
+      <Card>
+        <CardContent className="pt-6">
+          <div className="flex gap-4">
+            <Skeleton className="h-10 flex-1" />
+            <Skeleton className="h-10 w-48" />
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Timeline Skeleton */}
+      <Card>
+        <CardContent className="p-6">
+          <div className="relative">
+            <div className="absolute left-6 top-0 bottom-0 w-px bg-border" />
+            <div className="space-y-6">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <div key={i} className="relative flex items-start gap-4">
+                  <Skeleton className="w-12 h-12 rounded-full" />
+                  <div className="flex-1 space-y-3">
+                    <div className="bg-card border rounded-lg p-4">
+                      <div className="flex items-start justify-between gap-4 mb-3">
+                        <div className="flex-1 space-y-2">
+                          <Skeleton className="h-5 w-3/4" />
+                          <div className="flex gap-3">
+                            <Skeleton className="h-4 w-20" />
+                            <Skeleton className="h-4 w-24" />
+                          </div>
+                        </div>
+                        <Skeleton className="h-6 w-16" />
+                      </div>
+                      <Skeleton className="h-16 w-full" />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
   );
 }
