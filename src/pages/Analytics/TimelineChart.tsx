@@ -1,4 +1,5 @@
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Legend } from "recharts";
+import useIsMobile from "../../hooks/use-is-mobile";
 import { Card, CardHeader, CardTitle, CardContent } from "../../components/ui/card";
 
 interface StepInfo {
@@ -18,6 +19,7 @@ interface Props {
 }
 
 export default function TimelineChart({ data, steps, colors }: Props) {
+  const isMobile = useIsMobile();
   return (
     <Card>
       <CardHeader>
@@ -30,21 +32,25 @@ export default function TimelineChart({ data, steps, colors }: Props) {
               data={data}
               layout="vertical"
               margin={{
-                left: window.innerWidth < 640 ? 60 : 80,
+                left: isMobile ? 60 : 80,
                 right: 20,
                 top: 20,
                 bottom: 20,
               }}
             >
-              <XAxis type="number" unit="s" fontSize={window.innerWidth < 640 ? 10 : 12} />
+              <XAxis type="number" unit="s" fontSize={isMobile ? 10 : 12} />
               <YAxis
                 type="category"
                 dataKey="name"
-                width={window.innerWidth < 640 ? 60 : 100}
-                fontSize={window.innerWidth < 640 ? 9 : 11}
+                width={isMobile ? 60 : 100}
+                fontSize={isMobile ? 9 : 11}
               />
               <Tooltip formatter={(v: number) => `${v}s`} />
-              <Legend />
+              <Legend
+                verticalAlign="bottom"
+                align="center"
+                wrapperStyle={{ paddingTop: 8 }}
+              />
               {steps.map((step, idx) => (
                 <Bar
                   key={step.id}
