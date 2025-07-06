@@ -1,17 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import {
-  Home,
-  Settings as SettingsIcon,
-  User,
-  Activity,
-  FileText,
-  BarChart3,
-  Menu,
-  Trash2,
-  Pencil,
-  Plus,
-} from "lucide-react";
+import { Trash2, Pencil, Plus } from "lucide-react";
 import { useCustomComponents } from "../hooks/useCustomComponents";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
@@ -23,32 +11,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from "../components/ui/dialog";
-import { Sheet, SheetContent, SheetTrigger } from "../components/ui/sheet";
+import SidebarLayout from "../components/Sidebar";
 
 import type { CustomComponent } from "../types/flow";
 
-interface NavItemProps {
-  to: string;
-  icon: JSX.Element;
-  label: string;
-  active?: boolean;
-}
-
-function NavItem({ to, icon, label, active }: NavItemProps) {
-  return (
-    <Link
-      to={to}
-      className={`flex items-center gap-2 p-2 rounded-md ${
-        active
-          ? "bg-secondary text-secondary-foreground font-medium"
-          : "text-muted-foreground hover:bg-muted"
-      }`}
-    >
-      {icon}
-      <span>{label}</span>
-    </Link>
-  );
-}
 
 function sanitizeHtml(html: string) {
   const template = document.createElement("template");
@@ -72,7 +38,6 @@ function sanitizeCss(css: string) {
 
 export default function CustomComponents() {
   const { components, load, add, update, remove } = useCustomComponents();
-  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [formOpen, setFormOpen] = useState(false);
   const [current, setCurrent] = useState<CustomComponent | null>(null);
   const [isNew, setIsNew] = useState(false);
@@ -121,47 +86,16 @@ export default function CustomComponents() {
   };
 
   return (
-    <div className="flex min-h-screen">
-      <aside className="hidden lg:block w-56 border-r p-4 space-y-2">
-        <NavItem to="/" icon={<Home className="h-4 w-4" />} label="Dashboard" />
-        <NavItem to="/settings" icon={<SettingsIcon className="h-4 w-4" />} label="Perfil" />
-        <NavItem to="/audit" icon={<Activity className="h-4 w-4" />} label="Auditoria" />
-        <NavItem to="/import-export" icon={<FileText className="h-4 w-4" />} label="Import/Export" />
-        <NavItem to="/path-analytics" icon={<BarChart3 className="h-4 w-4" />} label="Path Analytics" />
-        <NavItem to="/components" icon={<User className="h-4 w-4" />} label="Componentes" active />
-      </aside>
-
-      <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-white border-b">
-        <div className="flex items-center justify-between p-4">
-          <h1 className="font-semibold">Componentes</h1>
-          <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
-            <SheetTrigger asChild>
-              <Button variant="outline" size="sm">
-                <Menu className="h-4 w-4" />
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="left" className="w-56 p-4 space-y-2">
-              <NavItem to="/" icon={<Home className="h-4 w-4" />} label="Dashboard" />
-              <NavItem to="/settings" icon={<SettingsIcon className="h-4 w-4" />} label="Perfil" />
-              <NavItem to="/audit" icon={<Activity className="h-4 w-4" />} label="Auditoria" />
-              <NavItem to="/import-export" icon={<FileText className="h-4 w-4" />} label="Import/Export" />
-              <NavItem to="/path-analytics" icon={<BarChart3 className="h-4 w-4" />} label="Path Analytics" />
-              <NavItem to="/components" icon={<User className="h-4 w-4" />} label="Componentes" active />
-            </SheetContent>
-          </Sheet>
-        </div>
+    <SidebarLayout title="Componentes">
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-bold hidden lg:block">Componentes</h1>
+        <Button size="sm" onClick={openNew}>
+          <Plus className="h-4 w-4 mr-1" /> Novo
+        </Button>
       </div>
 
-      <main className="flex-1 p-6 space-y-6 pt-16 lg:pt-6">
-        <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold hidden lg:block">Componentes</h1>
-          <Button size="sm" onClick={openNew}>
-            <Plus className="h-4 w-4 mr-1" /> Novo
-          </Button>
-        </div>
-
-        <div className="overflow-x-auto">
-          <table className="min-w-full text-sm">
+      <div className="overflow-x-auto">
+        <table className="min-w-full text-sm">
             <thead>
               <tr>
                 <th className="border-b p-2 text-left">Nome</th>
@@ -193,14 +127,14 @@ export default function CustomComponents() {
               )}
             </tbody>
           </table>
-        </div>
+      </div>
 
-        <Dialog open={formOpen} onOpenChange={setFormOpen}>
-          <DialogContent className="sm:max-w-lg">
-            <DialogHeader>
-              <DialogTitle>{isNew ? "Novo Componente" : "Editar Componente"}</DialogTitle>
-            </DialogHeader>
-            {current && (
+      <Dialog open={formOpen} onOpenChange={setFormOpen}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>{isNew ? "Novo Componente" : "Editar Componente"}</DialogTitle>
+          </DialogHeader>
+          {current && (
               <div className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="cc-name">Nome</Label>
@@ -244,7 +178,6 @@ export default function CustomComponents() {
             )}
           </DialogContent>
         </Dialog>
-      </main>
-    </div>
+    </SidebarLayout>
   );
 }
