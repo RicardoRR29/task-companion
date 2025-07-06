@@ -84,11 +84,11 @@ export default function Dashboard() {
   const [progressSessions, setProgressSessions] = useState<Session[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Adicionar após os outros estados
-  const [showVisits, setShowVisits] = useState(true);
-  const [showCompletions, setShowCompletions] = useState(true);
-  const [showCompletionRate, setShowCompletionRate] = useState(true);
-  const [showStepCount, setShowStepCount] = useState(true);
+  // Campos visíveis nos cards
+  const [showVisits, setShowVisits] = useState(false);
+  const [showCompletions, setShowCompletions] = useState(false);
+  const [showCompletionRate, setShowCompletionRate] = useState(false);
+  const [showStepCount, setShowStepCount] = useState(false);
 
   // Load persisted settings
   useEffect(() => {
