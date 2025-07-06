@@ -15,15 +15,8 @@ class TacoDB extends Dexie {
 
     this.version(1).stores({
       flows: "id, title, status, updatedAt",
-      sessions: "id, flowId, startedAt, finishedAt",
-      stepEvents: "id, sessionId, stepId, enterAt, leaveAt",
-      pauseEvents: "id, sessionId, stepId, pausedAt, resumedAt",
-      logs: "id, ts, actor, action, flowId, stepId",
-    });
-
-    this.version(2).stores({
-      flows: "id, title, status, updatedAt",
-      sessions: "id, flowId, startedAt, finishedAt",
+      sessions:
+        "id, flowId, startedAt, finishedAt, currentIndex, isPaused",
       stepEvents: "id, sessionId, stepId, enterAt, leaveAt",
       pauseEvents: "id, sessionId, stepId, pausedAt, resumedAt",
       logs: "id, ts, actor, action, flowId, stepId",
