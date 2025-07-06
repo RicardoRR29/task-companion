@@ -29,15 +29,15 @@ export default function DashboardHeader({
   return (
     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
       <div className="flex flex-col items-start">
-        {logo && (
-          <img src={logo} alt="Logo" className="h-8 mb-2" />
-        )}
+        {logo && <img src={logo} alt="Logo" className="h-8 mb-2" />}
         <h1 className="text-3xl font-bold tracking-tight">Meus Fluxos</h1>
-        <p className="text-muted-foreground">Gerencie e monitore seus fluxos de trabalho</p>
+        <p className="text-muted-foreground">
+          Gerencie e monitore seus fluxos de trabalho
+        </p>
       </div>
       <div className="flex gap-2">
         <Button variant="ghost" size="icon" asChild>
-          <Link to="/settings">
+          <Link to="/components">
             <Settings className="h-5 w-5" />
           </Link>
         </Button>
@@ -46,7 +46,11 @@ export default function DashboardHeader({
           {isCreating ? "Criando..." : "Novo Fluxo"}
         </Button>
         {flowsCount > 0 && (
-          <Button onClick={onToggleSelect} variant={isSelecting ? "secondary" : "outline"} size="lg">
+          <Button
+            onClick={onToggleSelect}
+            variant={isSelecting ? "secondary" : "outline"}
+            size="lg"
+          >
             {isSelecting ? "Cancelar" : "Selecionar"}
           </Button>
         )}
@@ -58,7 +62,12 @@ export default function DashboardHeader({
           disabled={isImporting}
           className="hidden"
         />
-        <Button onClick={() => fileInputRef.current?.click()} disabled={isImporting} variant="outline" size="lg">
+        <Button
+          onClick={() => fileInputRef.current?.click()}
+          disabled={isImporting}
+          variant="outline"
+          size="lg"
+        >
           <Upload className="mr-2 h-4 w-4" />
           {isImporting ? "Importando..." : "Importar"}
         </Button>

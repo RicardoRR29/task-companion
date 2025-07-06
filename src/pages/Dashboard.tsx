@@ -122,7 +122,13 @@ export default function Dashboard() {
       showCompletionRate,
       showStepCount,
     });
-  }, [viewMode, showVisits, showCompletions, showCompletionRate, showStepCount]);
+  }, [
+    viewMode,
+    showVisits,
+    showCompletions,
+    showCompletionRate,
+    showStepCount,
+  ]);
 
   useEffect(() => {
     load();
@@ -337,7 +343,7 @@ export default function Dashboard() {
                 </DropdownMenuContent>
               </DropdownMenu>
               <Button variant="ghost" size="icon" asChild>
-                <Link to="/settings">
+                <Link to="/components">
                   <Settings className="h-5 w-5" />
                 </Link>
               </Button>

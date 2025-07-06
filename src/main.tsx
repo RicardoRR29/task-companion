@@ -19,6 +19,7 @@ import PathAnalytics from "./pages/PathAnalytics";
 import CustomComponents from "./pages/CustomComponents";
 import { useCompanySettings } from "./hooks/useCompanySettings";
 import { applyBrandColors } from "./utils/theme";
+import SidebarLayout from "./components/Sidebar";
 
 registerSW({ immediate: true });
 
@@ -44,7 +45,7 @@ function App() {
         <Route path="/flows/:id/analytics" element={<Analytics />} />
 
         {/* Configurações do usuário */}
-        <Route path="/settings" element={<Settings />} />
+        <Route path="/components" element={<CustomComponents />} />
         {/* Configurações da empresa */}
         <Route path="/company" element={<Company />} />
 
