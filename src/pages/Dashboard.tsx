@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Plus,
@@ -12,6 +12,8 @@ import {
   Search,
   Grid3X3,
   List,
+  Download,
+  Upload,
 } from "lucide-react";
 import { useFlows } from "../hooks/useFlows";
 import { Button } from "../components/ui/button";
@@ -30,11 +32,16 @@ import { cn } from "../utils/cn";
 type ViewMode = "grid" | "list";
 
 export default function Dashboard() {
-  const { flows, load, create, clone, isLoading } = useFlows();
+  const { flows, load, create, clone, exportFlows, importFlow, isLoading } = useFlows();
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [viewMode, setViewMode] = useState<ViewMode>("grid");
   const [isCreating, setIsCreating] = useState(false);
+  const [isSelecting, setIsSelecting] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [isExporting, setIsExporting] = useState(false);
+  const [isImporting, setIsImporting] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     load();
@@ -65,6 +72,50 @@ export default function Dashboard() {
     }
   }
 
+  function toggleSelect(id: string) {
+    setSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((p) => p !== id) : [...prev, id]
+    );
+  }
+
+  async function handleExportSelected() {
+    if (selectedIds.length === 0) return;
+    setIsExporting(true);
+    try {
+      const data = await exportFlows(selectedIds);
+      const blob = new Blob([data], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `flows-${Date.now()}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Erro ao exportar fluxos:", error);
+    } finally {
+      setIsExporting(false);
+      setIsSelecting(false);
+      setSelectedIds([]);
+    }
+  }
+
+  async function handleImport(event: React.ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    setIsImporting(true);
+    try {
+      const text = await file.text();
+      await importFlow(text);
+    } catch (error) {
+      console.error("Erro ao importar fluxo:", error);
+    } finally {
+      setIsImporting(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  }
+
   if (isLoading) {
     return <DashboardSkeleton />;
   }
@@ -81,10 +132,41 @@ export default function Dashboard() {
                 Gerencie e monitore seus fluxos de trabalho
               </p>
             </div>
-            <Button onClick={handleNew} disabled={isCreating} size="lg">
-              <Plus className="mr-2 h-4 w-4" />
-              {isCreating ? "Criando..." : "Novo Fluxo"}
-            </Button>
+            <div className="flex gap-2">
+              <Button onClick={handleNew} disabled={isCreating} size="lg">
+                <Plus className="mr-2 h-4 w-4" />
+                {isCreating ? "Criando..." : "Novo Fluxo"}
+              </Button>
+              {flows.length > 0 && (
+                <Button
+                  onClick={() => {
+                    setIsSelecting((v) => !v);
+                    setSelectedIds([]);
+                  }}
+                  variant={isSelecting ? "secondary" : "outline"}
+                  size="lg"
+                >
+                  {isSelecting ? "Cancelar" : "Selecionar"}
+                </Button>
+              )}
+              <Input
+                ref={fileInputRef}
+                type="file"
+                accept=".json"
+                onChange={handleImport}
+                disabled={isImporting}
+                className="hidden"
+              />
+              <Button
+                onClick={() => fileInputRef.current?.click()}
+                disabled={isImporting}
+                variant="outline"
+                size="lg"
+              >
+                <Upload className="mr-2 h-4 w-4" />
+                {isImporting ? "Importando..." : "Importar"}
+              </Button>
+            </div>
           </div>
 
           {/* Filters and Search */}
@@ -114,6 +196,17 @@ export default function Dashboard() {
               >
                 <List className="h-4 w-4" />
               </Button>
+              {isSelecting && (
+                <Button
+                  onClick={handleExportSelected}
+                  disabled={isExporting || selectedIds.length === 0}
+                  size="sm"
+                  variant="outline"
+                >
+                  <Download className="h-4 w-4" />
+                  {isExporting ? "Exportando..." : "Exportar Selecionados"}
+                </Button>
+              )}
             </div>
           </div>
         </div>
@@ -146,6 +239,28 @@ export default function Dashboard() {
                 onEdit={() => navigate(`/flows/${flow.id}/edit`)}
                 onPlay={() => navigate(`/flows/${flow.id}/play`)}
                 onAnalytics={() => navigate(`/flows/${flow.id}/analytics`)}
+                onExport={async () => {
+                  setIsExporting(true);
+                  try {
+                    const data = await exportFlows([flow.id]);
+                    const blob = new Blob([data], { type: "application/json" });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement("a");
+                    a.href = url;
+                    a.download = `flow-${flow.id}.json`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                  } catch (err) {
+                    console.error("Erro ao exportar fluxo:", err);
+                  } finally {
+                    setIsExporting(false);
+                  }
+                }}
+                isSelecting={isSelecting}
+                isSelected={selectedIds.includes(flow.id)}
+                onSelect={() => toggleSelect(flow.id)}
               />
             ))}
           </div>
@@ -197,6 +312,10 @@ interface FlowCardProps {
   onEdit: () => void;
   onPlay: () => void;
   onAnalytics: () => void;
+  onExport: () => void;
+  isSelecting: boolean;
+  isSelected: boolean;
+  onSelect: () => void;
 }
 
 function FlowCard({
@@ -206,6 +325,10 @@ function FlowCard({
   onEdit,
   onPlay,
   onAnalytics,
+  onExport,
+  isSelecting,
+  isSelected,
+  onSelect,
 }: FlowCardProps) {
   const completionRate =
     flow.visits > 0 ? (flow.completions / flow.visits) * 100 : 0;
@@ -215,6 +338,17 @@ function FlowCard({
       <Card className="hover:shadow-md transition-all duration-200">
         <CardContent className="p-6">
           <div className="flex items-center justify-between">
+            {isSelecting && (
+              <input
+                type="checkbox"
+                className="mr-4 h-4 w-4"
+                checked={isSelected}
+                onChange={(e) => {
+                  e.stopPropagation();
+                  onSelect();
+                }}
+              />
+            )}
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-3 mb-2">
                 <h3 className="font-semibold text-lg truncate">{flow.title}</h3>
@@ -256,6 +390,10 @@ function FlowCard({
                     <Copy className="mr-2 h-4 w-4" />
                     Duplicar
                   </DropdownMenuItem>
+                  <DropdownMenuItem onClick={onExport}>
+                    <Download className="mr-2 h-4 w-4" />
+                    Exportar
+                  </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
@@ -267,10 +405,21 @@ function FlowCard({
 
   return (
     <Card
-      className="group hover:shadow-lg transition-all duration-200 cursor-pointer"
-      onClick={onEdit}
+      className="group hover:shadow-lg transition-all duration-200 cursor-pointer relative"
+      onClick={isSelecting ? onSelect : onEdit}
     >
       <CardHeader className="pb-3">
+        {isSelecting && (
+          <input
+            type="checkbox"
+            className="absolute top-2 left-2 h-4 w-4"
+            checked={isSelected}
+            onChange={(e) => {
+              e.stopPropagation();
+              onSelect();
+            }}
+          />
+        )}
         <div className="flex items-start justify-between">
           <div className="flex-1 min-w-0">
             <h3 className="font-semibold text-lg mb-1 truncate group-hover:text-primary transition-colors">
@@ -300,6 +449,15 @@ function FlowCard({
               >
                 <Copy className="mr-2 h-4 w-4" />
                 Duplicar
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onExport();
+                }}
+              >
+                <Download className="mr-2 h-4 w-4" />
+                Exportar
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

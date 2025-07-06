@@ -14,6 +14,7 @@ interface FlowStore {
   update: (flow: Flow) => Promise<void>;
   remove: (id: string) => Promise<void>;
   exportFlow: (id: string) => Promise<string>;
+  exportFlows: (ids: string[]) => Promise<string>;
   importFlow: (jsonData: string) => Promise<string>;
 }
 
@@ -148,6 +149,17 @@ export const useFlows = create<FlowStore>()(
           flowId: id,
           title: flow.title,
         });
+        return JSON.stringify(exportData, null, 2);
+      },
+
+      exportFlows: async (ids) => {
+        const flows = await db.flows.where('id').anyOf(ids).toArray();
+        const exportData = {
+          version: '1.0',
+          exportedAt: Date.now(),
+          flows: flows.map((f) => ({ ...f, id: undefined })),
+        };
+        await logAction('FLOWS_EXPORTED', 'user', { count: flows.length });
         return JSON.stringify(exportData, null, 2);
       },
 
