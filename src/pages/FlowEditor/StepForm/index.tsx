@@ -63,7 +63,7 @@ const STEP_TYPES = [
   {
     value: "MEDIA",
     label: "Mídia",
-    description: "Imagens e vídeos",
+    description: "Imagens e YouTube",
     icon: ImageIcon,
     color: "bg-purple-50 text-purple-700 border-purple-200",
     disabled: false,
@@ -335,13 +335,7 @@ function StepPreview({ step, onExitPreview }: StepPreviewProps) {
             </h1>
             {step.type === "MEDIA" &&
               step.mediaUrl &&
-              (step.mediaType === "video" ? (
-                <video
-                  src={step.mediaUrl}
-                  controls
-                  className="mx-auto mb-8 max-h-96"
-                />
-              ) : step.mediaType === "youtube" ? (
+              (step.mediaType === "youtube" ? (
                 <iframe
                   src={getYouTubeEmbedUrl(step.mediaUrl)}
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
