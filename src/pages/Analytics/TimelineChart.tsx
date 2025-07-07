@@ -24,15 +24,20 @@ interface Props {
   data: ChartRow[];
   steps: StepInfo[];
   colors: string[];
+  runsToShow: number | "all";
 }
 
-export default function TimelineChart({ data, steps, colors }: Props) {
+export default function TimelineChart({ data, steps, colors, runsToShow }: Props) {
   const isMobile = useIsMobile();
   return (
     <Card className="w-full">
       <CardHeader className="pb-4">
         <CardTitle className="text-base sm:text-lg md:text-xl text-center sm:text-left">
-          Timeline – Últimas 5 Execuções
+          {`Timeline – ${
+            runsToShow === "all"
+              ? "Todas as Execuções"
+              : `Últimas ${runsToShow} Execuções`
+          }`}
         </CardTitle>
       </CardHeader>
       <CardContent className="p-3 sm:p-6">

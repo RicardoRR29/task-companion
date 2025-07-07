@@ -334,13 +334,28 @@ export default function Analytics() {
         <TotalTimeChart data={totalByStepData} />
 
         {/* Timeline Horizontal */}
-        <TimelineChart data={timelineData} steps={steps} colors={COLORS} />
+        <TimelineChart
+          data={timelineData}
+          steps={steps}
+          colors={COLORS}
+          runsToShow={runsToShow}
+        />
 
         {/* Heatmap */}
-        <Heatmap recentRuns={recentRuns} steps={steps} maxDuration={allDur} />
+        <Heatmap
+          recentRuns={recentRuns}
+          steps={steps}
+          maxDuration={allDur}
+          runsToShow={runsToShow}
+        />
 
         {/* Pause Heatmap */}
-        <PauseHeatmap pauseRuns={pauseRuns} steps={steps} maxCount={maxPause} />
+        <PauseHeatmap
+          pauseRuns={pauseRuns}
+          steps={steps}
+          maxCount={maxPause}
+          runsToShow={runsToShow}
+        />
 
         {/* Stacked Area Chart */}
         <StackedAreaChart

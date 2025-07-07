@@ -13,13 +13,25 @@ interface Props {
   pauseRuns: PauseRun[];
   steps: StepInfo[];
   maxCount: number;
+  runsToShow: number | "all";
 }
 
-export default function PauseHeatmap({ pauseRuns, steps, maxCount }: Props) {
+export default function PauseHeatmap({
+  pauseRuns,
+  steps,
+  maxCount,
+  runsToShow,
+}: Props) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-lg sm:text-xl">Heatmap de Pausas</CardTitle>
+        <CardTitle className="text-lg sm:text-xl">
+          {`Heatmap de Pausas – ${
+            runsToShow === "all"
+              ? "Todas as Execuções"
+              : `Últimas ${runsToShow} Execuções`
+          }`}
+        </CardTitle>
       </CardHeader>
       <CardContent>
         <div className="overflow-x-auto">
