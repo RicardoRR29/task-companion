@@ -67,3 +67,6 @@ export default tseslint.config([
   },
 ])
 ```
+
+## AI powered flows
+To enable the AI assistant for flow creation, set `VITE_OPENAI_API_KEY` in a `.env` file with your OpenAI API key.
