@@ -17,6 +17,7 @@ import { ProgressCard } from "../../components/dashboard/ProgressCard";
 import { EmptyState } from "../../components/dashboard/EmptyState";
 import { EmptySearchState } from "../../components/dashboard/EmptySearchState";
 import { DashboardSkeleton } from "../../components/dashboard/DashboardSkeleton";
+import AIFlowModal from "../../components/dashboard/AIFlowModal";
 import { cn } from "../../utils/cn";
 import DashboardHeader from "./Header";
 import DashboardFilters from "./Filters";
@@ -45,6 +46,7 @@ export default function Dashboard() {
   const [isExporting, setIsExporting] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isAIChatOpen, setAIChatOpen] = useState(false);
   const [tab, setTab] = useState("all");
   const [progressSessions, setProgressSessions] = useState<Session[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -79,6 +81,10 @@ export default function Dashboard() {
     } finally {
       setIsCreating(false);
     }
+  }
+
+  function handleNewAI() {
+    setAIChatOpen(true);
   }
 
   async function handleClone(id: string) {
@@ -175,6 +181,7 @@ export default function Dashboard() {
         <div className="mb-8">
           <DashboardHeader
             onNew={handleNew}
+            onNewAI={handleNewAI}
             isCreating={isCreating}
             flowsCount={flows.length}
             isSelecting={isSelecting}
@@ -290,6 +297,17 @@ export default function Dashboard() {
           </TabsContent>
         </Tabs>
       </div>
+      <AIFlowModal
+        open={isAIChatOpen}
+        onOpenChange={setAIChatOpen}
+        onImport={async (json) => {
+          await importFlow(json);
+          toast({
+            title: "Fluxo criado",
+            description: "Um novo fluxo foi adicionado via IA.",
+          });
+        }}
+      />
     </div>
   );
 }

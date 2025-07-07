@@ -6,6 +6,7 @@ import { useCompanySettings } from "../../hooks/useCompanySettings";
 
 interface Props {
   onNew: () => void;
+  onNewAI: () => void;
   isCreating: boolean;
   flowsCount: number;
   isSelecting: boolean;
@@ -17,6 +18,7 @@ interface Props {
 
 export default function DashboardHeader({
   onNew,
+  onNewAI,
   isCreating,
   flowsCount,
   isSelecting,
@@ -44,6 +46,10 @@ export default function DashboardHeader({
         <Button onClick={onNew} disabled={isCreating} size="lg">
           <Plus className="mr-2 h-4 w-4" />
           {isCreating ? "Criando..." : "Novo Fluxo"}
+        </Button>
+        <Button onClick={onNewAI} variant="secondary" size="lg">
+          <Plus className="mr-2 h-4 w-4" />
+          Novo fluxo com IA
         </Button>
         {flowsCount > 0 && (
           <Button
