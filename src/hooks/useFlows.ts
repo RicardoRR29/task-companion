@@ -1,10 +1,11 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { nanoid } from "nanoid";
-import type { Flow, Step } from "../types/flow";
+import type { Flow, Step, FlowPackage, CustomComponent } from "../types/flow";
 import { buildNetworkGraph } from "../utils/graph";
 import { db } from "../db";
 import { logAction } from "../utils/audit";
+import { useCustomComponents } from "./useCustomComponents";
 
 interface FlowStore {
   flows: Flow[];
@@ -162,13 +163,25 @@ export const useFlows = create<FlowStore>()(
           throw new Error("Flow not found");
         }
 
-        const exportData = {
-          version: "1.0",
+        // Componentes utilizados neste fluxo
+        const componentIds = Array.from(
+          new Set(
+            flow.steps
+              .map((s) => s.componentId)
+              .filter((c): c is string => !!c)
+          )
+        );
+        const components =
+          componentIds.length > 0
+            ? await db.customComponents.where("id").anyOf(componentIds).toArray()
+            : [];
+
+        const { id: _unused, ...flowData } = flow;
+        const exportData: FlowPackage = {
+          version: "1.1",
           exportedAt: Date.now(),
-          flow: {
-            ...flow,
-            id: undefined, // Remove ID para evitar conflitos na importação
-          },
+          flows: [flowData],
+          components,
         };
 
         await logAction("FLOW_EXPORTED", "user", {
@@ -179,13 +192,29 @@ export const useFlows = create<FlowStore>()(
       },
 
       exportFlows: async (ids) => {
-        const flows = await db.flows.where('id').anyOf(ids).toArray();
-        const exportData = {
-          version: '1.0',
+        const flows = await db.flows.where("id").anyOf(ids).toArray();
+        const componentIds = Array.from(
+          new Set(
+            flows.flatMap((f) =>
+              f.steps
+                .map((s) => s.componentId)
+                .filter((c): c is string => !!c)
+            )
+          )
+        );
+        const components =
+          componentIds.length > 0
+            ? await db.customComponents.where("id").anyOf(componentIds).toArray()
+            : [];
+
+        const cleanedFlows = flows.map(({ id: _unused, ...rest }) => rest);
+        const exportData: FlowPackage = {
+          version: "1.1",
           exportedAt: Date.now(),
-          flows: flows.map((f) => ({ ...f, id: undefined })),
+          flows: cleanedFlows,
+          components,
         };
-        await logAction('FLOWS_EXPORTED', 'user', { count: flows.length });
+        await logAction("FLOWS_EXPORTED", "user", { count: flows.length });
         return JSON.stringify(exportData, null, 2);
       },
 
@@ -193,37 +222,62 @@ export const useFlows = create<FlowStore>()(
         try {
           const data = JSON.parse(jsonData);
 
-          if (!data.flow || !data.version) {
+          const flowsData: Omit<Flow, "id">[] = Array.isArray(data.flows)
+            ? data.flows
+            : data.flow
+            ? [data.flow]
+            : [];
+
+          if (!data.version || flowsData.length === 0) {
             throw new Error("Formato de arquivo inválido");
           }
 
-          const id = nanoid();
-          const now = Date.now();
-          const newSteps = data.flow.steps.map((step: Step) => ({
-            ...step,
-            id: nanoid(), // Gera novos IDs para os passos
-          }));
-          const flow: Flow = {
-            ...data.flow,
-            id,
-            title: `${data.flow.title} (importado)`,
-            status: "DRAFT",
-            visits: 0,
-            completions: 0,
-            updatedAt: now,
-            steps: newSteps,
-            networkGraph: buildNetworkGraph(newSteps),
-          };
+          const components: CustomComponent[] = Array.isArray(data.components)
+            ? data.components
+            : [];
 
-          await db.flows.put(flow);
-          set({ flows: [flow, ...get().flows] });
-          await logAction("FLOW_IMPORTED", "user", {
-            flowId: id,
-            title: flow.title,
-            originalTitle: data.flow.title,
-            stepsCount: flow.steps.length,
-          });
-          return id;
+          // Importa componentes primeiro
+          const compStore = useCustomComponents.getState();
+          for (const comp of components) {
+            await compStore.add({
+              name: comp.name,
+              html: comp.html,
+              css: comp.css,
+              js: comp.js,
+            });
+          }
+          await compStore.load();
+
+          const importedIds: string[] = [];
+
+          for (const f of flowsData) {
+            const newId = nanoid();
+            const now = Date.now();
+            const flow: Flow = {
+              ...f,
+              id: newId,
+              title: `${f.title} (importado)`,
+              status: "DRAFT",
+              visits: 0,
+              completions: 0,
+              updatedAt: now,
+              steps: f.steps,
+              networkGraph: buildNetworkGraph(f.steps),
+            };
+
+            await db.flows.put(flow);
+            set((s) => ({ flows: [flow, ...s.flows] }));
+
+            await logAction("FLOW_IMPORTED", "user", {
+              flowId: newId,
+              title: flow.title,
+              originalTitle: f.title,
+              stepsCount: flow.steps.length,
+            });
+            importedIds.push(newId);
+          }
+
+          return importedIds[0];
         } catch (error) {
           const err = error as Error;
           await logAction("FLOW_IMPORT_ERROR", "user", {

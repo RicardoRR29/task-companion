@@ -133,3 +133,14 @@ export interface LogEntry {
   stepId?: string;
   payload?: unknown;
 }
+
+/**
+ * Estrutura de dados para exportação/importação de fluxos
+ * juntamente com componentes customizados necessários.
+ */
+export interface FlowPackage {
+  version: string;
+  exportedAt: number;
+  flows: Omit<Flow, "id">[];
+  components: CustomComponent[];
+}
