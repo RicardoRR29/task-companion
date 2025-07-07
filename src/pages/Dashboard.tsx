@@ -4,6 +4,7 @@ import { useEffect, useState, useRef } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import {
   Plus,
+  Sparkles,
   Search,
   Grid3X3,
   List,
@@ -24,6 +25,7 @@ import { useToast } from "../hooks/use-toast";
 import { Button } from "../components/ui/button";
 import { Card, CardContent } from "../components/ui/card";
 import { Badge } from "../components/ui/badge";
+import AIFlowModal from "../components/dashboard/AIFlowModal";
 import type { Flow, Session } from "../types/flow";
 import {
   Tabs,
@@ -134,6 +136,7 @@ export default function Dashboard() {
   const [tab, setTab] = useState("all");
   const [progressSessions, setProgressSessions] = useState<Session[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [aiModalOpen, setAiModalOpen] = useState(false);
 
   // Campos visíveis nos cards
   const [showVisits, setShowVisits] = useState(true);
@@ -338,6 +341,24 @@ export default function Dashboard() {
     }
   }
 
+  async function handleAIImport(json: string) {
+    try {
+      const newId = await importFlow(json);
+      toast({
+        title: "Fluxo criado",
+        description: "Fluxo gerado com IA com sucesso.",
+      });
+      navigate(`/flows/${newId}/edit`);
+    } catch (error) {
+      const err = error as Error;
+      toast({
+        title: "Erro na importação",
+        description: err.message,
+        variant: "destructive",
+      });
+    }
+  }
+
   if (isLoading) {
     return <DashboardSkeleton />;
   }
@@ -421,6 +442,14 @@ export default function Dashboard() {
               >
                 <Plus className="mr-2 h-4 w-4" />
                 {isCreating ? "Criando..." : "Novo"}
+              </Button>
+              <Button
+                onClick={() => setAiModalOpen(true)}
+                variant="outline"
+                className="flex-1 sm:flex-none"
+              >
+                <Sparkles className="mr-2 h-4 w-4" />
+                IA
               </Button>
               <Button
                 onClick={() => fileInputRef.current?.click()}
@@ -561,6 +590,12 @@ export default function Dashboard() {
           onChange={handleImport}
           disabled={isImporting}
           className="hidden"
+        />
+
+        <AIFlowModal
+          open={aiModalOpen}
+          onOpenChange={setAiModalOpen}
+          onImport={handleAIImport}
         />
 
         {/* Content */}
