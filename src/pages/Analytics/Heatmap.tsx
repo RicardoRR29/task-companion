@@ -14,13 +14,25 @@ interface Props {
   recentRuns: SessionRun[];
   steps: StepInfo[];
   maxDuration: number;
+  runsToShow: number | "all";
 }
 
-export default function Heatmap({ recentRuns, steps, maxDuration }: Props) {
+export default function Heatmap({
+  recentRuns,
+  steps,
+  maxDuration,
+  runsToShow,
+}: Props) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-lg sm:text-xl">Heatmap de Tempo</CardTitle>
+        <CardTitle className="text-lg sm:text-xl">
+          {`Heatmap de Tempo – ${
+            runsToShow === "all"
+              ? "Todas as Execuções"
+              : `Últimas ${runsToShow} Execuções`
+          }`}
+        </CardTitle>
       </CardHeader>
       <CardContent>
         <div className="overflow-x-auto">
