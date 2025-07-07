@@ -3,7 +3,7 @@ Gerenciamento de fluxos
 
 Criar, clonar, atualizar e excluir fluxos (useFlows.ts).
 
-Passos de tipos TEXT, QUESTION, MEDIA, CUSTOM e WEBHOOK (src/types/flow.ts).
+Passos de tipos TEXT, QUESTION, MEDIA e CUSTOM (src/types/flow.ts).
 
 Arrastar e soltar para reordenar passos (FlowEditor e StepsSidebar).
 
@@ -72,7 +72,6 @@ Refinar segurança
 
 Sanitizar com bibliotecas de confiança (ex. DOMPurify) o HTML dos componentes personalizados.
 
-Validar melhor URLs de webhooks ou restringir origens.
 
 Experiência de usuário
 
@@ -88,7 +87,6 @@ Implementar controle de acesso/permite convidar colaboradores para editar ou vis
 
 Integração com APIs externas
 
-Oferecer modelos de webhooks ou integrações nativas (Slack, Zapier etc.).
 
 Expandir o uso da API do OpenAI para sugerir melhorias em fluxos existentes.
 
