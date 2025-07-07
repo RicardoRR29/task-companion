@@ -23,9 +23,7 @@ import type { Session, PathItem, Flow } from "../types/flow";
 import TotalTimeChart from "./Analytics/TotalTimeChart";
 import TimelineChart from "./Analytics/TimelineChart";
 import Heatmap from "./Analytics/Heatmap";
-import PauseHeatmap from "./Analytics/PauseHeatmap";
 import StackedAreaChart from "./Analytics/StackedAreaChart";
-import NetworkGraph from "./Analytics/NetworkGraph";
 
 const COLORS = [
   "#4e73df",
@@ -349,14 +347,6 @@ export default function Analytics() {
           runsToShow={runsToShow}
         />
 
-        {/* Pause Heatmap */}
-        <PauseHeatmap
-          pauseRuns={pauseRuns}
-          steps={steps}
-          maxCount={maxPause}
-          runsToShow={runsToShow}
-        />
-
         {/* Stacked Area Chart */}
         <StackedAreaChart
           data={areaData}
@@ -364,9 +354,6 @@ export default function Analytics() {
           colors={COLORS}
           runsToShow={runsToShow}
         />
-
-        {/* Network Graph */}
-        <NetworkGraph flow={f} />
       </div>
     </div>
   );

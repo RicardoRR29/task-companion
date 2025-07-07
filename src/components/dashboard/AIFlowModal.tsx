@@ -407,7 +407,7 @@ export default function AIFlowModal({ open, onOpenChange, onImport }: Props) {
                   className={cn(
                     "max-w-[80%] relative group",
                     message.role === "user"
-                      ? "bg-primary text-primary-foreground"
+                      ? "bg-[#e8e8e8] text-primary-foreground"
                       : "bg-muted/50"
                   )}
                 >
