@@ -16,7 +16,7 @@ O editor permite criar e modificar fluxos compostos por passos do tipo texto, pe
 
 Quando um fluxo é iniciado, o "Flow Player" registra a passagem do usuário por cada passo, armazenando eventos em coleções específicas no IndexedDB. Caso a execução seja concluída, incrementa-se o contador de finalizações e grava-se um log de resumo. Informações como tempo gasto por etapa e respostas a perguntas ficam disponíveis para análise posterior.
 
-O sistema exporta os fluxos em formato JSON, possibilitando o compartilhamento entre diferentes instalações. Da mesma forma, logs de execução podem ser baixados para auditorias ou importados por outras ferramentas. O uso de _webhooks_ permite integrar a conclusão de etapas a APIs externas, enviando dados em tempo real.
+O sistema exporta os fluxos em formato JSON, possibilitando o compartilhamento entre diferentes instalações. Da mesma forma, logs de execução podem ser baixados para auditorias ou importados por outras ferramentas.
 
 ## Analytics e Relatórios
 

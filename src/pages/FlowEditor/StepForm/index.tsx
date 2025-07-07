@@ -8,7 +8,6 @@ import {
   Type,
   HelpCircle,
   ImageIcon,
-  Link,
 } from "lucide-react";
 import type { Step } from "../../../types/flow";
 import { Button } from "../../../components/ui/button";
@@ -32,7 +31,6 @@ import TextStepForm from "./Text";
 import QuestionStepForm from "./Question";
 import MediaStepForm from "./Media";
 import CustomStepForm from "./Custom";
-import WebhookStepForm from "./Webhook";
 import CustomRenderer from "../../../components/CustomRenderer";
 import Markdown from "../../../components/Markdown";
 import { parseInlineMarkdown } from "../../../utils/markdown";
@@ -78,14 +76,6 @@ const STEP_TYPES = [
     color: "bg-orange-50 text-orange-700 border-orange-200",
     disabled: false,
   },
-  {
-    value: "WEBHOOK",
-    label: "Webhook",
-    description: "Chamada HTTP externa",
-    icon: Link,
-    color: "bg-cyan-50 text-cyan-700 border-cyan-200",
-    disabled: false,
-  },
 ] as const;
 
 export default function StepForm({ step, steps, onChange, onDelete }: Props) {
@@ -109,9 +99,6 @@ export default function StepForm({ step, steps, onChange, onDelete }: Props) {
       (!current.options || current.options.length === 0)
     ) {
       errors.push("Perguntas devem ter pelo menos uma opção");
-    }
-    if (current.type === "WEBHOOK" && !current.webhookUrl) {
-      errors.push("URL do webhook é obrigatória");
     }
     if (current.type === "MEDIA" && !current.mediaUrl) {
       errors.push("URL da mídia é obrigatória");
@@ -316,9 +303,6 @@ export default function StepForm({ step, steps, onChange, onDelete }: Props) {
         )}
         {step.type === "CUSTOM" && (
           <CustomStepForm step={step} setField={setField} />
-        )}
-        {step.type === "WEBHOOK" && (
-          <WebhookStepForm step={step} setField={setField} />
         )}
       </div>
     </div>

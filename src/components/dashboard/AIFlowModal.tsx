@@ -12,7 +12,7 @@ interface Props {
 const SYSTEM_PROMPT =
   `Você é o assistente virtual do TACO – Task Companion.\n\n` +
   `Explique de forma amigável que a plataforma cria fluxos com passos dos tipos ` +
-  `TEXT, QUESTION, MEDIA, CUSTOM e WEBHOOK. Responda dúvidas normalmente e ` +
+  `TEXT, QUESTION, MEDIA e CUSTOM. Responda dúvidas normalmente e ` +
   `sugira ao usuário experimentar a criação de um fluxo a partir de uma ` +
   `descrição.\n\n` +
   `Quando o usuário descrever um fluxo, analise a ideia e apresente um resumo ` +

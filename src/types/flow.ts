@@ -27,7 +27,7 @@ export interface CustomComponent {
 export interface Step {
   id: string;
   order: number;
-  type: "TEXT" | "QUESTION" | "MEDIA" | "CUSTOM" | "WEBHOOK";
+  type: "TEXT" | "QUESTION" | "MEDIA" | "CUSTOM";
   title: string;
   content: string;
   /** URL de imagem ou vídeo para passos do tipo MEDIA */
@@ -39,8 +39,6 @@ export interface Step {
   options?: StepOption[];
   /** Referência para o componente customizado a ser renderizado */
   componentId?: string;
-  /** URL opcional para disparo de webhook */
-  webhookUrl?: string;
 }
 
 /**
