@@ -26,7 +26,7 @@ import { Button } from "../components/ui/button";
 import { Card, CardContent } from "../components/ui/card";
 import { Badge } from "../components/ui/badge";
 import AIFlowModal from "../components/dashboard/AIFlowModal";
-import type { Flow, Session } from "../types/flow";
+import type { Flow } from "../types/flow";
 import {
   Tabs,
   TabsList,
@@ -135,7 +135,6 @@ export default function Dashboard() {
   const [isImporting, setIsImporting] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [tab, setTab] = useState("all");
-  const [progressSessions, setProgressSessions] = useState<Session[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [aiModalOpen, setAiModalOpen] = useState(false);
 
@@ -201,15 +200,6 @@ export default function Dashboard() {
     load();
   }, [load]);
 
-  useEffect(() => {
-    async function fetchProgress() {
-      const sessions = await db.sessions
-        .filter((s) => s.isPaused && !s.finishedAt)
-        .toArray();
-      setProgressSessions(sessions);
-    }
-    fetchProgress();
-  }, [flows]);
 
   const filteredFlows = flows.filter((flow) =>
     flow.title.toLowerCase().includes(searchQuery.toLowerCase())
@@ -632,11 +622,8 @@ export default function Dashboard() {
         {/* Content */}
         <main>
           <Tabs value={tab} onValueChange={setTab} className="space-y-6">
-            <TabsList className="grid w-full max-w-sm grid-cols-2">
+            <TabsList className="grid w-full max-w-sm grid-cols-1">
               <TabsTrigger value="all">Todos ({flows.length})</TabsTrigger>
-              <TabsTrigger value="progress">
-                Progresso ({progressSessions.length})
-              </TabsTrigger>
             </TabsList>
 
             <TabsContent value="all">
@@ -713,29 +700,6 @@ export default function Dashboard() {
                       showStepCount={showStepCount}
                     />
                   ))}
-                </div>
-              )}
-            </TabsContent>
-
-            <TabsContent value="progress">
-              {progressSessions.length === 0 ? (
-                <EmptyProgressState />
-              ) : (
-                <div className="space-y-3">
-                  {progressSessions.map((s) => {
-                    const flow = flows.find((f) => f.id === s.flowId);
-                    if (!flow) return null;
-                    return (
-                      <ProgressCard
-                        key={s.id}
-                        session={s}
-                        flow={flow}
-                        onResume={() =>
-                          navigate(`/flows/${flow.id}/play?session=${s.id}`)
-                        }
-                      />
-                    );
-                  })}
                 </div>
               )}
             </TabsContent>
@@ -1039,46 +1003,6 @@ function FlowCard({
   );
 }
 
-function ProgressCard({
-  session,
-  flow,
-  onResume,
-}: {
-  session: Session;
-  flow: Flow;
-  onResume: () => void;
-}) {
-  const current = (session.currentIndex ?? 0) + 1;
-  const total = flow.steps.length;
-  const pct = Math.round((current / total) * 100);
-
-  return (
-    <Card className="border-gray-200 transition-colors hover:bg-gray-50">
-      <CardContent className="p-6">
-        <div className="flex items-center justify-between">
-          <div className="min-w-0 flex-1">
-            <h3 className="truncate font-medium text-gray-900">{flow.title}</h3>
-            <div className="mt-3 flex items-center gap-3">
-              <div className="h-1 w-24 rounded-full bg-gray-200">
-                <div
-                  className="h-1 rounded-full bg-gray-900 transition-all duration-300"
-                  style={{ width: `${pct}%` }}
-                />
-              </div>
-              <span className="text-sm text-gray-500">
-                {current}/{total}
-              </span>
-            </div>
-          </div>
-          <Button onClick={onResume} size="sm" className="ml-4">
-            <Play className="mr-2 h-3 w-3" />
-            Continuar
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
 
 function EmptyState({
   onCreateFlow,
@@ -1127,17 +1051,6 @@ function EmptySearchState({
   );
 }
 
-function EmptyProgressState() {
-  return (
-    <div className="py-16 text-center">
-      <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-gray-100">
-        <Play className="h-6 w-6 text-gray-400" />
-      </div>
-      <h3 className="mb-2 font-medium text-gray-900">Nenhum progresso</h3>
-      <p className="text-sm text-gray-500">Fluxos pausados aparecerão aqui.</p>
-    </div>
-  );
-}
 
 function DashboardSkeleton() {
   return (

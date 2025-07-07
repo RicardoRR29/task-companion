@@ -28,4 +28,4 @@ Além dos passos tradicionais, é possível cadastrar componentes em HTML, CSS e
 
 ## Banco de Dados Local e Auditoria
 
-Para assegurar funcionamento _offline_, o TACO utiliza IndexedDB por meio da biblioteca Dexie. Todas as ações relevantes são registradas para posterior auditoria, incluindo criação de fluxos, execuções e eventos de pausa. Esse histórico facilita a rastreabilidade e pode ser consultado diretamente na interface.
+Para assegurar funcionamento _offline_, o TACO utiliza IndexedDB por meio da biblioteca Dexie. Todas as ações relevantes são registradas para posterior auditoria, incluindo criação de fluxos e execuções. Esse histórico facilita a rastreabilidade e pode ser consultado diretamente na interface.
