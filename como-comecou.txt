@@ -1,0 +1,21 @@
+TEXTO: Como começou a ideia do sistema
+
+Vou explicar como surgiu esse sistema e como vamos adaptar o TCC a partir dessa experiência.
+
+Primeiro, eu fazia o onboarding de novos colaboradores na área de TI, explicando todo o processo repetidas vezes para diferentes funcionários — e muitas vezes, para o mesmo colaborador. Para agilizar, utilizei diversas ferramentas para demonstrar os fluxos internos, mas percebi que apresentar o fluxo completo de uma só vez era ineficaz. Para realmente ensinar, eu precisava construir o fluxo junto com o novo colaborador, acompanhando cada passo para que ele entendesse o que deveria ser feito.
+
+A equipe de desenvolvimento chegou a criar um mapa mental com todas as etapas do processo de “resolver task”: desde ler a task no ClickUp, passando por criar a branch, definir a abordagem para executar a tarefa, abrir a pull request e atualizar a equipe ao longo do caminho. Quando recebi o PDF com aquele mapa mental gigantesco, percebi um problema grave: eu não sabia em que etapa estava. Essa dificuldade me afastou completamente de usar o mapa mental como referência.
+
+O mesmo acontece com documentações extensas que detalham vários processos e casos de uso — há uma resistência natural a ler textos longos, pois é difícil se localizar e nada é realmente intuitivo.
+
+Foi então que surgiu a ideia de criar um aplicativo com a aparência de um quiz, algo extremamente simples de usar e entender: um passo a passo leve e visual. Basicamente, precisamos de dois tipos de etapas no fluxo:
+
+Passo de texto — para explicações pontuais.
+
+Passo de pergunta — que permite ramificar o fluxo. Com a resposta do usuário, entendemos sua situação e redirecionamos o fluxo para o próximo passo adequado.
+
+Depois, adicionamos a possibilidade de incorporar vídeos do YouTube e imagens em cada passo. Agora também é possível criar componentes personalizados com HTML, CSS e JavaScript e incluí-los diretamente no fluxo. Assim, a empresa tem mais liberdade para elaborar passos mais explicativos e ser criativa.
+
+Se o usuário tiver alguma dúvida que o fluxo não contemplou, ele pode entrar em contato com o seu superior ou com quem criou o fluxo, e o sistema é então retroalimentado para incluir esse novo caso.
+
+Ao final, teremos no sistema todos os fluxos internos da empresa, funcionando como uma documentação viva de cada processo.
