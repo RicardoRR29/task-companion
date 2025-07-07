@@ -6,6 +6,7 @@ import {
   FileText,
   User,
   Menu,
+  Settings as SettingsIcon,
 } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
@@ -34,6 +35,11 @@ const navItems: NavItem[] = [
     to: "/components",
     icon: <User className="h-4 w-4" />,
     label: "Componentes",
+  },
+  {
+    to: "/settings",
+    icon: <SettingsIcon className="h-4 w-4" />,
+    label: "Configurações",
   },
 ];
 
