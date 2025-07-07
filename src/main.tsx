@@ -9,7 +9,6 @@ import { registerSW } from "virtual:pwa-register";
 
 import Dashboard from "./pages/Dashboard";
 import FlowPlayer from "./pages/FlowPlayer";
-import Analytics from "./pages/Analytics";
 import FlowEditor from "./pages/FlowEditor";
 import Company from "./pages/Company";
 import Audit from "./pages/Audit";
@@ -19,6 +18,7 @@ import CustomComponents from "./pages/CustomComponents";
 import Settings from "./pages/Settings";
 import { useCompanySettings } from "./hooks/useCompanySettings";
 import { applyBrandColors } from "./utils/theme";
+import Analytics from "./pages/Analytics/EnhancedAnalytics";
 
 registerSW({ immediate: true });
 

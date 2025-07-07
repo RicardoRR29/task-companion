@@ -1,29 +1,18 @@
+"use client";
+
 import { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
-import { useFlows } from "../hooks/useFlows";
-import { useAnalytics } from "../hooks/useAnalytics";
-import { Button } from "../components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "../components/ui/card";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../components/ui/select";
-import { Input } from "../components/ui/input";
-import { useAnalyticsConfig } from "../hooks/useAnalyticsConfig";
-import { db } from "../db";
-import type { Session, PathItem, Flow } from "../types/flow";
-import TotalTimeChart from "./Analytics/TotalTimeChart";
-import TimelineChart from "./Analytics/TimelineChart";
-import Heatmap from "./Analytics/Heatmap";
-import StackedAreaChart from "./Analytics/StackedAreaChart";
+import { useParams } from "react-router-dom";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useFlows } from "@/hooks/useFlows";
+import type { Flow, PathItem, Session } from "@/types/flow";
+import { useAnalyticsConfig } from "@/hooks/useAnalyticsConfig";
+import { useAnalytics } from "@/hooks/useAnalytics";
+import { db } from "@/db";
+import AnalyticsHeader from "./AnalyticsHeader";
+import TotalTimeChart from "./TotalTimeChart";
+import TimelineChart from "./TimelineChart";
+import Heatmap from "./Heatmap";
+import StackedAreaChart from "./StackedAreaChart";
 
 const COLORS = [
   "#4e73df",
@@ -68,7 +57,6 @@ export default function Analytics() {
       const sorted = all.sort((a, b) => b.startedAt - a.startedAt);
       const limit = runsToShow === "all" ? sorted.length : runsToShow;
       const lastRuns = sorted.slice(0, limit);
-
       setRecentRuns(
         lastRuns.map((s) => ({
           sessionId: s.id,
@@ -78,7 +66,6 @@ export default function Analytics() {
       );
     })();
   }, [flow, stats, runsToShow]);
-
 
   useEffect(() => {
     if (!flow) return;
@@ -123,6 +110,15 @@ export default function Analytics() {
     setTotalByStepData([]);
   }
 
+  const handleAddCustomOption = () => {
+    const v = Number.parseInt(newOption, 10);
+    if (!isNaN(v) && v > 0) {
+      addCustomOption(v);
+      setRunsToShow(v);
+      setNewOption("");
+    }
+  };
+
   const slowest = totalByStepData.reduce(
     (p, c) => (c.totalTime > p.totalTime ? c : p),
     {
@@ -133,6 +129,7 @@ export default function Analytics() {
   );
 
   const steps = f.steps.map((s) => ({ id: s.id, title: s.title }));
+
   const timelineData = recentRuns.map((run, idx) => {
     const row: { name: string; [key: string]: number | string } = {
       name: `Sessão #${idx + 1}`,
@@ -153,172 +150,96 @@ export default function Analytics() {
     return row;
   });
 
-
   return (
-    <div className="min-h-screen bg-gray-50/50 p-3 sm:p-4 lg:p-6">
-      <div className="mx-auto max-w-7xl space-y-4 sm:space-y-6 lg:space-y-8">
+    <div className="min-h-screen bg-gray-50/30 p-4 sm:p-6 lg:p-8">
+      <div className="mx-auto max-w-7xl space-y-6">
         {/* Header */}
-        <Card>
-          <CardHeader className="pb-4">
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-              <CardTitle className="text-xl sm:text-2xl lg:text-3xl">
-                Analytics: {f.title}
-              </CardTitle>
-              <div className="flex flex-col gap-2 sm:flex-row print:hidden">
-                <Button
-                  size="sm"
-                  variant="secondary"
-                  asChild
-                  className="w-full sm:w-auto"
-                >
-                  <Link to="/">Voltar</Link>
-                </Button>
-                <Button
-                  size="sm"
-                  variant="destructive"
-                  onClick={handleClear}
-                  className="w-full sm:w-auto"
-                >
-                  Limpar Métricas
-                </Button>
-                <Button
-                  size="sm"
-                  variant="secondary"
-                  onClick={() => window.print()}
-                  className="w-full sm:w-auto"
-                >
-                  Exportar Relatório
-                </Button>
-              </div>
-            </div>
-            <div className="mt-2 flex flex-col gap-2 sm:mt-4 sm:flex-row sm:items-center sm:justify-end print:hidden">
-              <Select
-                value={runsToShow === "all" ? "all" : String(runsToShow)}
-                onValueChange={(v) =>
-                  setRunsToShow(v === "all" ? "all" : parseInt(v, 10))
-                }
-              >
-                <SelectTrigger className="w-40">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {[5, 10, 20].map((n) => (
-                    <SelectItem key={n} value={String(n)}>
-                      Últimas {n}
-                    </SelectItem>
-                  ))}
-                  <SelectItem value="all">Todas</SelectItem>
-                  {customOptions.map((n) => (
-                    <SelectItem key={`c-${n}`} value={String(n)}>
-                      Últimas {n}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <div className="flex items-center gap-2">
-                <Input
-                  type="number"
-                  min="1"
-                  value={newOption}
-                  onChange={(e) => setNewOption(e.target.value)}
-                  placeholder="Qtd"
-                  className="w-20"
-                />
-                <Button
-                  type="button"
-                  size="sm"
-                  onClick={() => {
-                    const v = parseInt(newOption, 10);
-                    if (!isNaN(v) && v > 0) {
-                      addCustomOption(v);
-                      setRunsToShow(v);
-                      setNewOption("");
-                    }
-                  }}
-                >
-                  Add
-                </Button>
-              </div>
-            </div>
-          </CardHeader>
-        </Card>
+        <AnalyticsHeader
+          flowTitle={f.title}
+          totalVisits={st.visits}
+          currentRunsCount={recentRuns.length}
+          runsToShow={runsToShow}
+          customOptions={customOptions}
+          newOption={newOption}
+          onRunsToShowChange={setRunsToShow}
+          onNewOptionChange={setNewOption}
+          onAddCustomOption={handleAddCustomOption}
+          onClear={handleClear}
+          onExport={() => window.print()}
+        />
 
         {/* Metrics Cards */}
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4 sm:gap-4">
-          <Card>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <Card className="border-0 shadow-sm">
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                Visits
+              <CardTitle className="text-sm font-medium text-gray-600">
+                Visitas
               </CardTitle>
             </CardHeader>
             <CardContent className="pt-0">
-              <div className="text-2xl font-bold sm:text-3xl">{st.visits}</div>
+              <div className="text-3xl font-bold text-gray-900">
+                {st.visits}
+              </div>
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="border-0 shadow-sm">
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                Completions
+              <CardTitle className="text-sm font-medium text-gray-600">
+                Conclusões
               </CardTitle>
             </CardHeader>
             <CardContent className="pt-0">
-              <div className="text-2xl font-bold sm:text-3xl">
+              <div className="text-3xl font-bold text-gray-900">
                 {st.completions}
               </div>
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="border-0 shadow-sm">
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                Completion Rate
+              <CardTitle className="text-sm font-medium text-gray-600">
+                Taxa de Conclusão
               </CardTitle>
             </CardHeader>
             <CardContent className="pt-0">
-              <div className="text-2xl font-bold sm:text-3xl">
+              <div className="text-3xl font-bold text-gray-900">
                 {(st.completionRate * 100).toFixed(1)}%
               </div>
             </CardContent>
           </Card>
 
-          <Card className="bg-yellow-50 border-yellow-200">
+          <Card className="border-0 shadow-sm bg-gradient-to-br from-amber-50 to-orange-50 border-amber-200">
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-yellow-800">
+              <CardTitle className="text-sm font-medium text-amber-800">
                 Passo mais lento
               </CardTitle>
             </CardHeader>
             <CardContent className="pt-0">
-              <div className="text-sm font-medium text-yellow-900 sm:text-base">
+              <div className="text-sm font-medium text-amber-900 mb-1">
                 {slowest.name}
               </div>
-              <div className="text-lg font-bold text-yellow-800 sm:text-xl">
+              <div className="text-2xl font-bold text-amber-800">
                 {slowest.totalTime.toFixed(1)}s
               </div>
             </CardContent>
           </Card>
         </div>
 
-        {/* Bar Chart - Total Time per Step */}
+        {/* Charts */}
         <TotalTimeChart data={totalByStepData} />
-
-        {/* Timeline Horizontal */}
         <TimelineChart
           data={timelineData}
           steps={steps}
           colors={COLORS}
           runsToShow={runsToShow}
         />
-
-        {/* Heatmap */}
         <Heatmap
           recentRuns={recentRuns}
           steps={steps}
           maxDuration={allDur}
           runsToShow={runsToShow}
         />
-
-        {/* Stacked Area Chart */}
         <StackedAreaChart
           data={areaData}
           steps={steps}

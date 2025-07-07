@@ -27,12 +27,6 @@ import { Card, CardContent } from "../components/ui/card";
 import { Badge } from "../components/ui/badge";
 import AIFlowModal from "../components/dashboard/AIFlowModal";
 import type { Flow } from "../types/flow";
-import {
-  Tabs,
-  TabsList,
-  TabsTrigger,
-  TabsContent,
-} from "../components/ui/tabs";
 import { db } from "../db";
 import { Input } from "../components/ui/input";
 import { Skeleton } from "../components/ui/skeleton";
@@ -199,7 +193,6 @@ export default function Dashboard() {
   useEffect(() => {
     load();
   }, [load]);
-
 
   const filteredFlows = flows.filter((flow) =>
     flow.title.toLowerCase().includes(searchQuery.toLowerCase())
@@ -621,89 +614,76 @@ export default function Dashboard() {
 
         {/* Content */}
         <main>
-          <Tabs value={tab} onValueChange={setTab} className="space-y-6">
-            <TabsList className="grid w-full max-w-sm grid-cols-1">
-              <TabsTrigger value="all">Todos ({flows.length})</TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="all">
-              {filteredFlows.length === 0 ? (
-                searchQuery ? (
-                  <EmptySearchState
-                    searchQuery={searchQuery}
-                    onClearSearch={() => setSearchQuery("")}
-                  />
-                ) : (
-                  <EmptyState
-                    onCreateFlow={handleNew}
-                    isCreating={isCreating}
-                  />
-                )
-              ) : (
-                <div
-                  className={cn(
-                    viewMode === "grid"
-                      ? "grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
-                      : "space-y-3"
-                  )}
-                >
-                  {filteredFlows.map((flow) => (
-                    <FlowCard
-                      key={flow.id}
-                      flow={flow}
-                      viewMode={viewMode}
-                      onClone={() => handleClone(flow.id)}
-                      onEdit={() => navigate(`/flows/${flow.id}/edit`)}
-                      onPlay={() => navigate(`/flows/${flow.id}/play`)}
-                      onAnalytics={() =>
-                        navigate(`/flows/${flow.id}/analytics`)
-                      }
-                      onExport={async () => {
-                        setIsExporting(true);
-                        try {
-                          const data = await exportFlows([flow.id]);
-                          const blob = new Blob([data], {
-                            type: "application/json",
-                          });
-                          const url = URL.createObjectURL(blob);
-                          const a = document.createElement("a");
-                          a.href = url;
-                          a.download = `${flow.title
-                            .replace(/\s+/g, "-")
-                            .toLowerCase()}.json`;
-                          document.body.appendChild(a);
-                          a.click();
-                          document.body.removeChild(a);
-                          URL.revokeObjectURL(url);
-                          toast({
-                            title: "Exportado",
-                            description: "Fluxo exportado com sucesso.",
-                          });
-                        } catch (err) {
-                          console.error("Erro ao exportar fluxo:", err);
-                          toast({
-                            title: "Erro",
-                            description: "Não foi possível exportar.",
-                            variant: "destructive",
-                          });
-                        } finally {
-                          setIsExporting(false);
-                        }
-                      }}
-                      onDelete={() => handleDelete(flow.id)}
-                      isSelecting={isSelecting}
-                      isSelected={selectedIds.includes(flow.id)}
-                      onSelect={() => toggleSelect(flow.id)}
-                      showVisits={showVisits}
-                      showCompletions={showCompletions}
-                      showCompletionRate={showCompletionRate}
-                      showStepCount={showStepCount}
-                    />
-                  ))}
-                </div>
+          {filteredFlows.length === 0 ? (
+            searchQuery ? (
+              <EmptySearchState
+                searchQuery={searchQuery}
+                onClearSearch={() => setSearchQuery("")}
+              />
+            ) : (
+              <EmptyState onCreateFlow={handleNew} isCreating={isCreating} />
+            )
+          ) : (
+            <div
+              className={cn(
+                viewMode === "grid"
+                  ? "grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+                  : "space-y-3"
               )}
-            </TabsContent>
-          </Tabs>
+            >
+              {filteredFlows.map((flow) => (
+                <FlowCard
+                  key={flow.id}
+                  flow={flow}
+                  viewMode={viewMode}
+                  onClone={() => handleClone(flow.id)}
+                  onEdit={() => navigate(`/flows/${flow.id}/edit`)}
+                  onPlay={() => navigate(`/flows/${flow.id}/play`)}
+                  onAnalytics={() => navigate(`/flows/${flow.id}/analytics`)}
+                  onExport={async () => {
+                    setIsExporting(true);
+                    try {
+                      const data = await exportFlows([flow.id]);
+                      const blob = new Blob([data], {
+                        type: "application/json",
+                      });
+                      const url = URL.createObjectURL(blob);
+                      const a = document.createElement("a");
+                      a.href = url;
+                      a.download = `${flow.title
+                        .replace(/\s+/g, "-")
+                        .toLowerCase()}.json`;
+                      document.body.appendChild(a);
+                      a.click();
+                      document.body.removeChild(a);
+                      URL.revokeObjectURL(url);
+                      toast({
+                        title: "Exportado",
+                        description: "Fluxo exportado com sucesso.",
+                      });
+                    } catch (err) {
+                      console.error("Erro ao exportar fluxo:", err);
+                      toast({
+                        title: "Erro",
+                        description: "Não foi possível exportar.",
+                        variant: "destructive",
+                      });
+                    } finally {
+                      setIsExporting(false);
+                    }
+                  }}
+                  onDelete={() => handleDelete(flow.id)}
+                  isSelecting={isSelecting}
+                  isSelected={selectedIds.includes(flow.id)}
+                  onSelect={() => toggleSelect(flow.id)}
+                  showVisits={showVisits}
+                  showCompletions={showCompletions}
+                  showCompletionRate={showCompletionRate}
+                  showStepCount={showStepCount}
+                />
+              ))}
+            </div>
+          )}
         </main>
       </div>
     </div>
@@ -757,14 +737,14 @@ function FlowCard({
               <Button
                 variant="ghost"
                 size="sm"
-                className="h-8 w-8 p-0 shrink-0"
+                className="h-10 w-10 p-0 shrink-0"
                 onClick={(e) => {
                   e.stopPropagation();
                   onSelect();
                 }}
               >
-                <div className="flex h-4 w-4 items-center justify-center rounded border border-gray-300">
-                  {isSelected && <Check className="h-3 w-3" />}
+                <div className="flex h-5 w-5 items-center justify-center rounded border-2 border-gray-300 bg-white">
+                  {isSelected && <Check className="h-4 w-4 text-blue-600" />}
                 </div>
               </Button>
             )}
@@ -856,23 +836,25 @@ function FlowCard({
       onClick={isSelecting ? onSelect : onEdit}
     >
       {isSelecting && (
-        <div className="absolute left-4 top-4 z-10">
+        <div className="absolute right-4 top-4 z-10">
           <Button
             variant="ghost"
             size="sm"
-            className="h-6 w-6 p-0"
+            className="h-8 w-8 p-0"
             onClick={(e) => {
               e.stopPropagation();
               onSelect();
             }}
           >
-            <div className="flex h-4 w-4 items-center justify-center rounded border border-gray-300">
-              {isSelected && <Check className="h-3 w-3" />}
+            <div className="flex h-5 w-5 items-center justify-center rounded border-2 border-gray-300 bg-white shadow-sm">
+              <div className="w-4">
+                {isSelected && <Check className="text-blue-600" />}
+              </div>
             </div>
           </Button>
         </div>
       )}
-      <CardContent className="p-6">
+      <CardContent className={cn("p-6", isSelecting && "pr-16")}>
         <div className="flex items-start justify-between mb-4">
           <div className="min-w-0 flex-1">
             <h3 className="truncate font-medium text-gray-900 group-hover:text-black">
@@ -884,58 +866,59 @@ function FlowCard({
               </p>
             )}
           </div>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-8 w-8 p-0 opacity-0 transition-opacity group-hover:opacity-100"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <MoreVertical className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onClone();
-                }}
-              >
-                <Copy className="mr-2 h-4 w-4" />
-                Duplicar
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onEdit();
-                }}
-              >
-                <Edit className="mr-2 h-4 w-4" />
-                Editar
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onExport();
-                }}
-              >
-                <Download className="mr-2 h-4 w-4" />
-                Exportar
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onDelete();
-                }}
-              >
-                <Trash2 className="mr-2 h-4 w-4" />
-                Excluir
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          {!isSelecting && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-8 w-8 p-0 opacity-0 transition-opacity group-hover:opacity-100"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <MoreVertical className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onClone();
+                  }}
+                >
+                  <Copy className="mr-2 h-4 w-4" />
+                  Duplicar
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onEdit();
+                  }}
+                >
+                  <Edit className="mr-2 h-4 w-4" />
+                  Editar
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onExport();
+                  }}
+                >
+                  <Download className="mr-2 h-4 w-4" />
+                  Exportar
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onDelete();
+                  }}
+                >
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  Excluir
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
         </div>
-
         {(showVisits || showCompletions) && (
           <div className="grid grid-cols-2 gap-4 text-sm mb-4">
             {showVisits && (
@@ -952,7 +935,6 @@ function FlowCard({
             )}
           </div>
         )}
-
         {showCompletionRate && completionRate > 0 && (
           <div className="mb-4">
             <div className="flex justify-between text-sm mb-2">
@@ -969,7 +951,6 @@ function FlowCard({
             </div>
           </div>
         )}
-
         <div>
           <div className="flex gap-3">
             <Button
@@ -1002,7 +983,6 @@ function FlowCard({
     </Card>
   );
 }
-
 
 function EmptyState({
   onCreateFlow,
@@ -1050,7 +1030,6 @@ function EmptySearchState({
     </div>
   );
 }
-
 
 function DashboardSkeleton() {
   return (
