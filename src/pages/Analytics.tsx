@@ -45,19 +45,16 @@ interface SessionRun {
 export default function Analytics() {
   const { id = "" } = useParams<{ id: string }>();
   const { flows, load, update } = useFlows();
-  const {
-    runsToShow,
-    customOptions,
-    setRunsToShow,
-    addCustomOption,
-  } = useAnalyticsConfig();
+  const { runsToShow, customOptions, setRunsToShow, addCustomOption } =
+    useAnalyticsConfig();
   const [newOption, setNewOption] = useState("");
   const [recentRuns, setRecentRuns] = useState<SessionRun[]>([]);
-  const [pauseRuns, setPauseRuns] = useState<{ counts: Record<string, number> }[]>([]);
+  const [pauseRuns, setPauseRuns] = useState<
+    { counts: Record<string, number> }[]
+  >([]);
   const [totalByStepData, setTotalByStepData] = useState<
     { name: string; totalTime: number; color: string }[]
   >([]);
-
 
   useEffect(() => {
     load();
@@ -185,9 +182,7 @@ export default function Analytics() {
   });
 
   const maxPause = pauseRuns
-    .map((r) =>
-      Object.values(r.counts).reduce((mx, v) => (v > mx ? v : mx), 0)
-    )
+    .map((r) => Object.values(r.counts).reduce((mx, v) => (v > mx ? v : mx), 0))
     .reduce((mx, v) => (v > mx ? v : mx), 0);
 
   return (

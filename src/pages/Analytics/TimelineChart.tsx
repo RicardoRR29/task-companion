@@ -28,7 +28,6 @@ interface Props {
 
 export default function TimelineChart({ data, steps, colors }: Props) {
   const isMobile = useIsMobile();
-
   return (
     <Card className="w-full">
       <CardHeader className="pb-4">
