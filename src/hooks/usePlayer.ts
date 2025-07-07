@@ -46,7 +46,7 @@ export function usePlayer(flow?: Flow, loadSessionId?: string): PlayerState {
         const arr = await db.sessions
           .where("flowId")
           .equals(flow.id)
-          .filter((s) => !s.finishedAt && !!s.isPaused)
+          .filter((s) => !s.finishedAt)
           .toArray();
         if (arr.length) {
           existing = arr.sort((a, b) => b.startedAt - a.startedAt)[0];
