@@ -1,5 +1,20 @@
-import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Cell } from "recharts";
-import { Card, CardHeader, CardTitle, CardContent } from "../../components/ui/card";
+import {
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  Cell,
+} from "recharts";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardContent,
+} from "../../components/ui/card";
 
 interface DataItem {
   name: string;
@@ -15,7 +30,9 @@ export default function TotalTimeChart({ data }: Props) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-lg sm:text-xl">Tempo total por passo (s)</CardTitle>
+        <CardTitle className="text-lg sm:text-xl">
+          Tempo total por passo (s)
+        </CardTitle>
       </CardHeader>
       <CardContent>
         <div className="h-64 w-full sm:h-80 lg:h-96">

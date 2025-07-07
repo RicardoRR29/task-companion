@@ -27,11 +27,6 @@ const navItems: NavItem[] = [
   { to: "/", icon: <Home className="h-4 w-4" />, label: "Dashboard" },
   { to: "/audit", icon: <Activity className="h-4 w-4" />, label: "Auditoria" },
   {
-    to: "/import-export",
-    icon: <FileText className="h-4 w-4" />,
-    label: "Import/Export",
-  },
-  {
     to: "/components",
     icon: <User className="h-4 w-4" />,
     label: "Componentes",
