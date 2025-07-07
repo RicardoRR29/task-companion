@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import {
   useParams,
   Link,
@@ -21,11 +21,8 @@ export default function FlowPlayer() {
   const sessionParam = params.get("session") || undefined;
   const navigate = useNavigate();
   const { flows, load, isLoading } = useFlows();
-  const [startTime] = useState(Date.now());
-  const pauseStart = useRef<number | null>(null);
-  const [pausedTotal, setPausedTotal] = useState(0);
-  const [isExiting, setIsExiting] = useState(false);
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
+  const [isExiting, setIsExiting] = useState(false);
 
   const flow = flows.find((f) => f.id === id);
   const {
@@ -39,6 +36,9 @@ export default function FlowPlayer() {
     pause,
     resume,
     isPaused,
+    sessionStart: sessionStartTs,
+    pauseAccum,
+    pauseStart: currentPauseStart,
   } = usePlayer(flow, sessionParam);
 
   useEffect(() => {
@@ -51,15 +51,15 @@ export default function FlowPlayer() {
       const now = Date.now();
       const running =
         now -
-        startTime -
-        pausedTotal -
-        (pauseStart.current ? now - pauseStart.current : 0);
+        sessionStartTs -
+        pauseAccum -
+        (currentPauseStart ? now - currentPauseStart : 0);
       setElapsedSeconds(Math.round(running / 1000));
     };
     const interval = setInterval(tick, 1000);
     tick();
     return () => clearInterval(interval);
-  }, [startTime, pausedTotal, index]);
+  }, [sessionStartTs, pauseAccum, currentPauseStart, index]);
 
   const handleExit = () => {
     setIsExiting(true);
@@ -69,13 +69,8 @@ export default function FlowPlayer() {
   const handlePauseResume = () => {
     if (isPaused) {
       resume();
-      if (pauseStart.current) {
-        setPausedTotal((p) => p + Date.now() - pauseStart.current!);
-        pauseStart.current = null;
-      }
     } else {
       pause();
-      pauseStart.current = Date.now();
       navigate("/");
     }
   };
@@ -114,9 +109,9 @@ export default function FlowPlayer() {
     const now = Date.now();
     const running =
       now -
-      startTime -
-      pausedTotal -
-      (pauseStart.current ? now - pauseStart.current : 0);
+      sessionStartTs -
+      pauseAccum -
+      (currentPauseStart ? now - currentPauseStart : 0);
     const elapsedTime = Math.round(running / 1000);
     return (
       <CompletionScreen
