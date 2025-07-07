@@ -120,6 +120,7 @@ export default function Dashboard() {
     clone,
     exportFlows,
     importFlow,
+    remove,
     removeMany,
     isLoading,
   } = useFlows();
@@ -243,6 +244,23 @@ export default function Dashboard() {
       console.error("Erro ao clonar fluxo:", error);
       toast({
         title: "Erro ao duplicar",
+        description: "Tente novamente.",
+        variant: "destructive",
+      });
+    }
+  }
+
+  async function handleDelete(id: string) {
+    if (!confirm("Excluir fluxo?")) return;
+    try {
+      await remove(id);
+      toast({
+        title: "Fluxo excluído",
+        description: "O fluxo foi excluído com sucesso.",
+      });
+    } catch {
+      toast({
+        title: "Erro ao excluir",
         description: "Tente novamente.",
         variant: "destructive",
       });
@@ -672,6 +690,7 @@ export default function Dashboard() {
                           setIsExporting(false);
                         }
                       }}
+                      onDelete={() => handleDelete(flow.id)}
                       isSelecting={isSelecting}
                       isSelected={selectedIds.includes(flow.id)}
                       onSelect={() => toggleSelect(flow.id)}
@@ -723,6 +742,7 @@ function FlowCard({
   onPlay,
   onAnalytics,
   onExport,
+  onDelete,
   isSelecting,
   isSelected,
   onSelect,
@@ -738,6 +758,7 @@ function FlowCard({
   onPlay: () => void;
   onAnalytics: () => void;
   onExport: () => void;
+  onDelete: () => void;
   isSelecting: boolean;
   isSelected: boolean;
   onSelect: () => void;
@@ -822,7 +843,7 @@ function FlowCard({
                     <Play className="mr-2 h-4 w-4" />
                     Executar
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={onEdit} className="sm:hidden">
+                  <DropdownMenuItem onClick={onEdit}>
                     <Edit className="mr-2 h-4 w-4" />
                     Editar
                   </DropdownMenuItem>
@@ -838,6 +859,10 @@ function FlowCard({
                   <DropdownMenuItem onClick={onExport}>
                     <Download className="mr-2 h-4 w-4" />
                     Exportar
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={onDelete}>
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    Excluir
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -906,11 +931,29 @@ function FlowCard({
               <DropdownMenuItem
                 onClick={(e) => {
                   e.stopPropagation();
+                  onEdit();
+                }}
+              >
+                <Edit className="mr-2 h-4 w-4" />
+                Editar
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={(e) => {
+                  e.stopPropagation();
                   onExport();
                 }}
               >
                 <Download className="mr-2 h-4 w-4" />
                 Exportar
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDelete();
+                }}
+              >
+                <Trash2 className="mr-2 h-4 w-4" />
+                Excluir
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
