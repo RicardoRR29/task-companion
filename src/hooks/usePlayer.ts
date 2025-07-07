@@ -18,6 +18,9 @@ interface PlayerState {
   pause(): void;
   resume(): void;
   isPaused: boolean;
+  sessionStart: number;
+  pauseAccum: number;
+  pauseStart: number | null;
 }
 
 export function usePlayer(flow?: Flow, loadSessionId?: string): PlayerState {
@@ -63,6 +66,25 @@ export function usePlayer(flow?: Flow, loadSessionId?: string): PlayerState {
         setIndex(existing.currentIndex ?? 0);
         setHistory(existing.history ?? [existing.currentIndex ?? 0]);
         setIsPaused(existing.isPaused ?? false);
+
+        const events = await db.pauseEvents
+          .where("sessionId")
+          .equals(existing.id)
+          .toArray();
+        let accum = 0;
+        let lastPaused: number | null = null;
+        let lastId: string | null = null;
+        events.forEach((e) => {
+          if (e.resumedAt) {
+            accum += e.resumedAt - e.pausedAt;
+          } else {
+            lastPaused = e.pausedAt;
+            lastId = e.id;
+          }
+        });
+        pauseAccum.current = accum;
+        pauseStart.current = lastPaused;
+        pauseEventId.current = lastId;
       } else {
         const sid = nanoid();
         sessionId.current = sid;
@@ -332,6 +354,9 @@ export function usePlayer(flow?: Flow, loadSessionId?: string): PlayerState {
       pause,
       resume,
       isPaused,
+      sessionStart: sessionStart.current,
+      pauseAccum: pauseAccum.current,
+      pauseStart: pauseStart.current,
     };
   }
 
@@ -353,5 +378,8 @@ export function usePlayer(flow?: Flow, loadSessionId?: string): PlayerState {
     pause,
     resume,
     isPaused,
+    sessionStart: sessionStart.current,
+    pauseAccum: pauseAccum.current,
+    pauseStart: pauseStart.current,
   };
 }
