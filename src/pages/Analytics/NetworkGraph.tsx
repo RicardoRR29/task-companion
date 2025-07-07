@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useState } from "react";
-import type { Flow, Session } from "../../types/flow";
-import { db } from "../../db";
+import { useMemo } from "react";
+import type { Flow } from "../../types/flow";
+import { buildNetworkGraph, computeTreeLayout } from "../../utils/graph";
 import {
   Card,
   CardHeader,
@@ -19,7 +19,6 @@ interface NetworkNode {
 interface NetworkLink {
   source: string;
   target: string;
-  count: number;
 }
 
 interface Props {
@@ -27,75 +26,25 @@ interface Props {
 }
 
 export default function NetworkGraph({ flow }: Props) {
-  const [links, setLinks] = useState<NetworkLink[]>([]);
-
-  const nodes: NetworkNode[] = useMemo(
-    () =>
-      flow.steps.map((s, idx) => ({
-        id: s.id,
-        label: s.title,
-        x: 80 + idx * 120,
-        y: 200,
-      })),
+  const links: NetworkLink[] = useMemo(
+    () => buildNetworkGraph(flow.steps),
     [flow.steps]
   );
 
-  useEffect(() => {
-    async function load() {
-      const sessions: Session[] = await db.sessions
-        .where("flowId")
-        .equals(flow.id)
-        .toArray();
+  const nodes: NetworkNode[] = useMemo(
+    () => computeTreeLayout(flow.steps, links),
+    [flow.steps, links]
+  );
 
-      const counts: Record<string, number> = {};
-      sessions.forEach((s) => {
-        const path = Array.isArray(s.path) ? s.path : [];
-        for (let i = 0; i < path.length - 1; i++) {
-          const from = path[i].id;
-          const to = path[i + 1].id;
-          const key = `${from}->${to}`;
-          counts[key] = (counts[key] || 0) + 1;
-        }
-      });
-
-      const defined: { source: string; target: string }[] =
-        flow.networkGraph ?? [];
-
-      const seen = new Set<string>();
-      const arr: NetworkLink[] = [];
-      defined.forEach(({ source, target }) => {
-        const key = `${source}->${target}`;
-        if (seen.has(key)) return;
-        seen.add(key);
-        arr.push({
-          source,
-          target,
-          count: counts[key] || 0,
-        });
-      });
-
-      Object.entries(counts).forEach(([key, count]) => {
-        if (!seen.has(key)) {
-          const [source, target] = key.split("->");
-          arr.push({ source, target, count });
-        }
-      });
-
-      setLinks(arr);
-    }
-
-    load();
-  }, [flow]);
-
-  const maxCount = links.reduce((m, l) => (l.count > m ? l.count : m), 0) || 1;
-  const viewWidth = nodes.length * 120 + 160;
+  const viewWidth =
+    (nodes.reduce((mx, n) => (n.x > mx ? n.x : mx), 0) || 0) + 160;
 
   return (
     <Card>
       <CardHeader>
         <CardTitle>🕸️ Network Graph - Conexões do Fluxo</CardTitle>
         <CardDescription>
-          Nós = passos, arestas = transições. Espessura = frequência de uso
+          Nós = passos, arestas = transições do fluxo
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -105,7 +54,6 @@ export default function NetworkGraph({ flow }: Props) {
               const source = nodes.find((n) => n.id === link.source);
               const target = nodes.find((n) => n.id === link.target);
               if (!source || !target) return null;
-              const width = 1 + (link.count / maxCount) * 6;
               return (
                 <line
                   key={index}
@@ -114,7 +62,7 @@ export default function NetworkGraph({ flow }: Props) {
                   x2={target.x}
                   y2={target.y}
                   stroke="#94a3b8"
-                  strokeWidth={width}
+                  strokeWidth={2}
                   opacity="0.7"
                 />
               );
