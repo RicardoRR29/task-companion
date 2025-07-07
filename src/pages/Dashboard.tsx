@@ -361,7 +361,19 @@ export default function Dashboard() {
 
   async function handleAIImport(json: string) {
     try {
+      const data = JSON.parse(json);
+
+      if (
+        !data.flows?.length ||
+        !data.flows[0]?.title ||
+        !data.flows[0]?.steps
+      ) {
+        throw new Error("JSON incompleto. Título ou passos ausentes: " + json);
+      }
+
       const newId = await importFlow(json);
+      if (!newId) throw new Error("ID não retornado após importação");
+
       toast({
         title: "Fluxo criado",
         description: "Fluxo gerado com IA com sucesso.",
@@ -369,6 +381,7 @@ export default function Dashboard() {
       navigate(`/flows/${newId}/edit`);
     } catch (error) {
       const err = error as Error;
+      console.error("Erro ao importar fluxo:", err, json);
       toast({
         title: "Erro na importação",
         description: err.message,
