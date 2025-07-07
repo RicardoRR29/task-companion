@@ -53,13 +53,7 @@ export default function StepCard({
             {/* Step Content */}
             <div className="text-center">
               {step.type === "MEDIA" && step.mediaUrl && (
-                step.mediaType === "video" ? (
-                  <video
-                    src={step.mediaUrl}
-                    controls
-                    className="mx-auto mb-6 max-h-96"
-                  />
-                ) : step.mediaType === "youtube" ? (
+                step.mediaType === "youtube" ? (
                   <iframe
                     src={getYouTubeEmbedUrl(step.mediaUrl)}
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"

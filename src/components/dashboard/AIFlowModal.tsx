@@ -49,7 +49,7 @@ Quando o usuário pedir para criar um fluxo, você deve:
 - Confirmar se há passos do tipo:
   - 📄 **TEXT**: exibe um texto.
   - ❓ **QUESTION**: possui opções com destino.
-  - 🎥 **MEDIA**: mostra um vídeo ou imagem.
+  - 🎥 **MEDIA**: mostra uma imagem ou vídeo do YouTube.
   - 🧩 **CUSTOM**: usa HTML/CSS/JS (via \`componentId\`).
   - 🌐 **WEBHOOK**: executa uma URL com método.
 
@@ -66,7 +66,7 @@ Antes de gerar o JSON final, **liste todos os passos** em texto para o usuário 
    • TP-Link → vai para 3  
    • Intelbras → vai para 4
 3. 📄 **Instruções TP-Link** – Instruções para configurar o roteador TP-Link.
-4. 🎥 **Vídeo Intelbras** – tipo: vídeo, URL: https://youtu.be/JxTq47bbx4g
+4. 🎥 **Tutorial Intelbras** – tipo: YouTube, URL: https://youtu.be/JxTq47bbx4g
 5. 🧩 **Painel** – usa componente visual personalizado (componentId: xyz123)
 
 Em seguida, pergunte:
@@ -102,7 +102,7 @@ Use exatamente este schema:
             }
           ],
           "nextStepId": <string>, // apenas para TEXT, MEDIA, CUSTOM, WEBHOOK
-          "mediaType": "video" | "image", // apenas para MEDIA
+          "mediaType": "image" | "youtube", // apenas para MEDIA
           "mediaUrl": <string>, // apenas para MEDIA
           "componentId": <string>, // apenas para CUSTOM
           "method": "GET" | "POST", // apenas para WEBHOOK

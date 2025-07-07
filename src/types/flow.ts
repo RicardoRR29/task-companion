@@ -30,10 +30,10 @@ export interface Step {
   type: "TEXT" | "QUESTION" | "MEDIA" | "CUSTOM";
   title: string;
   content: string;
-  /** URL de imagem ou vídeo para passos do tipo MEDIA */
+  /** URL de imagem ou vídeo do YouTube para passos do tipo MEDIA */
   mediaUrl?: string;
   /** Tipo da mídia associada */
-  mediaType?: "image" | "video" | "youtube";
+  mediaType?: "image" | "youtube";
   /** ID do passo para o qual este passo deve redirecionar. Se vazio, finaliza o fluxo. */
   nextStepId?: string;
   options?: StepOption[];
