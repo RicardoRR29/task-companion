@@ -13,8 +13,6 @@ Execução de fluxos (FlowPlayer)
 
 Player com navegação passo a passo, histórico e progresso (usePlayer.ts e FlowPlayer).
 
-Pausar/retomar fluxo e registrar eventos de pausa (usePlayer.ts).
-
 Tela de conclusão informando total de passos e tempo gasto (CompletionScreen.tsx).
 
 Analytics
@@ -27,7 +25,7 @@ Configurações do número de execuções exibidas (useAnalyticsConfig.ts).
 
 Banco de dados local
 
-Dexie para armazenar fluxos, sessões, eventos de passo/pausa, logs e componentes personalizados (src/db/index.ts).
+Dexie para armazenar fluxos, sessões, eventos de passo, logs e componentes personalizados (src/db/index.ts).
 
 Funções de auditoria: registro de ações e consulta de logs (utils/audit.ts e AuditTrail.tsx).
 

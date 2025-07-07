@@ -33,12 +33,7 @@ export default function FlowPlayer() {
     choose,
     canGoBack,
     goBack,
-    pause,
-    resume,
-    isPaused,
     sessionStart: sessionStartTs,
-    pauseAccum,
-    pauseStart: currentPauseStart,
   } = usePlayer(flow, sessionParam);
 
   useEffect(() => {
@@ -49,31 +44,19 @@ export default function FlowPlayer() {
     if (index === -1) return;
     const tick = () => {
       const now = Date.now();
-      const running =
-        now -
-        sessionStartTs -
-        pauseAccum -
-        (currentPauseStart ? now - currentPauseStart : 0);
+      const running = now - sessionStartTs;
       setElapsedSeconds(Math.round(running / 1000));
     };
     const interval = setInterval(tick, 1000);
     tick();
     return () => clearInterval(interval);
-  }, [sessionStartTs, pauseAccum, currentPauseStart, index]);
+  }, [sessionStartTs, index]);
 
   const handleExit = () => {
     setIsExiting(true);
     navigate("/");
   };
 
-  const handlePauseResume = () => {
-    if (isPaused) {
-      resume();
-    } else {
-      pause();
-      navigate("/");
-    }
-  };
 
   if (isLoading) {
     return <PlayerSkeleton />;
@@ -107,11 +90,7 @@ export default function FlowPlayer() {
 
   if (index === -1) {
     const now = Date.now();
-    const running =
-      now -
-      sessionStartTs -
-      pauseAccum -
-      (currentPauseStart ? now - currentPauseStart : 0);
+    const running = now - sessionStartTs;
     const elapsedTime = Math.round(running / 1000);
     return (
       <CompletionScreen
@@ -135,9 +114,7 @@ export default function FlowPlayer() {
         total={total}
         progress={progressPercentage}
         elapsedSeconds={elapsedSeconds}
-        isPaused={isPaused}
         isExiting={isExiting}
-        onPauseResume={handlePauseResume}
         onExit={handleExit}
       />
 

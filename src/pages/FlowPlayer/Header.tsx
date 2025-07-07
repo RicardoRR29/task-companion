@@ -12,7 +12,7 @@ import {
 import { Badge } from "../../components/ui/badge";
 import { Button } from "../../components/ui/button";
 import { Progress } from "../../components/ui/progress";
-import { Clock, Pause, Play, ArrowLeft } from "lucide-react";
+import { Clock, ArrowLeft } from "lucide-react";
 import { useCompanySettings } from "../../hooks/useCompanySettings";
 
 interface Props {
@@ -21,9 +21,7 @@ interface Props {
   total: number;
   progress: number;
   elapsedSeconds: number;
-  isPaused: boolean;
   isExiting: boolean;
-  onPauseResume: () => void;
   onExit: () => void;
 }
 
@@ -33,9 +31,7 @@ export default function PlayerHeader({
   total,
   progress,
   elapsedSeconds,
-  isPaused,
   isExiting,
-  onPauseResume,
   onExit,
 }: Props) {
   const { logo } = useCompanySettings();
@@ -82,14 +78,6 @@ export default function PlayerHeader({
               <Clock className="mr-1 h-3 w-3" />
               {elapsedSeconds}s
             </Badge>
-            <Button variant="ghost" size="sm" onClick={onPauseResume}>
-              {isPaused ? (
-                <Play className="mr-1 h-3 w-3" />
-              ) : (
-                <Pause className="mr-1 h-3 w-3" />
-              )}
-              {isPaused ? "Retomar" : "Pausar"}
-            </Button>
             <div className="text-sm font-medium text-muted-foreground">
               {Math.round(progress)}%
             </div>

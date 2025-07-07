@@ -47,9 +47,6 @@ export default function Analytics() {
     useAnalyticsConfig();
   const [newOption, setNewOption] = useState("");
   const [recentRuns, setRecentRuns] = useState<SessionRun[]>([]);
-  const [pauseRuns, setPauseRuns] = useState<
-    { counts: Record<string, number> }[]
-  >([]);
   const [totalByStepData, setTotalByStepData] = useState<
     { name: string; totalTime: number; color: string }[]
   >([]);
@@ -82,28 +79,6 @@ export default function Analytics() {
     })();
   }, [flow, stats, runsToShow]);
 
-  useEffect(() => {
-    if (!recentRuns.length) {
-      setPauseRuns([]);
-      return;
-    }
-    (async () => {
-      const data = await Promise.all(
-        recentRuns.map(async (run) => {
-          const events = await db.pauseEvents
-            .where("sessionId")
-            .equals(run.sessionId)
-            .toArray();
-          const counts: Record<string, number> = {};
-          events.forEach((e) => {
-            counts[e.stepId] = (counts[e.stepId] || 0) + 1;
-          });
-          return { counts };
-        })
-      );
-      setPauseRuns(data);
-    })();
-  }, [recentRuns]);
 
   useEffect(() => {
     if (!flow) return;
@@ -141,7 +116,6 @@ export default function Analytics() {
     const ids = sessions.map((s) => s.id);
     if (ids.length) {
       await db.stepEvents.where("sessionId").anyOf(ids).delete();
-      await db.pauseEvents.where("sessionId").anyOf(ids).delete();
       await db.sessions.where("flowId").equals(f.id).delete();
     }
     update({ ...f, visits: 0, completions: 0 });
@@ -179,9 +153,6 @@ export default function Analytics() {
     return row;
   });
 
-  const maxPause = pauseRuns
-    .map((r) => Object.values(r.counts).reduce((mx, v) => (v > mx ? v : mx), 0))
-    .reduce((mx, v) => (v > mx ? v : mx), 0);
 
   return (
     <div className="min-h-screen bg-gray-50/50 p-3 sm:p-4 lg:p-6">

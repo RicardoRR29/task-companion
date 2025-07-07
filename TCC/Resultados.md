@@ -6,7 +6,7 @@ Para avaliar o funcionamento do TACO, foram executados testes de usabilidade e m
 
 Grupos de usuários de diferentes setores criaram fluxos representando tarefas reais. Observou-se que o editor se mostrou intuitivo, permitindo a criação de passos e a reorganização das etapas sem dificuldades. As funções de importação e exportação facilitaram o compartilhamento de fluxos entre colegas.
 
-Durante as sessões de execução, os participantes destacaram a clareza das instruções e a possibilidade de pausar o fluxo para retomá-lo mais tarde. Registraram-se sugestões de melhoria na visualização de resultados, incorporadas em versões subsequentes.
+Durante as sessões de execução, os participantes destacaram a clareza das instruções. Registraram-se sugestões de melhoria na visualização de resultados, incorporadas em versões subsequentes.
 
 ## Análise de Desempenho
 

@@ -92,7 +92,6 @@ export interface Session {
   path: PathItem[];
   currentIndex?: number;
   history?: number[];
-  isPaused?: boolean;
 }
 
 /**
@@ -107,17 +106,6 @@ export interface StepEvent {
   leaveAt: number;
 }
 
-/**
- * Evento de pausa/resumo de um Step dentro de uma sessão.
- * Usado para calcular o número de pausas.
- */
-export interface PauseEvent {
-  id: string;
-  sessionId: string;
-  stepId: string;
-  pausedAt: number;
-  resumedAt?: number;
-}
 
 /**
  * Log de ações importantes (CRUD, erros, conflitos, etc.).
