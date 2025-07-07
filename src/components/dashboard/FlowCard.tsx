@@ -5,6 +5,7 @@ import {
   MoreHorizontal,
   Copy,
   Download,
+  Trash2,
 } from "lucide-react";
 import { Card, CardContent, CardHeader } from "../../components/ui/card";
 import { Button } from "../../components/ui/button";
@@ -27,6 +28,7 @@ interface FlowCardProps {
   onPlay: () => void;
   onAnalytics: () => void;
   onExport: () => void;
+  onDelete: () => void;
   isSelecting: boolean;
   isSelected: boolean;
   onSelect: () => void;
@@ -40,6 +42,7 @@ export function FlowCard({
   onPlay,
   onAnalytics,
   onExport,
+  onDelete,
   isSelecting,
   isSelected,
   onSelect,
@@ -99,16 +102,24 @@ export function FlowCard({
                     <MoreHorizontal className="h-4 w-4" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={onClone}>
-                    <Copy className="mr-2 h-4 w-4" />
-                    Duplicar
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={onExport}>
-                    <Download className="mr-2 h-4 w-4" />
-                    Exportar
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={onClone}>
+                  <Copy className="mr-2 h-4 w-4" />
+                  Duplicar
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={onEdit}>
+                  <Edit className="mr-2 h-4 w-4" />
+                  Editar
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={onExport}>
+                  <Download className="mr-2 h-4 w-4" />
+                  Exportar
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={onDelete}>
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  Excluir
+                </DropdownMenuItem>
+              </DropdownMenuContent>
               </DropdownMenu>
             </div>
           </div>
@@ -167,11 +178,29 @@ export function FlowCard({
               <DropdownMenuItem
                 onClick={(e) => {
                   e.stopPropagation();
+                  onEdit();
+                }}
+              >
+                <Edit className="mr-2 h-4 w-4" />
+                Editar
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={(e) => {
+                  e.stopPropagation();
                   onExport();
                 }}
               >
                 <Download className="mr-2 h-4 w-4" />
                 Exportar
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDelete();
+                }}
+              >
+                <Trash2 className="mr-2 h-4 w-4" />
+                Excluir
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
