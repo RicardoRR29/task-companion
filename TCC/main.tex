@@ -3,12 +3,13 @@
 \usepackage[T1]{fontenc}
 \usepackage{graphicx}
 \usepackage{lipsum}
+\usepackage{markdown}
 \usepackage{indentfirst}
 \usepackage{microtype}
 \usepackage{hyperref}
 
 \title{TACO -- Task Companion}
-\author{Seu Nome}
+\author{Ricardo e Wildenberg}
 \date{\today}
 
 \begin{document}
@@ -61,25 +62,25 @@
 
 % Desenvolvimento do trabalho
 \chapter{Introdução}
-\lipsum[2]
+\input{Introducao.md}
 
 \chapter{Fundamentação Teórica}
-\lipsum[3]
+\input{Fundamentacao_Teorica.md}
 
 \chapter{Trabalhos Relacionados}
 \lipsum[4]
 
 \chapter{Metodologia}
-\lipsum[5]
+\input{Metodologia.md}
 
 \chapter{Desenvolvimento}
-\lipsum[6]
+\input{Desenvolvimento.md}
 
 \chapter{Resultados}
-\lipsum[7]
+\input{Resultados.md}
 
 \chapter{Conclusão}
-\lipsum[8]
+\input{Conclusao.md}
 
 \bibliography{referencias}
 

@@ -17,3 +17,11 @@ A organização dos fluxos no TACO baseia-se em grafos direcionados, onde cada p
 ## Interfaces Reativas
 
 A escolha do React com TypeScript proporcionou tipagem estática e componentes reutilizáveis. Com o auxílio do Vite para _bundling_ e do Tailwind CSS para estilização, a interface permanece responsiva e modulável. O uso de bibliotecas como Radix UI garante acessibilidade, enquanto o Zustand gerencia de forma simples o estado global da aplicação.
+
+## Gamificação e Engajamento
+
+Inspirado em técnicas de aprendizagem ativa, o TACO apresenta indicadores de progresso e pequenas recompensas visuais a cada etapa completada. A literatura de gamificação destaca que a sensação de avanço constante aumenta a motivação do usuário e reduz a evasão em treinamentos online. Ao enumerar os passos e permitir que o participante visualize onde está no fluxo, cria-se um caminho claro que estimula a continuidade.
+
+## Feedback Contínuo
+
+Outro fundamento adotado é o ciclo de melhoria contínua. Cada fluxo recebe avaliações e comentários, que são incorporados ao conteúdo por meio de novas versões. Esse mecanismo de retroalimentação baseia-se em abordagens de aprendizado organizacional, em que os processos evoluem conforme a experiência acumulada pelos próprios colaboradores.

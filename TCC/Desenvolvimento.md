@@ -17,3 +17,15 @@ O editor permite criar e modificar fluxos compostos por passos do tipo texto, pe
 Quando um fluxo é iniciado, o "Flow Player" registra a passagem do usuário por cada passo, armazenando eventos em coleções específicas no IndexedDB. Caso a execução seja concluída, incrementa-se o contador de finalizações e grava-se um log de resumo. Informações como tempo gasto por etapa e respostas a perguntas ficam disponíveis para análise posterior.
 
 O sistema exporta os fluxos em formato JSON, possibilitando o compartilhamento entre diferentes instalações. Da mesma forma, logs de execução podem ser baixados para auditorias ou importados por outras ferramentas. O uso de _webhooks_ permite integrar a conclusão de etapas a APIs externas, enviando dados em tempo real.
+
+## Analytics e Relatórios
+
+Todas as interações do usuário geram métricas que são processadas pelo módulo de analytics. O sistema calcula visitas, taxa de conclusão e tempo gasto em cada passo, apresentando gráficos de linha, áreas empilhadas e _heatmaps_. Essas informações ajudam a identificar pontos de abandono e servem de base para revisar o conteúdo dos fluxos.
+
+## Componentes Personalizados e Configurações
+
+Além dos passos tradicionais, é possível cadastrar componentes em HTML, CSS e JavaScript reutilizáveis. A aplicação também permite definir cores, logotipo e demais ajustes visuais para cada empresa, garantindo identidade de marca. Os fluxos podem ser clonados, importados ou exportados em JSON, e o editor suporta _drag and drop_ para reorganização de etapas.
+
+## Banco de Dados Local e Auditoria
+
+Para assegurar funcionamento _offline_, o TACO utiliza IndexedDB por meio da biblioteca Dexie. Todas as ações relevantes são registradas para posterior auditoria, incluindo criação de fluxos, execuções e eventos de pausa. Esse histórico facilita a rastreabilidade e pode ser consultado diretamente na interface.
