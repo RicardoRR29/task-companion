@@ -32,16 +32,12 @@ export default function MediaStepForm({ step, setField }: Props) {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="image">Imagem</SelectItem>
-            <SelectItem value="video">Vídeo</SelectItem>
             <SelectItem value="youtube">YouTube</SelectItem>
           </SelectContent>
       </Select>
     </div>
       {step.mediaUrl && step.mediaType === "image" && (
         <img src={step.mediaUrl} alt="preview" className="max-h-60 mx-auto" />
-      )}
-      {step.mediaUrl && step.mediaType === "video" && (
-        <video src={step.mediaUrl} controls className="max-h-60 mx-auto" />
       )}
       {step.mediaUrl && step.mediaType === "youtube" && (
         <iframe
