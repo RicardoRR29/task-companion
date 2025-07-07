@@ -9,7 +9,8 @@ interface Props {
   onImport: (json: string) => Promise<void>;
 }
 
-const SYSTEM_PROMPT = `Você é o assistente virtual do TACO – Task Companion.\n\n` +
+const SYSTEM_PROMPT =
+  `Você é o assistente virtual do TACO – Task Companion.\n\n` +
   `Explique de forma amigável que a plataforma cria fluxos com passos dos tipos ` +
   `TEXT, QUESTION, MEDIA, CUSTOM e WEBHOOK. Responda dúvidas normalmente e ` +
   `sugira ao usuário experimentar a criação de um fluxo a partir de uma ` +
@@ -22,13 +23,18 @@ const SYSTEM_PROMPT = `Você é o assistente virtual do TACO – Task Companion.
   `\n{\n  "version": "1.0",\n  "exportedAt": 0,\n  "flow": {\n    "title": "Título do fluxo",\n    "description": "Opcional",\n    "status": "DRAFT",\n    "steps": [/* passos aqui */]\n  }\n}`;
 
 export default function AIFlowModal({ open, onOpenChange, onImport }: Props) {
-  const [messages, setMessages] = useState<{ role: "user" | "assistant"; content: string }[]>([]);
+  const [messages, setMessages] = useState<
+    { role: "user" | "assistant"; content: string }[]
+  >([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
 
   async function send() {
     if (!input.trim()) return;
-    const newMessages = [...messages, { role: "user" as const, content: input }];
+    const newMessages = [
+      ...messages,
+      { role: "user" as const, content: input },
+    ];
     setMessages(newMessages);
     setInput("");
     setLoading(true);
@@ -57,7 +63,10 @@ export default function AIFlowModal({ open, onOpenChange, onImport }: Props) {
         onOpenChange(false);
       }
     } catch (err) {
-      setMessages([...newMessages, { role: "assistant", content: "Erro ao acessar o serviço de IA." }]);
+      setMessages([
+        ...newMessages,
+        { role: "assistant", content: "Erro ao acessar o serviço de IA." },
+      ]);
     } finally {
       setLoading(false);
     }
@@ -71,8 +80,14 @@ export default function AIFlowModal({ open, onOpenChange, onImport }: Props) {
         </DialogHeader>
         <div className="space-y-4 max-h-96 overflow-y-auto py-2">
           {messages.map((m, i) => (
-            <div key={i} className={m.role === "user" ? "text-right" : "text-left"}>
-              <p className="whitespace-pre-wrap text-sm" dangerouslySetInnerHTML={{ __html: m.content }} />
+            <div
+              key={i}
+              className={m.role === "user" ? "text-right" : "text-left"}
+            >
+              <p
+                className="whitespace-pre-wrap text-sm"
+                dangerouslySetInnerHTML={{ __html: m.content }}
+              />
             </div>
           ))}
         </div>
