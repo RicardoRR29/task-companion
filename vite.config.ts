@@ -56,8 +56,6 @@ export default defineConfig({
             type: "image/png",
           },
         ],
-        // Custom icons should be supplied when publishing to the App Store
-        // and referenced here. The default configuration omits bundled icons.
       },
     }),
   ],
