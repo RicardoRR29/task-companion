@@ -1,7 +1,9 @@
-import { DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import type React from "react";
-import { useEffect, useState, useRef } from "react";
-import { useNavigate, Link } from "react-router-dom";
+"use client"
+
+import { DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import type React from "react"
+import { useEffect, useState, useRef } from "react"
+import { useNavigate, Link } from "react-router-dom"
 import {
   Plus,
   Sparkles,
@@ -19,23 +21,22 @@ import {
   BarChart3,
   Edit,
   Copy,
-} from "lucide-react";
-import { useFlows } from "../hooks/useFlows";
-import { useToast } from "../hooks/use-toast";
-import { Button } from "../components/ui/button";
-import { Card, CardContent } from "../components/ui/card";
-import { Badge } from "../components/ui/badge";
-import AIFlowModal from "../components/dashboard/AIFlowModal";
-import type { Flow } from "../types/flow";
-import { db } from "../db";
-import { Input } from "../components/ui/input";
-import { Skeleton } from "../components/ui/skeleton";
+} from "lucide-react"
+import { useFlows } from "../hooks/useFlows"
+import { useToast } from "../hooks/use-toast"
+import { Button } from "../components/ui/button"
+import { Card, CardContent } from "../components/ui/card"
+import { Badge } from "../components/ui/badge"
+import AIFlowModal from "../components/dashboard/AIFlowModal"
+import type { Flow } from "../types/flow"
+import { Input } from "../components/ui/input"
+import { Skeleton } from "../components/ui/skeleton"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
-} from "../components/ui/dropdown-menu";
+} from "../components/ui/dropdown-menu"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -46,10 +47,10 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "../components/ui/alert-dialog";
-import { cn } from "../utils/cn";
+} from "../components/ui/alert-dialog"
+import { cn } from "../utils/cn"
 
-type ViewMode = "grid" | "list";
+type ViewMode = "grid" | "list"
 
 // Configurações do localStorage
 const STORAGE_KEYS = {
@@ -58,357 +59,316 @@ const STORAGE_KEYS = {
   SHOW_COMPLETIONS: "taco-dashboard-show-completions",
   SHOW_COMPLETION_RATE: "taco-dashboard-show-completion-rate",
   SHOW_STEP_COUNT: "taco-dashboard-show-step-count",
-};
+}
 
 // Funções helper para localStorage - VERSÃO CORRIGIDA
 const loadBooleanSetting = (key: string, defaultValue = false): boolean => {
   try {
-    const saved = localStorage.getItem(key);
-    console.log(`Carregando ${key}:`, { saved, defaultValue });
+    const saved = localStorage.getItem(key)
+    console.log(`Carregando ${key}:`, { saved, defaultValue })
     // Só usa o valor padrão se realmente não existir no localStorage
     if (saved === null || saved === undefined) {
-      console.log(`${key} não encontrado, usando padrão:`, defaultValue);
-      return defaultValue;
+      console.log(`${key} não encontrado, usando padrão:`, defaultValue)
+      return defaultValue
     }
-
-    const parsed = JSON.parse(saved);
-    console.log(`${key} carregado:`, parsed);
-    return parsed;
+    const parsed = JSON.parse(saved)
+    console.log(`${key} carregado:`, parsed)
+    return parsed
   } catch (error) {
-    console.warn(`Erro ao carregar configuração ${key}:`, error);
-    return defaultValue;
+    console.warn(`Erro ao carregar configuração ${key}:`, error)
+    return defaultValue
   }
-};
+}
 
 const saveBooleanSetting = (key: string, value: boolean): void => {
   try {
-    localStorage.setItem(key, JSON.stringify(value));
+    localStorage.setItem(key, JSON.stringify(value))
   } catch (error) {
-    console.warn(`Erro ao salvar configuração ${key}:`, error);
+    console.warn(`Erro ao salvar configuração ${key}:`, error)
   }
-};
+}
 
 const loadViewMode = (): ViewMode => {
   try {
-    const saved = localStorage.getItem(STORAGE_KEYS.VIEW_MODE);
-    return saved === "grid" || saved === "list" ? (saved as ViewMode) : "grid";
+    const saved = localStorage.getItem(STORAGE_KEYS.VIEW_MODE)
+    return saved === "grid" || saved === "list" ? (saved as ViewMode) : "grid"
   } catch (error) {
-    console.warn("Erro ao carregar modo de visualização:", error);
-    return "grid";
+    console.warn("Erro ao carregar modo de visualização:", error)
+    return "grid"
   }
-};
+}
 
 const saveViewMode = (mode: ViewMode): void => {
   try {
-    localStorage.setItem(STORAGE_KEYS.VIEW_MODE, mode);
+    localStorage.setItem(STORAGE_KEYS.VIEW_MODE, mode)
   } catch (error) {
-    console.warn("Erro ao salvar modo de visualização:", error);
+    console.warn("Erro ao salvar modo de visualização:", error)
   }
-};
+}
 
 export default function Dashboard() {
-  const {
-    flows,
-    load,
-    create,
-    clone,
-    exportFlows,
-    importFlow,
-    remove,
-    removeMany,
-    isLoading,
-  } = useFlows();
-  const { toast } = useToast();
-  const navigate = useNavigate();
-  const [searchQuery, setSearchQuery] = useState("");
-  const [viewMode, setViewMode] = useState<ViewMode>("grid");
-  const [isCreating, setIsCreating] = useState(false);
-  const [isSelecting, setIsSelecting] = useState(false);
-  const [selectedIds, setSelectedIds] = useState<string[]>([]);
-  const [isExporting, setIsExporting] = useState(false);
-  const [isImporting, setIsImporting] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
-  const [tab, setTab] = useState("all");
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const [aiModalOpen, setAiModalOpen] = useState(false);
+  const { flows, load, create, clone, exportFlows, importFlow, remove, removeMany, isLoading } = useFlows()
+  const { toast } = useToast()
+  const navigate = useNavigate()
+  const [searchQuery, setSearchQuery] = useState("")
+  const [viewMode, setViewMode] = useState<ViewMode>("grid")
+  const [isCreating, setIsCreating] = useState(false)
+  const [isSelecting, setIsSelecting] = useState(false)
+  const [selectedIds, setSelectedIds] = useState<string[]>([])
+  const [isExporting, setIsExporting] = useState(false)
+  const [isImporting, setIsImporting] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
+  const [tab, setTab] = useState("all")
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const [aiModalOpen, setAiModalOpen] = useState(false)
 
   // Campos visíveis nos cards
-  const [showVisits, setShowVisits] = useState(true);
-  const [showCompletions, setShowCompletions] = useState(true);
-  const [showCompletionRate, setShowCompletionRate] = useState(true);
-  const [showStepCount, setShowStepCount] = useState(true);
+  const [showVisits, setShowVisits] = useState(true)
+  const [showCompletions, setShowCompletions] = useState(true)
+  const [showCompletionRate, setShowCompletionRate] = useState(true)
+  const [showStepCount, setShowStepCount] = useState(true)
 
   // Estado para controlar se as configurações já foram carregadas
-  const [configsLoaded, setConfigsLoaded] = useState(false);
+  const [configsLoaded, setConfigsLoaded] = useState(false)
 
   // Carregar configurações do localStorage na inicialização
   useEffect(() => {
-    console.log("Carregando configurações do localStorage...");
-    const loadedViewMode = loadViewMode();
-    const loadedShowVisits = loadBooleanSetting(
-      STORAGE_KEYS.SHOW_VISITS,
-      false
-    );
-    const loadedShowCompletions = loadBooleanSetting(
-      STORAGE_KEYS.SHOW_COMPLETIONS,
-      false
-    );
-    const loadedShowCompletionRate = loadBooleanSetting(
-      STORAGE_KEYS.SHOW_COMPLETION_RATE,
-      false
-    );
-    const loadedShowStepCount = loadBooleanSetting(
-      STORAGE_KEYS.SHOW_STEP_COUNT,
-      false
-    );
+    console.log("Carregando configurações do localStorage...")
+    const loadedViewMode = loadViewMode()
+    const loadedShowVisits = loadBooleanSetting(STORAGE_KEYS.SHOW_VISITS, false)
+    const loadedShowCompletions = loadBooleanSetting(STORAGE_KEYS.SHOW_COMPLETIONS, false)
+    const loadedShowCompletionRate = loadBooleanSetting(STORAGE_KEYS.SHOW_COMPLETION_RATE, false)
+    const loadedShowStepCount = loadBooleanSetting(STORAGE_KEYS.SHOW_STEP_COUNT, false)
 
-    setViewMode(loadedViewMode);
-    setShowVisits(loadedShowVisits);
-    setShowCompletions(loadedShowCompletions);
-    setShowCompletionRate(loadedShowCompletionRate);
-    setShowStepCount(loadedShowStepCount);
-  }, []);
+    setViewMode(loadedViewMode)
+    setShowVisits(loadedShowVisits)
+    setShowCompletions(loadedShowCompletions)
+    setShowCompletionRate(loadedShowCompletionRate)
+    setShowStepCount(loadedShowStepCount)
+  }, [])
 
   // Salvar configurações no localStorage sempre que mudarem
   useEffect(() => {
-    saveViewMode(viewMode);
-  }, [viewMode]);
+    saveViewMode(viewMode)
+  }, [viewMode])
 
   useEffect(() => {
-    saveBooleanSetting(STORAGE_KEYS.SHOW_VISITS, showVisits);
-  }, [showVisits]);
+    saveBooleanSetting(STORAGE_KEYS.SHOW_VISITS, showVisits)
+  }, [showVisits])
 
   useEffect(() => {
-    saveBooleanSetting(STORAGE_KEYS.SHOW_COMPLETIONS, showCompletions);
-  }, [showCompletions]);
+    saveBooleanSetting(STORAGE_KEYS.SHOW_COMPLETIONS, showCompletions)
+  }, [showCompletions])
 
   useEffect(() => {
-    saveBooleanSetting(STORAGE_KEYS.SHOW_COMPLETION_RATE, showCompletionRate);
-  }, [showCompletionRate]);
+    saveBooleanSetting(STORAGE_KEYS.SHOW_COMPLETION_RATE, showCompletionRate)
+  }, [showCompletionRate])
 
   useEffect(() => {
-    saveBooleanSetting(STORAGE_KEYS.SHOW_STEP_COUNT, showStepCount);
-  }, [showStepCount]);
+    saveBooleanSetting(STORAGE_KEYS.SHOW_STEP_COUNT, showStepCount)
+  }, [showStepCount])
 
   useEffect(() => {
-    load();
-  }, [load]);
+    load()
+  }, [load])
 
-  const filteredFlows = flows.filter((flow) =>
-    flow.title.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredFlows = flows.filter((flow) => flow.title.toLowerCase().includes(searchQuery.toLowerCase()))
 
   async function handleNew() {
-    setIsCreating(true);
+    setIsCreating(true)
     try {
-      const id = await create("Novo Fluxo");
-      navigate(`/flows/${id}/edit`);
+      const id = await create("Novo Fluxo")
+      navigate(`/flows/${id}/edit`)
     } catch (error) {
-      console.error("Erro ao criar fluxo:", error);
+      console.error("Erro ao criar fluxo:", error)
       toast({
         title: "Erro ao criar fluxo",
         description: "Tente novamente.",
         variant: "destructive",
-      });
+      })
     } finally {
-      setIsCreating(false);
+      setIsCreating(false)
     }
   }
 
   async function handleClone(id: string) {
     try {
-      const newId = await clone(id);
-      navigate(`/flows/${newId}/edit`);
+      const newId = await clone(id)
+      navigate(`/flows/${newId}/edit`)
       toast({
         title: "Fluxo duplicado",
         description: "Fluxo duplicado com sucesso.",
-      });
+      })
     } catch (error) {
-      console.error("Erro ao clonar fluxo:", error);
+      console.error("Erro ao clonar fluxo:", error)
       toast({
         title: "Erro ao duplicar",
         description: "Tente novamente.",
         variant: "destructive",
-      });
+      })
     }
   }
 
   async function handleDelete(id: string) {
-    if (!confirm("Excluir fluxo?")) return;
+    if (!confirm("Excluir fluxo?")) return
     try {
-      await remove(id);
+      await remove(id)
       toast({
         title: "Fluxo excluído",
         description: "O fluxo foi excluído com sucesso.",
-      });
+      })
     } catch {
       toast({
         title: "Erro ao excluir",
         description: "Tente novamente.",
         variant: "destructive",
-      });
+      })
     }
   }
 
   function toggleSelect(id: string) {
-    setSelectedIds((prev) =>
-      prev.includes(id) ? prev.filter((p) => p !== id) : [...prev, id]
-    );
+    setSelectedIds((prev) => (prev.includes(id) ? prev.filter((p) => p !== id) : [...prev, id]))
   }
 
   function handleSelectAll() {
     if (selectedIds.length === filteredFlows.length) {
-      setSelectedIds([]);
+      setSelectedIds([])
     } else {
-      setSelectedIds(filteredFlows.map((f) => f.id));
+      setSelectedIds(filteredFlows.map((f) => f.id))
     }
   }
 
   async function handleExportSelected() {
-    if (selectedIds.length === 0) return;
-    setIsExporting(true);
+    if (selectedIds.length === 0) return
+    setIsExporting(true)
     try {
-      const data = await exportFlows(selectedIds);
-      const blob = new Blob([data], { type: "application/json" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `flows-${new Date().toISOString().split("T")[0]}.json`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
+      const data = await exportFlows(selectedIds)
+      const blob = new Blob([data], { type: "application/json" })
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement("a")
+      a.href = url
+      a.download = `flows-${new Date().toISOString().split("T")[0]}.json`
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      URL.revokeObjectURL(url)
       toast({
         title: "Exportado",
         description: `${selectedIds.length} fluxos exportados.`,
-      });
+      })
     } catch (error) {
-      console.error("Erro ao exportar fluxos:", error);
+      console.error("Erro ao exportar fluxos:", error)
       toast({
         title: "Erro na exportação",
         description: "Tente novamente.",
         variant: "destructive",
-      });
+      })
     } finally {
-      setIsExporting(false);
-      setIsSelecting(false);
-      setSelectedIds([]);
+      setIsExporting(false)
+      setIsSelecting(false)
+      setSelectedIds([])
     }
   }
 
   async function handleDeleteSelected() {
-    if (selectedIds.length === 0) return;
-    setIsDeleting(true);
+    if (selectedIds.length === 0) return
+    setIsDeleting(true)
     try {
-      await removeMany(selectedIds);
+      await removeMany(selectedIds)
       toast({
         title: "Excluídos",
         description: `${selectedIds.length} fluxos removidos.`,
-      });
+      })
     } catch {
       toast({
         title: "Erro ao excluir",
         description: "Tente novamente.",
         variant: "destructive",
-      });
+      })
     } finally {
-      setIsDeleting(false);
-      setIsSelecting(false);
-      setSelectedIds([]);
+      setIsDeleting(false)
+      setIsSelecting(false)
+      setSelectedIds([])
     }
   }
 
   async function handleImport(event: React.ChangeEvent<HTMLInputElement>) {
-    const file = event.target.files?.[0];
-    if (!file) return;
-    setIsImporting(true);
+    const file = event.target.files?.[0]
+    if (!file) return
+    setIsImporting(true)
     try {
-      const text = await file.text();
-      await importFlow(text);
+      const text = await file.text()
+      await importFlow(text)
       toast({
         title: "Importado",
         description: "Fluxos importados com sucesso.",
-      });
+      })
     } catch (error) {
-      console.error("Erro ao importar fluxo:", error);
+      console.error("Erro ao importar fluxo:", error)
       toast({
         title: "Erro na importação",
         description: "Verifique o arquivo e tente novamente.",
         variant: "destructive",
-      });
+      })
     } finally {
-      setIsImporting(false);
-      if (fileInputRef.current) fileInputRef.current.value = "";
+      setIsImporting(false)
+      if (fileInputRef.current) fileInputRef.current.value = ""
     }
   }
 
   async function handleAIImport(json: string) {
     try {
-      const data = JSON.parse(json);
-
-      if (
-        !data.flows?.length ||
-        !data.flows[0]?.title ||
-        !data.flows[0]?.steps
-      ) {
-        throw new Error("JSON incompleto. Título ou passos ausentes: " + json);
+      const data = JSON.parse(json)
+      if (!data.flows?.length || !data.flows[0]?.title || !data.flows[0]?.steps) {
+        throw new Error("JSON incompleto. Título ou passos ausentes: " + json)
       }
-
-      const newId = await importFlow(json);
-      if (!newId) throw new Error("ID não retornado após importação");
-
+      const newId = await importFlow(json)
+      if (!newId) throw new Error("ID não retornado após importação")
       toast({
         title: "Fluxo criado",
         description: "Fluxo gerado com IA com sucesso.",
-      });
-      navigate(`/flows/${newId}/edit`);
+      })
+      navigate(`/flows/${newId}/edit`)
     } catch (error) {
-      const err = error as Error;
-      console.error("Erro ao importar fluxo:", err, json);
+      const err = error as Error
+      console.error("Erro ao importar fluxo:", err, json)
       toast({
         title: "Erro na importação",
         description: err.message,
         variant: "destructive",
-      });
+      })
     }
   }
 
   if (isLoading) {
-    return <DashboardSkeleton />;
+    return <DashboardSkeleton />
   }
 
   return (
     <div className="min-h-screen bg-white">
       <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-        {/* Header */}
         <header className="mb-8">
           <div className="flex items-center justify-between mb-6">
-            <div>
-              <h1 className="text-2xl font-semibold text-gray-900 sm:text-3xl">
-                Fluxos
-              </h1>
-              <p className="mt-1 text-sm text-gray-500 sm:text-base">
-                {flows.length} {flows.length === 1 ? "fluxo" : "fluxos"}
-              </p>
+            <div className="flex items-center gap-4">
+              <div>
+                <h1 className="text-2xl font-semibold text-gray-900 sm:text-3xl">Fluxos</h1>
+                <p className="mt-1 text-sm text-gray-500 sm:text-base">
+                  {flows.length} {flows.length === 1 ? "fluxo" : "fluxos"}
+                </p>
+              </div>
             </div>
             <div className="flex items-center gap-2">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" size="icon">
                     <MoreVertical className="h-5 w-5" />
-                    <span className="sr-only">
-                      Configurações de visualização
-                    </span>
+                    <span className="sr-only">Configurações de visualização</span>
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-56">
-                  <div className="px-2 py-1.5 text-sm font-medium text-gray-900">
-                    Mostrar nos cards
-                  </div>
+                  <div className="px-2 py-1.5 text-sm font-medium text-gray-900">Mostrar nos cards</div>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem
-                    onClick={() => setShowStepCount(!showStepCount)}
-                  >
+                  <DropdownMenuItem onClick={() => setShowStepCount(!showStepCount)}>
                     <div className="flex items-center justify-between w-full">
                       <span>Quantidade de passos</span>
                       {showStepCount && <Check className="h-4 w-4" />}
@@ -420,17 +380,13 @@ export default function Dashboard() {
                       {showVisits && <Check className="h-4 w-4" />}
                     </div>
                   </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={() => setShowCompletions(!showCompletions)}
-                  >
+                  <DropdownMenuItem onClick={() => setShowCompletions(!showCompletions)}>
                     <div className="flex items-center justify-between w-full">
                       <span>Conclusões</span>
                       {showCompletions && <Check className="h-4 w-4" />}
                     </div>
                   </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={() => setShowCompletionRate(!showCompletionRate)}
-                  >
+                  <DropdownMenuItem onClick={() => setShowCompletionRate(!showCompletionRate)}>
                     <div className="flex items-center justify-between w-full">
                       <span>Taxa de conclusão</span>
                       {showCompletionRate && <Check className="h-4 w-4" />}
@@ -449,19 +405,11 @@ export default function Dashboard() {
           {/* Actions */}
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex gap-2">
-              <Button
-                onClick={handleNew}
-                disabled={isCreating}
-                className="flex-1 sm:flex-none"
-              >
+              <Button onClick={handleNew} disabled={isCreating} className="flex-1 sm:flex-none">
                 <Plus className="mr-2 h-4 w-4" />
                 {isCreating ? "Criando..." : "Novo"}
               </Button>
-              <Button
-                onClick={() => setAiModalOpen(true)}
-                variant="outline"
-                className="flex-1 sm:flex-none"
-              >
+              <Button onClick={() => setAiModalOpen(true)} variant="outline" className="flex-1 sm:flex-none">
                 <Sparkles className="mr-2 h-4 w-4" />
                 IA
               </Button>
@@ -477,8 +425,8 @@ export default function Dashboard() {
               {flows.length > 0 && (
                 <Button
                   onClick={() => {
-                    setIsSelecting((v) => !v);
-                    setSelectedIds([]);
+                    setIsSelecting((v) => !v)
+                    setSelectedIds([])
                   }}
                   variant={isSelecting ? "secondary" : "outline"}
                   className="flex-1 sm:flex-none"
@@ -538,31 +486,21 @@ export default function Dashboard() {
               <div className="flex items-center gap-3">
                 <Button variant="ghost" size="sm" onClick={handleSelectAll}>
                   <div className="flex h-4 w-4 items-center justify-center rounded border border-gray-300">
-                    {selectedIds.length > 0 &&
-                      selectedIds.length === filteredFlows.length && (
-                        <Check className="h-3 w-3" />
-                      )}
+                    {selectedIds.length > 0 && selectedIds.length === filteredFlows.length && (
+                      <Check className="h-3 w-3" />
+                    )}
                   </div>
                   <span className="ml-2 text-sm">
-                    {selectedIds.length === filteredFlows.length
-                      ? "Desmarcar"
-                      : "Todos"}
+                    {selectedIds.length === filteredFlows.length ? "Desmarcar" : "Todos"}
                   </span>
                 </Button>
                 {selectedIds.length > 0 && (
-                  <span className="text-sm text-gray-600">
-                    {selectedIds.length} selecionados
-                  </span>
+                  <span className="text-sm text-gray-600">{selectedIds.length} selecionados</span>
                 )}
               </div>
               {selectedIds.length > 0 && (
                 <div className="flex gap-2">
-                  <Button
-                    onClick={handleExportSelected}
-                    disabled={isExporting}
-                    size="sm"
-                    variant="ghost"
-                  >
+                  <Button onClick={handleExportSelected} disabled={isExporting} size="sm" variant="ghost">
                     <Download className="h-4 w-4" />
                   </Button>
                   <AlertDialog>
@@ -575,16 +513,12 @@ export default function Dashboard() {
                       <AlertDialogHeader>
                         <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
                         <AlertDialogDescription>
-                          {selectedIds.length} fluxos serão excluídos
-                          permanentemente.
+                          {selectedIds.length} fluxos serão excluídos permanentemente.
                         </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>
                         <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                        <AlertDialogAction
-                          onClick={handleDeleteSelected}
-                          className="bg-red-600 hover:bg-red-700"
-                        >
+                        <AlertDialogAction onClick={handleDeleteSelected} className="bg-red-600 hover:bg-red-700">
                           Excluir
                         </AlertDialogAction>
                       </AlertDialogFooter>
@@ -606,20 +540,13 @@ export default function Dashboard() {
           className="hidden"
         />
 
-        <AIFlowModal
-          open={aiModalOpen}
-          onOpenChange={setAiModalOpen}
-          onImport={handleAIImport}
-        />
+        <AIFlowModal open={aiModalOpen} onOpenChange={setAiModalOpen} onImport={handleAIImport} />
 
         {/* Content */}
         <main>
           {filteredFlows.length === 0 ? (
             searchQuery ? (
-              <EmptySearchState
-                searchQuery={searchQuery}
-                onClearSearch={() => setSearchQuery("")}
-              />
+              <EmptySearchState searchQuery={searchQuery} onClearSearch={() => setSearchQuery("")} />
             ) : (
               <EmptyState onCreateFlow={handleNew} isCreating={isCreating} />
             )
@@ -628,7 +555,7 @@ export default function Dashboard() {
               className={cn(
                 viewMode === "grid"
                   ? "grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
-                  : "space-y-3"
+                  : "space-y-3",
               )}
             >
               {filteredFlows.map((flow) => (
@@ -641,35 +568,33 @@ export default function Dashboard() {
                   onPlay={() => navigate(`/flows/${flow.id}/play`)}
                   onAnalytics={() => navigate(`/flows/${flow.id}/analytics`)}
                   onExport={async () => {
-                    setIsExporting(true);
+                    setIsExporting(true)
                     try {
-                      const data = await exportFlows([flow.id]);
+                      const data = await exportFlows([flow.id])
                       const blob = new Blob([data], {
                         type: "application/json",
-                      });
-                      const url = URL.createObjectURL(blob);
-                      const a = document.createElement("a");
-                      a.href = url;
-                      a.download = `${flow.title
-                        .replace(/\s+/g, "-")
-                        .toLowerCase()}.json`;
-                      document.body.appendChild(a);
-                      a.click();
-                      document.body.removeChild(a);
-                      URL.revokeObjectURL(url);
+                      })
+                      const url = URL.createObjectURL(blob)
+                      const a = document.createElement("a")
+                      a.href = url
+                      a.download = `${flow.title.replace(/\s+/g, "-").toLowerCase()}.json`
+                      document.body.appendChild(a)
+                      a.click()
+                      document.body.removeChild(a)
+                      URL.revokeObjectURL(url)
                       toast({
                         title: "Exportado",
                         description: "Fluxo exportado com sucesso.",
-                      });
+                      })
                     } catch (err) {
-                      console.error("Erro ao exportar fluxo:", err);
+                      console.error("Erro ao exportar fluxo:", err)
                       toast({
                         title: "Erro",
                         description: "Não foi possível exportar.",
                         variant: "destructive",
-                      });
+                      })
                     } finally {
-                      setIsExporting(false);
+                      setIsExporting(false)
                     }
                   }}
                   onDelete={() => handleDelete(flow.id)}
@@ -687,7 +612,7 @@ export default function Dashboard() {
         </main>
       </div>
     </div>
-  );
+  )
 }
 
 // Componentes
@@ -708,25 +633,25 @@ function FlowCard({
   showCompletionRate,
   showStepCount,
 }: {
-  flow: Flow;
-  viewMode: ViewMode;
-  onClone: () => void;
-  onEdit: () => void;
-  onPlay: () => void;
-  onAnalytics: () => void;
-  onExport: () => void;
-  onDelete: () => void;
-  isSelecting: boolean;
-  isSelected: boolean;
-  onSelect: () => void;
-  showVisits: boolean;
-  showCompletions: boolean;
-  showCompletionRate: boolean;
-  showStepCount: boolean;
+  flow: Flow
+  viewMode: ViewMode
+  onClone: () => void
+  onEdit: () => void
+  onPlay: () => void
+  onAnalytics: () => void
+  onExport: () => void
+  onDelete: () => void
+  isSelecting: boolean
+  isSelected: boolean
+  onSelect: () => void
+  showVisits: boolean
+  showCompletions: boolean
+  showCompletionRate: boolean
+  showStepCount: boolean
 }) {
-  const visits = flow.visits ?? 0;
-  const completions = flow.completions ?? 0;
-  const completionRate = visits > 0 ? (completions / visits) * 100 : 0;
+  const visits = flow.visits ?? 0
+  const completions = flow.completions ?? 0
+  const completionRate = visits > 0 ? (completions / visits) * 100 : 0
 
   if (viewMode === "list") {
     return (
@@ -739,8 +664,8 @@ function FlowCard({
                 size="sm"
                 className="h-10 w-10 p-0 shrink-0"
                 onClick={(e) => {
-                  e.stopPropagation();
-                  onSelect();
+                  e.stopPropagation()
+                  onSelect()
                 }}
               >
                 <div className="flex h-5 w-5 items-center justify-center rounded border-2 border-gray-300 bg-white">
@@ -750,14 +675,9 @@ function FlowCard({
             )}
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-3">
-                <h3 className="truncate font-medium text-gray-900">
-                  {flow.title}
-                </h3>
+                <h3 className="truncate font-medium text-gray-900">{flow.title}</h3>
                 {showStepCount && (
-                  <Badge
-                    variant="secondary"
-                    className="shrink-0 bg-gray-100 text-gray-600"
-                  >
+                  <Badge variant="secondary" className="shrink-0 bg-gray-100 text-gray-600">
                     {flow.steps.length}
                   </Badge>
                 )}
@@ -766,27 +686,15 @@ function FlowCard({
                 <div className="mt-2 flex items-center gap-4 text-sm text-gray-500">
                   {showVisits && <span>{visits} visitas</span>}
                   {showCompletions && <span>{completions} conclusões</span>}
-                  {showCompletionRate && completionRate > 0 && (
-                    <span>{completionRate.toFixed(0)}%</span>
-                  )}
+                  {showCompletionRate && completionRate > 0 && <span>{completionRate.toFixed(0)}%</span>}
                 </div>
               )}
             </div>
             <div className="flex items-center gap-2 shrink-0">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={onPlay}
-                className="hidden sm:flex"
-              >
+              <Button variant="ghost" size="sm" onClick={onPlay} className="hidden sm:flex">
                 <Play className="h-4 w-4" />
               </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={onEdit}
-                className="hidden sm:flex"
-              >
+              <Button variant="ghost" size="sm" onClick={onEdit} className="hidden sm:flex">
                 <Edit className="h-4 w-4" />
               </Button>
               <DropdownMenu>
@@ -827,7 +735,7 @@ function FlowCard({
           </div>
         </CardContent>
       </Card>
-    );
+    )
   }
 
   return (
@@ -842,14 +750,12 @@ function FlowCard({
             size="sm"
             className="h-8 w-8 p-0"
             onClick={(e) => {
-              e.stopPropagation();
-              onSelect();
+              e.stopPropagation()
+              onSelect()
             }}
           >
             <div className="flex h-5 w-5 items-center justify-center rounded border-2 border-gray-300 bg-white shadow-sm">
-              <div className="w-4">
-                {isSelected && <Check className="text-blue-600" />}
-              </div>
+              <div className="w-4">{isSelected && <Check className="text-blue-600" />}</div>
             </div>
           </Button>
         </div>
@@ -857,14 +763,8 @@ function FlowCard({
       <CardContent className={cn("p-6", isSelecting && "pr-16")}>
         <div className="flex items-start justify-between mb-4">
           <div className="min-w-0 flex-1">
-            <h3 className="truncate font-medium text-gray-900 group-hover:text-black">
-              {flow.title}
-            </h3>
-            {showStepCount && (
-              <p className="mt-2 text-sm text-gray-500">
-                {flow.steps.length} passos
-              </p>
-            )}
+            <h3 className="truncate font-medium text-gray-900 group-hover:text-black">{flow.title}</h3>
+            {showStepCount && <p className="mt-2 text-sm text-gray-500">{flow.steps.length} passos</p>}
           </div>
           {!isSelecting && (
             <DropdownMenu>
@@ -881,8 +781,8 @@ function FlowCard({
               <DropdownMenuContent align="end">
                 <DropdownMenuItem
                   onClick={(e) => {
-                    e.stopPropagation();
-                    onClone();
+                    e.stopPropagation()
+                    onClone()
                   }}
                 >
                   <Copy className="mr-2 h-4 w-4" />
@@ -890,8 +790,8 @@ function FlowCard({
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={(e) => {
-                    e.stopPropagation();
-                    onEdit();
+                    e.stopPropagation()
+                    onEdit()
                   }}
                 >
                   <Edit className="mr-2 h-4 w-4" />
@@ -899,8 +799,8 @@ function FlowCard({
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={(e) => {
-                    e.stopPropagation();
-                    onExport();
+                    e.stopPropagation()
+                    onExport()
                   }}
                 >
                   <Download className="mr-2 h-4 w-4" />
@@ -908,8 +808,8 @@ function FlowCard({
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={(e) => {
-                    e.stopPropagation();
-                    onDelete();
+                    e.stopPropagation()
+                    onDelete()
                   }}
                 >
                   <Trash2 className="mr-2 h-4 w-4" />
@@ -939,9 +839,7 @@ function FlowCard({
           <div className="mb-4">
             <div className="flex justify-between text-sm mb-2">
               <span className="text-gray-500">Taxa</span>
-              <span className="font-medium text-gray-900">
-                {completionRate.toFixed(0)}%
-              </span>
+              <span className="font-medium text-gray-900">{completionRate.toFixed(0)}%</span>
             </div>
             <div className="h-1 w-full rounded-full bg-gray-200">
               <div
@@ -958,8 +856,8 @@ function FlowCard({
               size="sm"
               className="flex-1 border-gray-200 text-gray-700 hover:bg-gray-100 bg-transparent"
               onClick={(e) => {
-                e.stopPropagation();
-                onPlay();
+                e.stopPropagation()
+                onPlay()
               }}
             >
               <Play className="mr-2 h-3 w-3" />
@@ -970,8 +868,8 @@ function FlowCard({
               size="sm"
               className="flex-1 border-gray-200 text-gray-700 hover:bg-gray-100 bg-transparent"
               onClick={(e) => {
-                e.stopPropagation();
-                onAnalytics();
+                e.stopPropagation()
+                onAnalytics()
               }}
             >
               <BarChart3 className="mr-2 h-3 w-3" />
@@ -981,15 +879,15 @@ function FlowCard({
         </div>
       </CardContent>
     </Card>
-  );
+  )
 }
 
 function EmptyState({
   onCreateFlow,
   isCreating,
 }: {
-  onCreateFlow: () => void;
-  isCreating: boolean;
+  onCreateFlow: () => void
+  isCreating: boolean
 }) {
   return (
     <div className="py-16 text-center">
@@ -997,23 +895,21 @@ function EmptyState({
         <Plus className="h-6 w-6 text-gray-400" />
       </div>
       <h3 className="mb-2 font-medium text-gray-900">Nenhum fluxo</h3>
-      <p className="mb-6 text-sm text-gray-500">
-        Crie seu primeiro fluxo para começar.
-      </p>
+      <p className="mb-6 text-sm text-gray-500">Crie seu primeiro fluxo para começar.</p>
       <Button onClick={onCreateFlow} disabled={isCreating}>
         <Plus className="mr-2 h-4 w-4" />
         {isCreating ? "Criando..." : "Criar Fluxo"}
       </Button>
     </div>
-  );
+  )
 }
 
 function EmptySearchState({
   searchQuery,
   onClearSearch,
 }: {
-  searchQuery: string;
-  onClearSearch: () => void;
+  searchQuery: string
+  onClearSearch: () => void
 }) {
   return (
     <div className="py-16 text-center">
@@ -1021,14 +917,12 @@ function EmptySearchState({
         <Search className="h-6 w-6 text-gray-400" />
       </div>
       <h3 className="mb-2 font-medium text-gray-900">Nenhum resultado</h3>
-      <p className="mb-6 text-sm text-gray-500">
-        Nenhum fluxo encontrado para "{searchQuery}".
-      </p>
+      <p className="mb-6 text-sm text-gray-500">Nenhum fluxo encontrado para "{searchQuery}".</p>
       <Button variant="outline" onClick={onClearSearch}>
         Limpar busca
       </Button>
     </div>
-  );
+  )
 }
 
 function DashboardSkeleton() {
@@ -1037,9 +931,12 @@ function DashboardSkeleton() {
       <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
         <div className="mb-8">
           <div className="mb-6 flex items-center justify-between">
-            <div>
-              <Skeleton className="h-8 w-32" />
-              <Skeleton className="mt-1 h-4 w-24" />
+            <div className="flex items-center gap-4">
+              <Skeleton className="h-10 w-10 rounded" />
+              <div>
+                <Skeleton className="h-8 w-32" />
+                <Skeleton className="mt-1 h-4 w-24" />
+              </div>
             </div>
             <Skeleton className="h-10 w-10" />
           </div>
@@ -1081,5 +978,5 @@ function DashboardSkeleton() {
         </div>
       </div>
     </div>
-  );
+  )
 }
