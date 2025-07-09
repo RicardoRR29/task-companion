@@ -3,6 +3,7 @@
 import { StrictMode, useEffect } from "react";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { Toaster } from "@/components/ui/toaster";
 
 import "./index.css";
 import { registerSW } from "virtual:pwa-register";
@@ -73,5 +74,6 @@ function App() {
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <App />
+    <Toaster />
   </StrictMode>
 );
