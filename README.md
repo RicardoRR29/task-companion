@@ -70,3 +70,14 @@ export default tseslint.config([
 
 ## AI powered flows
 To enable the AI assistant for flow creation, set `VITE_OPENAI_API_KEY` in a `.env` file with your OpenAI API key.
+
+## Building for the App Store
+
+This project can be packaged as a native iOS application using [Capacitor](https://capacitorjs.com/). After installing dependencies, run:
+
+```bash
+npm run ios
+```
+
+The command will build the web assets and synchronize them with the iOS project. Xcode will then open so you can archive and submit the app to the App Store. Make sure you provide your own app icons in `resources/` before submission.
+
