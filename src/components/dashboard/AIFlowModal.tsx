@@ -249,7 +249,7 @@ export default function AIFlowModal({ open, onOpenChange, onImport }: Props) {
           Authorization: `Bearer ${import.meta.env.VITE_OPENAI_API_KEY}`,
         },
         body: JSON.stringify({
-          model: "gpt-4",
+          model: "gpt-4o-mini",
           messages: [
             { role: "system", content: SYSTEM_PROMPT },
             ...newMessages.map((m) => ({ role: m.role, content: m.content })),
