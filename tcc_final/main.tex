@@ -1,0 +1,97 @@
+\documentclass[12pt,openright,twoside,a4paper]{abntex2}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{lipsum}
+\usepackage{markdown}
+\usepackage{indentfirst}
+\usepackage{microtype}
+\usepackage{hyperref}
+
+\title{TACO -- Task Companion}
+\author{Ricardo e Wildenberg}
+\date{\today}
+
+\begin{document}
+
+% Capa
+\imprimircapa
+
+% Folha de rosto
+\imprimirfolhaderosto
+
+% Folha de aprovação
+\begin{folhadeaprovacao}
+  \assinatura{\textbf{Orientador(a)}}
+  \assinatura{\textbf{Examinador(a) 1}}
+  \assinatura{\textbf{Examinador(a) 2}}
+\end{folhadeaprovacao}
+
+% Agradecimentos
+\chapter*{Agradecimentos}
+\lipsum[1]
+
+% Resumo
+\begin{resumo}
+\input{resumo.tex}
+\end{resumo}
+
+% Abstract
+\begin{otherlanguage*}{english}
+\begin{abstract}
+\input{abstract.tex}
+\end{abstract}
+\end{otherlanguage*}
+
+% Listas
+(A lista de figuras abaixo \e gerada automaticamente a partir dos ambientes \texttt{figure}.)
+\listoffigures
+(A lista de tabelas abaixo \e gerada automaticamente a partir dos ambientes \texttt{table}; remova esta linha se n\~ao utilizar tabelas.)
+\listoftables
+\chapter*{Lista de siglas}
+(Inclua aqui todas as abrevia\c{c}\~oes utilizadas no texto e seus significados.)
+\begin{description}
+  \item[TACO] Task Companion
+  \item[DB] Database
+  \item[PWA] Progressive Web App
+  \item[API] Application Programming Interface
+\end{description}
+
+% Sumário
+\tableofcontents
+
+% Desenvolvimento do trabalho
+\chapter{Introdução}
+\input{Introducao.md}
+
+\chapter{Fundamentação Teórica}
+\input{Fundamentacao_Teorica.md}
+
+\chapter{Trabalhos Relacionados}
+\lipsum[4]
+
+\chapter{Metodologia}
+\input{Metodologia.md}
+
+\chapter{Desenvolvimento}
+\input{Desenvolvimento.md}
+
+\chapter{Resultados}
+\input{Resultados.md}
+
+\chapter{Iterações da Versão 3}
+\input{Iteracoes_V3.md}
+
+\chapter{Conclusão}
+\input{Conclusao.md}
+
+% Texto adicional para totalizar aproximadamente 44 páginas
+\input{corpo_extra.tex}
+
+\bibliography{referencias}
+
+\appendix
+\chapter{Apêndices}
+\lipsum[9]
+
+\end{document}
