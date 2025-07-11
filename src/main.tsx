@@ -16,6 +16,7 @@ import Audit from "./pages/Audit";
 import ImportExport from "./pages/ImportExport";
 import PathAnalytics from "./pages/PathAnalytics";
 import CustomComponents from "./pages/CustomComponents";
+import Users from "./pages/Users";
 import Settings from "./pages/Settings";
 import { useCompanySettings } from "./hooks/useCompanySettings";
 import { applyBrandColors } from "./utils/theme";
@@ -60,6 +61,9 @@ function App() {
 
         {/* Backup e Restauração */}
         <Route path="/settings" element={<Settings />} />
+
+        {/* Usuários */}
+        <Route path="/users" element={<Users />} />
 
         {/* Componentes personalizados */}
         <Route path="/components" element={<CustomComponents />} />
