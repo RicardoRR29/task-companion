@@ -26,6 +26,7 @@ interface NavItem {
 const navItems: NavItem[] = [
   { to: "/", icon: <Home className="h-4 w-4" />, label: "Dashboard" },
   { to: "/audit", icon: <Activity className="h-4 w-4" />, label: "Auditoria" },
+  { to: "/users", icon: <User className="h-4 w-4" />, label: "Usuários" },
   {
     to: "/components",
     icon: <User className="h-4 w-4" />,
