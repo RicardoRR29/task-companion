@@ -89,7 +89,6 @@ export default function StackedAreaChart({
                   backgroundColor: "rgba(255, 255, 255, 0.95)",
                 }}
               />
-              {/* @ts-expect-error payload prop not in type definitions */}
               <Legend
                 verticalAlign="bottom"
                 align="center"

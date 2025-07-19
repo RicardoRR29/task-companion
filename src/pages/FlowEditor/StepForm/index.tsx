@@ -27,7 +27,6 @@ import { Alert, AlertDescription } from "../../../components/ui/alert";
 import { cn } from "../../../utils/cn";
 import { getYouTubeEmbedUrl } from "../../../utils/youtube";
 
-import TextStepForm from "./Text";
 import QuestionStepForm from "./Question";
 import MediaStepForm from "./Media";
 import CustomStepForm from "./Custom";
@@ -294,7 +293,6 @@ export default function StepForm({ step, steps, onChange, onDelete }: Props) {
           )}
         </div>
 
-        {step.type === "TEXT" && <TextStepForm step={step} />}
         {step.type === "QUESTION" && (
           <QuestionStepForm step={step} steps={steps} setField={setField} />
         )}

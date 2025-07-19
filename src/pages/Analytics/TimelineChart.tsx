@@ -27,7 +27,12 @@ interface Props {
   runsToShow: number | "all";
 }
 
-export default function TimelineChart({ data, steps, colors, runsToShow }: Props) {
+export default function TimelineChart({
+  data,
+  steps,
+  colors,
+  runsToShow,
+}: Props) {
   const isMobile = useIsMobile();
   return (
     <Card className="w-full">
@@ -80,7 +85,6 @@ export default function TimelineChart({ data, steps, colors, runsToShow }: Props
                   border: "1px solid #e2e8f0",
                 }}
               />
-              {/* @ts-expect-error payload prop not in type definitions */}
               <Legend
                 verticalAlign="bottom"
                 align="center"
