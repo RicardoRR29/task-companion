@@ -98,14 +98,6 @@ export default function StackedAreaChart({
                 }}
                 iconSize={isMobile ? 8 : 12}
                 layout="horizontal"
-                payload={
-                  steps.map((step, idx) => ({
-                    value: step.title,
-                    type: "rect",
-                    color: colors[idx % colors.length],
-                    payload: { dataKey: step.id },
-                  })) as any
-                }
               />
               {steps.map((step, idx) => (
                 <Area
