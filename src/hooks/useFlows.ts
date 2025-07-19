@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { nanoid } from "nanoid";
-import type { Flow, Step, FlowPackage, CustomComponent } from "../types/flow";
+import type { Flow, FlowPackage, CustomComponent } from "../types/flow";
 import { buildNetworkGraph } from "../utils/graph";
 import { db } from "../db";
 import { logAction } from "../utils/audit";

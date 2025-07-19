@@ -214,10 +214,7 @@ export default function AnalyticsHeader({
             <div
               className={cn(
                 "space-y-3 sm:space-y-0 sm:flex sm:items-center sm:space-x-3",
-                {
-                  "hidden sm:flex": !showMobileFilters,
-                  block: showMobileFilters,
-                }
+                !showMobileFilters ? "hidden sm:flex" : "block"
               )}
             >
               {/* Select Filter */}

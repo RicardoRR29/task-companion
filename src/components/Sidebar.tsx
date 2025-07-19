@@ -3,7 +3,6 @@ import { NavLink } from "react-router-dom";
 import {
   Home,
   Activity,
-  FileText,
   User,
   Menu,
   Settings as SettingsIcon,

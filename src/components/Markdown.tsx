@@ -1,4 +1,3 @@
-import type React from "react";
 import { parseMarkdown } from "../utils/markdown";
 
 interface Props {
