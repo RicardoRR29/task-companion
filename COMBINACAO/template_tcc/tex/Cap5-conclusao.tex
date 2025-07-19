@@ -1,0 +1,42 @@
+\chapter[CONSIDERAÇÕES FINAIS]{CONSIDERAÇÕES FINAIS}
+
+%\todo[inline]{Escreva 1 parágrafo resumo do capítulo 1, descrevendo o objetivo.}
+
+Neste trabalho foi feito uma análise das ferramentas que realizam a transcrição de áudios. O objetivo da comparação é avaliar o nível de acurácia que cada API possui para o português do Brasil, levando em consideração também as seguintes categorias: sotaque, grau de ensino e gênero. 
+
+%\todo[inline]{Escreva 1 parágrafo resumo do capítulo 2}
+
+Foram selecionadas as ferramentas: Google Cloud e Wit.ai, sendo as duas de empresas consolidadas (Google e Facebook respectivamente). Ambas disponibilizam APIs de uso gratuito para a quantidade de áudios deste trabalho. Como fonte de dados foi utilizado a base Braccent, possuindo 1.648 amostras de fala divididos entre diferentes, sendo eles: nortista, baiano, fluminense, mineiro, carioca, nordestino e sulista. 
+
+Para realizar a análise de acertos de cada ferramenta, foi utilizada a métrica de Levenshtein e a Levenshtein normalizada, que consistem em definir o menor número necessário de operações para transformar o texto transcrito para o original. O ideal seria o resultado da métrica ser igual a 0, significando  que os dois trechos são idênticos. Portanto quanto maior o resultado dessa métrica, pior é a precisão da transcrição da API, refletindo que foram necessários mais operações (inserção, exclusão ou substituição de caracteres) para transformar o trecho produzido pela ferramenta.
+
+%\todo[inline]{Escreva 1 parágrafo resumo do capítulo 3}
+
+Por meio da biblioteca Speech Recognition, foi feito a chamada de ambas as ferramentas para realizar a transcrição dos áudios da base. Foi observado que ao contrário da Wit.ai, o Google Cloud não faz uso de pontuação. Portanto foram realizadas duas análises, levando em consideração a pontuação e outra desconsiderando-a. 
+%Com os resultados obtidos, foram gerados os valores baseados na métrica de Levenshtein para posteriormente serem analisados.
+
+
+%\todo[inline]{Escreva 1 ou mais parágrafos resumo do capítulo 4}
+
+Comparando os dados das duas APIs, é possível perceber que a Wit.ai apresenta melhores resultados que o Google Cloud. A média da métrica de Levenshtein Normalizado é de 0,96, enquanto o Google Cloud é de 0,89 considerando a pontuação. O Wit.ai acertou 81 áudios completos com pontuação. Ressalta-se que sem considerar a pontuação, essa quantidade aumenta em 6,7 vezes, acertando 543 áudios.
+
+Na análise dos resultados por sotaque, o Google Cloud obteve melhores resultados para o sotaque baiano seguido do nordestino, e os  piores resultados foram para o sotaque carioca e não houve um único acerto para o sotaque nortista. Em todos os sotaques, o Wit.ai apresentou resultados melhores que o Google Cloud. O Wit.ai foi bem em todos os sotaques, apresentando um resultado um pouco pior para o sotaque carioca. 
+Analisando estes resultados, é possível se conjecturar que ambas as ferramentas não foram treinadas com o sotaque carioca e que este sotaque tem características fonéticas bem diferentes, a tal ponto a prejudicar a transcrição da fala. 
+
+Os resultados do Google Cloud são melhores para o gênero feminino que o do masculino. Nos resultados do  Wit.ai também, mas a diferença é bem pequena podendo ser  considerada equiparável. Quanto aos resultados por grau de escolaridade, é possível verificar que o nível de ensino não é um fator discriminador para as ferramentas de transcrição considerando a base de dados usada. Se o nível de ensino fosse o fator discriminante, os valores das métricas melhorariam de acordo com o aumento do nível de ensino, e não é o que os resultados apresentam. 
+
+Ao final, considera-se que o Wit.ai apresentou resultados melhores em todos os cenários, além de transcrever  a pontuação.
+
+
+\section{TRABALHOS FUTUROS}
+
+Embora os objetivos propostos no trabalho tenham sido alcançados, algumas melhorias são possíveis visando trabalhos futuros:
+
+\begin{itemize}
+    \item Realizar a análise utilizando outras bases de dados de de áudios.
+    \item Realizar experimentos com outros sistemas de transcrição de fala.
+    \item Analisar os resultados utilizando outras métricas de comparação.
+    \item Analisar e calcular a taxa de acertos por palavras. 
+    
+%\todo[inline]{escrever mais itens}
+\end{itemize}
