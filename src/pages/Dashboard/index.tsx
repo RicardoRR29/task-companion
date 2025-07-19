@@ -17,10 +17,6 @@ import {
   X,
   Check,
   MoreVertical,
-  Play,
-  BarChart3,
-  Edit,
-  Copy,
 } from "lucide-react"
 
 import {

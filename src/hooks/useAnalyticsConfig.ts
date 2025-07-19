@@ -10,7 +10,7 @@ interface AnalyticsConfigStore {
 
 export const useAnalyticsConfig = create<AnalyticsConfigStore>()(
   persist(
-    (set, get) => ({
+    (set) => ({
       runsToShow: 5,
       customOptions: [],
       setRunsToShow: (v) => set({ runsToShow: v }),

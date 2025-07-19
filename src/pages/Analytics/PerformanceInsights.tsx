@@ -58,11 +58,6 @@ export default function PerformanceInsights({
           insights.totalSessions) *
         100
       : 0;
-  const efficiency =
-    insights.averageCompletionTime > 0
-      ? insights.successfulSessions / insights.averageCompletionTime
-      : 0;
-
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 print:break-inside-avoid">
       {/* Performance Overview */}
