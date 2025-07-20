@@ -1,0 +1,365 @@
+Introdução
+No ambiente corporativo atual, é comum que a transferência de conhecimento para novos
+colaboradores enfrente diversos desafios. Estudos de psicologia cognitiva mostram que o ser humano
+tende a esquecer uma parcela significativa do que aprende se não houver reforço ou aplicação prática
+imediata – cerca de 70% da informação nova é esquecida em 24 horas, segundo a clássica curva do
+esquecimento de Ebbinghaus (MURRE & DROS, 2015). Isso explica por que, após um treinamento inicial
+detalhado, novos funcionários frequentemente ainda apresentam dúvidas quando vão executar
+as tarefas na prática. Muitas vezes, eles só percebem lacunas no entendimento no momento da
+execução, algo difícil de identificar durante a explicação teórica inicial. Nessa situação, o colaborador
+pode optar por interromper o trabalho de colegas mais experientes para perguntar novamente
+(retrabalho na instrução) ou tentar prosseguir sem ter certeza, correndo o risco de erros. Ambas as
+opções são indesejáveis: ou consomem tempo de outros funcionários, repetindo explicações, ou geram
+potenciais retrabalhos e falhas no processo por decisões incorretas. Conforme Davenport & Prusak
+(1998) apontam, os colaboradores tendem a buscar orientação diretamente com colegas mais
+experientes ao invés de consultar documentações formais dispersas, o que acaba sobrecarregando
+especialistas e criando dependência de interações repetitivas.
+Outro problema identificado é a dispersão da informação sobre processos e rotinas de trabalho. Nas
+empresas, as instruções podem estar espalhadas em diversos meios: conversas de chat, e-mails
+antigos, vídeos de treinamento gravados, documentos de texto extensos, diagramas de processo (ex.
+BPMN) ou até na memória dos funcionários mais antigos. Essa fragmentação dificulta que o
+colaborador encontre rapidamente a orientação de que precisa. Um relatório do McKinsey Global
+Institute já mostrava que profissionais do conhecimento gastam quase 20% de sua semana de
+trabalho apenas buscando informações internas necessárias para realizar suas funções (CHUI et al.,
+2012). Esse cenário não só reduz a produtividade, como também desestimula o funcionário, que pode
+perder o fio da meada de sua atividade ao interrompê-la para procurar instruções. Em muitos casos,
+diante da dificuldade de localizar a informação correta, o caminho mais fácil acaba sendo perguntar
+novamente a um colega ou superior, reforçando o ciclo de retrabalho mencionado anteriormente.
+Informações espalhadas e pouco acessíveis comprometem o aprendizado e a autonomia do
+colaborador, além de gerar desengajamento e frustração por não conseguir desempenhar suas
+tarefas de forma independente.
+Diante desses desafios, este trabalho propõe a criação do TACO (Task Companion), um software
+interativo concebido como um “companheiro de tarefas” que transforma processos em passo a passo
+dinâmicos e centraliza o conhecimento procedimental da empresa. A ideia é inspirada em conceitos
+de Electronic Performance Support Systems (EPSS), sistemas de apoio à performance que fornecem
+assistência imediata ao usuário durante a execução de tarefas, reduzindo a necessidade de treinamento
+prévio extenso e evitando erros na performance (just-in-time guidance) (GERY, 1991; CARVALHO, 2018).
+Em vez de confiar apenas na memória do treinamento inicial ou em documentos dispersos, o
+colaborador teria no TACO uma fonte única de verdade sobre o processo: a cada momento, o
+aplicativo mostra claramente em que etapa do fluxo ele está e o que deve ser feito agora, de forma
+similar a um wizard ou quiz interativo. Caso a situação real fuja do previsto no fluxo, o colaborador pode
+sinalizar a dúvida através da própria ferramenta, e o responsável pelo processo pode então ajustar o
+fluxo posteriormente, adicionando uma ramificação ou esclarecimento adicional naquela etapa para
+contemplar o novo caso. Desse modo, o sistema promove retroalimentação contínua: as dificuldades
+encontradas na prática servem de insumo para aprimorar a documentação do processo, que se torna
+viva e evolutiva.
+
+1
+
+Com o TACO, espera-se eliminar a redundância de explicações e tornar os treinamentos e rotinas
+muito mais claros e acessíveis. Cada processo de negócio pode ser executado seguindo passos
+interativos bem definidos, com possibilidade de incluir conteúdos multimídia, perguntas condicionais
+(branching) e até componentes customizados – tudo isso de forma integrada e amigável. A informação
+deixa de ficar dispersa em múltiplos locais e passa a residir nesse hub central de processos. Se algo
+não estiver no fluxo, é porque precisa ser incorporado ao fluxo, evitando a caça a informações
+externas. Isso aumenta a confiabilidade do colaborador na ferramenta e reduz interrupções, já que ele
+saberá que todas as orientações relevantes estão ali. Além disso, o TACO apresenta recursos de
+analytics e auditoria, registrando dados como tempo gasto em cada etapa, pontos de abandono de
+fluxo, frequência de uso, entre outros. Esses relatórios permitem identificar gargalos (por exemplo,
+uma etapa onde muitos usuários demoram ou têm dificuldade) e medir a eficácia dos processos,
+auxiliando gestores na tomada de decisões para melhoria contínua.
+Outro diferencial importante da solução é buscar aumentar o engajamento e a motivação dos
+colaboradores com relação aos processos. Processos bem documentados, porém apresentados de
+forma textual extensa ou burocrática, muitas vezes não engajam o funcionário. Por isso, o TACO adota
+uma interface interativa e intuitiva, semelhante a um passo a passo de quiz, tornando a experiência
+mais fluida e menos intimidadora. Estratégias de UX inspiradas em gamificação também estão sendo
+consideradas para futuras evoluções do sistema – como conceder pontos ou conquistas conforme a
+conclusão de treinamentos – pois a literatura indica que mecânicas de jogo podem melhorar
+significativamente o engajamento e a retenção de conhecimento em ambientes de aprendizagem
+corporativa (HAMARI et al., 2014; NEIDENBACH et al., 2020). Gamificação é entendida como o uso de
+elementos de jogos (pontuação, desafios, recompensas, etc.) em contextos não lúdicos para motivar e
+engajar pessoas (ROBSON et al., 2016). Hamari et al. (2014), em uma revisão de estudos empíricos,
+concluíram que a gamificação tende a impactar positivamente fatores como envolvimento e
+desempenho dos participantes. Igualmente, um estudo nacional de Neidenbach et al. (2020) destacou
+que a aplicação de gamificação nos treinamentos corporativos foi percebida como uma solução
+inovadora e estimulante, capaz de gerar ganhos de escala e reduzir custos nos processos de
+aprendizagem organizacional. Assim, ao tornar os procedimentos mais claros, atrativos e até
+divertidos, o TACO busca aumentar o interesse dos colaboradores em seguir corretamente as
+orientações, o que se reflete em maior produtividade e qualidade do trabalho realizado.
+Por fim, para facilitar a adoção inicial da ferramenta e minimizar a barreira de cadastramento dos
+processos (um esforço que muitas empresas relutam em despender), o TACO incorpora uma
+funcionalidade de chatbot com IA integrado à API do OpenAI. Com esse recurso, o usuário
+(geralmente um gestor ou analista de processos) pode simplesmente descrever em linguagem
+natural o processo em uma conversa com o bot, e o sistema irá sugerir automaticamente um esboço
+de fluxo passo a passo baseado nessa descrição. Se o relato for muito genérico, a IA propõe etapas
+comuns; se for detalhado, gera um fluxo mais fiel, solicitando confirmação ou ajustes do usuário antes
+de salvar. Esse uso de Processamento de Linguagem Natural (PLN) agiliza a criação de novos fluxos e
+diminui a resistência inicial, pois o conhecimento existente na organização pode ser capturado de
+forma conversacional e transformado em documentação interativa rapidamente. Em suma, o TACO
+representa uma ferramenta inovadora de suporte à execução de processos, alinhada às práticas
+modernas de gestão do conhecimento e treinamento corporativo, com potencial de reduzir
+retrabalho, centralizar informações, engajar colaboradores e melhorar continuamente as rotinas
+de negócio.
+Estrutura do trabalho: este relatório de Trabalho de Conclusão de Curso está organizado da seguinte
+forma: inicialmente, apresenta-se a Introdução (esta seção), contextualizando o problema e a solução
+proposta. Em seguida, no Referencial Teórico, são discutidos os conceitos e trabalhos relacionados
+(como gestão do conhecimento, EPSS, UX e gamificação em treinamentos, etc.) que fundamentam a
+
+2
+
+proposta. Na seção de Metodologia, descrevem-se os métodos e procedimentos adotados para o
+desenvolvimento do protótipo do TACO e para a condução da pesquisa (incluindo a abordagem de
+pesquisa aplicada e design science, as tecnologias utilizadas e o planejamento dos experimentos de
+avaliação). Posteriormente, são apresentados os Resultados e Discussão, detalhando as
+funcionalidades implementadas, exemplos de uso do sistema e análise dos dados coletados (por
+exemplo, simulações de uso ou avaliações por especialistas). Por fim, as Conclusões resumem as
+contribuições do trabalho, suas limitações e sugestões de trabalhos futuros, consolidando como o TACO
+pode contribuir para transformar o aprendizado de processos dentro das organizações.
+
+Referências sugeridas para o Referencial Teórico
+• Davenport & Prusak (1998) – Working Knowledge: How Organizations Manage What They Know.
+Obra clássica de gestão do conhecimento que discute como as empresas lidam com o
+conhecimento organizacional. Os autores destacam a tendência de colaboradores recorrerem a
+colegas (conhecimento tácito) em vez de bases de conhecimento formais, ressaltando a
+importância de se capturar e compartilhar o know-how dentro da empresa. Esta referência
+pode embasar a discussão sobre dispersão de informação e necessidade de uma fonte única
+de verdade para os processos.
+• Nonaka & Takeuchi (1995) – The Knowledge-Creating Company. Introduz o modelo SECI de
+conversão do conhecimento (tácito e explícito) nas organizações. Útil para fundamentar como
+ferramentas como o TACO ajudam a converter conhecimento tácito de funcionários
+experientes em conhecimento explícito estruturado (passo a passo documentado),
+fomentando a criação de conhecimento organizacional contínuo.
+• Argyris & Schön (1978) – Organizational Learning: A Theory of Action Perspective. Texto clássico
+sobre aprendizagem organizacional. Pode ser citado para reforçar a ideia de que organizações
+aprendem ao detectar e corrigir erros (modelo de aprendizagem de dupla-loupe), conceito
+relacionado à retroalimentação que o TACO proporciona ao permitir ajustes nos fluxos a partir
+das dúvidas e erros identificados.
+• Gery (1991) – Electronic Performance Support Systems. Pioneira no conceito de EPSS, descreve
+como sistemas computacionais podem fornecer suporte eletrônico à performance no local de
+trabalho, integrando instruções, ferramentas e informações necessárias para realizar tarefas.
+Excelente para embasar teoricamente a proposta do TACO como um EPSS moderno, explicando
+os benefícios de oferecer ajuda passo a passo no momento exato da necessidade (redução
+de treinamentos extensivos e erros).
+• Carvalho (2018) – A model of factors explaining the adoption and use of electronic performance
+support systems in Portuguese organizations. Estudo recente que propõe um modelo de fatores
+que influenciam a adoção de EPSS em organizações (publicado no International Journal of
+Enterprise Information Systems). Pode ser usado para justificar a viabilidade e importância de
+uma ferramenta como o TACO no contexto empresarial atual, citando fatores de sucesso
+para adoção (como usabilidade, utilidade percebida, apoio gerencial, etc.).
+• Bollen et al. (2015) – “In search of design principles for developing digital learning & performance
+support for a student design task”. Artigo que apresenta princípios de design para
+desenvolvimento de sistemas de suporte à aprendizagem e performance (EPSS) em contexto
+educacional. Útil para discutir diretrizes de UX e design instrucional aplicáveis ao TACO,
+garantindo que o sistema seja eficaz em conduzir o usuário pelo processo de forma didática.
+
+3
+
+• Hamari, Koivisto & Sarsa (2014) – “Does Gamification Work? – A Literature Review of Empirical
+Studies on Gamification”. Revisão sistemática de estudos sobre gamificação. Os autores concluem
+que, na maioria dos casos, gamificação aumenta o engajamento e pode melhorar resultados
+de aprendizagem. Serve de base para argumentar a favor da inclusão de elementos de
+gamificação no TACO (no referencial teórico sobre motivação e aprendizagem), mesmo que de
+forma prospectiva, para tornar o uso do sistema mais atraente e motivador.
+• Neidenbach et al. (2020) – “Gamificação nas organizações: processos de aprendizado e construção
+de sentido”. Artigo brasileiro (Cadernos EBAPE.BR) que investigou a implementação de
+gamificação no treinamento de funcionários no varejo. Relata percepções positivas dos gestores
+quanto à gamificação proporcionar aprendizado mais estimulante, com ganhos em
+engajamento. Útil para trazer uma perspectiva nacional e reforçar, no referencial teórico, a
+eficácia da gamificação como tendência em treinamento corporativo e gestão de pessoas.
+• Murre & Dros (2015) – “Replication and Analysis of Ebbinghaus’ Forgetting Curve”. Pesquisa
+publicada na PLoS ONE que replicou experimentalmente a curva do esquecimento de
+Ebbinghaus. Confirma quantitativamente a rápida taxa de esquecimento sem reforço (p. ex.,
+~70% em um dia). Essa referência pode ser mencionada para fundamentar teoricamente a
+necessidade de ferramentas que ofereçam reforço e consulta contínua, combatendo o
+esquecimento natural após treinamentos iniciais.
+
+Referências sugeridas para a Metodologia
+• Hevner et al. (2004) – “Design Science in Information Systems Research”. Publicado no MIS
+Quarterly, este é um dos trabalhos seminais sobre Design Science Research (DSR) em Sistemas
+de Informação. Define diretrizes para conduzir pesquisas que envolvem a construção e
+avaliação de artefatos (como softwares) visando resolver problemas reais. Na metodologia,
+esta referência pode ser utilizada para justificar o método de pesquisa adotado no TCC
+(pesquisa aplicada de desenvolvimento de artefato), explicando que o TACO foi desenvolvido
+seguindo princípios de DSR – identificação do problema, definição dos objetivos da solução,
+design e desenvolvimento do artefato, avaliação e comunicação.
+• Peffers et al. (2007) – “A Design Science Research Methodology for Information Systems Research”.
+Artigo que propõe um processo metodológico estruturado para conduzir pesquisas em design
+science (conhecido como DSRM). Fornece um passo a passo em seis etapas (identificação do
+problema, objetivos, design e desenvolvimento, demonstração, avaliação, comunicação). Essa
+referência pode apoiar a descrição metodológica do TCC, mostrando que o desenvolvimento do
+TACO seguiu um processo sistemático e validado academicamente de pesquisa e
+desenvolvimento de software.
+• Wazlawick (2014) – Metodologia de Pesquisa em Computação. Livro-texto em português que
+orienta sobre como planejar e executar trabalhos acadêmicos na área de Computação (incluindo
+trabalhos de conclusão de curso). Aborda desde métodos científicos até dicas práticas de
+condução de projetos e escrita. Na seção de metodologia, Wazlawick pode ser citado ao explicar
+a classificação da pesquisa (por exemplo, pesquisa aplicada, qualitativa ou quantitativa, estudo
+de caso, prototipação, etc.) e as técnicas de coleta/validação utilizadas, garantindo aderência
+às normas e rigor científico esperados em um TCC de Sistemas de Informação.
+• Pressman & Maxim (2019) – Software Engineering: A Practitioner’s Approach (9ª ed.). Clássico da
+Engenharia de Software, este livro cobre processos e métodos para desenvolvimento de
+software de qualidade. Pode ser usado na metodologia para justificar as escolhas técnicas e
+
+4
+
+práticas de desenvolvimento adotadas no projeto TACO. Por exemplo, referências a Pressman
+podem apoiar a decisão de uso de metodologias ágeis no desenvolvimento, princípios de design
+modular, estratégias de teste (testes unitários, de integração) e considerações de qualidade de
+software. Citá-lo demonstra respaldo teórico para as boas práticas de engenharia aplicadas
+durante o desenvolvimento do protótipo.
+• Brooks (1987) – “No Silver Bullet: Essence and Accidents of Software Engineering”. Embora antigo,
+este ensaio (de Fred Brooks) é considerado um clássico e pode ser mencionado caso a
+metodologia discuta desafios de desenvolvimento de software. Brooks argumenta que não há
+bala de prata em engenharia de software – ou seja, projetos envolvem complexidade
+essencial. Trazer essa perspectiva pode enriquecer a metodologia ao reconhecer as limitações e
+complexidades enfrentadas no desenvolvimento do TACO, justificando por que certas decisões
+de escopo ou tecnologia foram tomadas para gerenciar a complexidade do projeto.
+• Yin (2015) – Estudo de Caso: Planejamento e Métodos. Se o TCC incluir uma avaliação do TACO por
+meio de estudo de caso (por exemplo, implantação piloto em uma empresa ou simulação
+prática), Yin é referência fundamental em metodologia de estudo de caso. Fornece diretrizes
+para desenhar, conduzir e validar estudos de caso. Poderia ser citado na metodologia para
+legitimar o método de avaliação escolhido (caso aplicável), garantindo que a análise dos
+resultados do uso do TACO siga preceitos científicos (definição de unidades de análise, coleta de
+evidências, triangulação, etc.).
+Cada uma das referências acima contribui para embasar teoricamente e metodologicamente este
+trabalho, alinhando a proposta do TACO com o conhecimento consolidado na literatura acadêmica e
+profissional. A combinação de fontes nacionais e internacionais assegura que o TCC tenha um
+suporte bibliográfico robusto, atendendo aos padrões técnicos e científicos esperados em um
+Bacharelado em Sistemas de Informação.
+
+Referências Bibliográficas
+@book{davenport1998working,
+title={Working Knowledge: How Organizations Manage What They Know},
+author={Davenport, Thomas H. and Prusak, Laurence},
+year={1998},
+publisher={Harvard Business School Press}
+}
+@book{nonaka1995knowledge,
+title={The Knowledge-Creating Company: How Japanese Companies Create the Dynamics of
+Innovation},
+author={Nonaka, Ikujiro and Takeuchi, Hirotaka},
+year={1995},
+publisher={Oxford University Press}
+}
+@article{murre2015ebbinghaus,
+title={Replication and Analysis of Ebbinghaus' Forgetting Curve},
+author={Murre, Jaap M. J. and Dros, Joeri},
+journal={PLoS ONE},
+volume={10},
+
+5
+
+number={7},
+pages={e0120644},
+year={2015},
+doi={10.1371/journal.pone.0120644}
+}
+@techreport{chui2012social,
+title={The Social Economy: Unlocking Value and Productivity through Social Technologies},
+author={Chui, Michael and Manyika, James and Bughin, Jacques and Dobbs, Richard and Roxburgh,
+Charles and Sarrazin, Hugo and Westergren, Magnus},
+institution={McKinsey Global Institute},
+year={2012}
+}
+@book{gery1991epss,
+title={Electronic Performance Support Systems: How and Why to Remake the Workplace through the
+Strategic Application of Technology},
+author={Gery, Gloria},
+year={1991},
+publisher={Weingarten (MA)}
+}
+@article{carvalho2018epss,
+title={A model of factors explaining the adoption and use of electronic performance support systems
+in Portuguese organizations},
+author={Carvalho, Paulo},
+journal={International Journal of Enterprise Information Systems},
+volume={14},
+number={1},
+pages={111--125},
+year={2018},
+doi={10.4018/IJEIS.2018010107}
+}
+@article{bollen2015design,
+title={In search of design principles for developing digital learning \& performance support for a
+student design task},
+author={Bollen, Lars and Van der Meij, Hans and Leemkuil, Henny and McKenney, Susan},
+journal={Australasian Journal of Educational Technology},
+volume={31},
+number={5},
+pages={500--520},
+year={2015},
+doi={10.14742/ajet.2546}
+}
+@inproceedings{hamari2014gamification,
+title={Does gamification work? A literature review of empirical studies on gamification},
+author={Hamari, Juho and Koivisto, Jonna and Sarsa, Harri},
+booktitle={47th Hawaii International Conference on System Sciences (HICSS)},
+pages={3025--3034},
+
+6
+
+year={2014},
+organization={IEEE}
+}
+@article{neidenbach2020gamificacao,
+title={Gamificaçãonas organizações: processos de aprendizado e construção de sentido},
+author={Neidenbach, Soraia Finamor and Cepellos, Vanessa Martines and Pereira, Jussara Jéssica},
+journal={Cadernos EBAPE.BR},
+volume={18},
+number={spe},
+pages={729--741},
+year={2020},
+doi={10.1590/1679-395120190137}
+}
+@article{robson2016gameon,
+title={Game on: Engaging customers and employees through gamification},
+author={Robson, Karen and Plangger, Kirk and Kietzmann, Jan H. and McCarthy, Ian and Pitt, Leyland},
+journal={Business Horizons},
+volume={59},
+number={1},
+pages={29--36},
+year={2016},
+doi={10.1016/j.bushor.2015.08.002}
+}
+@article{hevner2004design,
+title={Design science in information systems research},
+author={Hevner, Alan R. and March, Salvatore T. and Park, Jinsoo and Ram, Sudha},
+journal={MIS Quarterly},
+volume={28},
+number={1},
+pages={75--105},
+year={2004}
+}
+@article{peffers2007dsrm,
+title={A design science research methodology for information systems research},
+author={Peffers, Ken and Tuunanen, Tuure and Rothenberger, Marcus A. and Chatterjee, Samir},
+journal={Journal of Management Information Systems},
+volume={24},
+number={3},
+pages={45--77},
+year={2007},
+publisher={Taylor \& Francis}
+}
+@book{wazlawick2014metodologia,
+title={Metodologia de Pesquisa em Computação},
+author={Wazlawick, Raul Sidnei},
+year={2014},
+
+7
+
+publisher={Elsevier Brasil}
+}
+@book{pressman2019software,
+title={Software Engineering: A Practitioner’s Approach},
+author={Pressman, Roger S. and Maxim, Bruce R.},
+edition={9},
+year={2019},
+publisher={McGraw-Hill Education}
+}
+@inproceedings{brooks1987nosilverbullet,
+title={No Silver Bullet: Essence and Accidents of Software Engineering},
+author={Brooks, Frederick P.},
+booktitle={Proceedings of the IFIP 10th World Computing Conference},
+pages={1069--1076},
+year={1987}
+}
+@book{yin2015estudocasos,
+title={Estudo de Caso: Planejamento e Métodos},
+author={Yin, Robert K.},
+year={2015},
+publisher={Bookman Editora}
+}
+
+8
+
+
