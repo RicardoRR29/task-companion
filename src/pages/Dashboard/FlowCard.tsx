@@ -286,30 +286,32 @@ export default function FlowCard({
           </div>
         )}
         <div>
-          <div className="flex gap-3">
+          <div className="flex flex-col gap-2 sm:flex-row sm:gap-3">
             <Button
               variant="outline"
               size="sm"
-              className="flex-1 border-gray-200 text-gray-700 hover:bg-gray-100 bg-transparent"
+              className="flex-1 border-gray-200 text-gray-700 hover:bg-gray-100 bg-transparent flex items-center justify-center"
               onClick={(e) => {
                 e.stopPropagation();
                 onPlay();
               }}
+              aria-label="Executar"
             >
-              <Play className="mr-2 h-3 w-3" />
-              Executar
+              <Play className="h-3 w-3 sm:mr-2" />
+              <span className="hidden sm:inline">Executar</span>
             </Button>
             <Button
               variant="outline"
               size="sm"
-              className="flex-1 border-gray-200 text-gray-700 hover:bg-gray-100 bg-transparent"
+              className="flex-1 border-gray-200 text-gray-700 hover:bg-gray-100 bg-transparent flex items-center justify-center"
               onClick={(e) => {
                 e.stopPropagation();
                 onAnalytics();
               }}
+              aria-label="Dados"
             >
-              <BarChart3 className="mr-2 h-3 w-3" />
-              Dados
+              <BarChart3 className="h-3 w-3 sm:mr-2" />
+              <span className="hidden sm:inline">Dados</span>
             </Button>
           </div>
         </div>
