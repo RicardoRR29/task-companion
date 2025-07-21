@@ -2,7 +2,12 @@ import { useRef, useState } from "react";
 import { Download, Upload } from "lucide-react";
 import SidebarLayout from "../components/Sidebar";
 import { Button } from "../components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "../components/ui/card";
 import { Input } from "../components/ui/input";
 import { useToast } from "../hooks/use-toast";
 import { createBackup, restoreBackup } from "../utils/backup";
@@ -26,7 +31,10 @@ export default function Settings() {
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
-      toast({ title: "Backup gerado", description: "Arquivo salvo com sucesso." });
+      toast({
+        title: "Backup gerado",
+        description: "Arquivo salvo com sucesso.",
+      });
     } catch (error) {
       const err = error as Error;
       toast({
@@ -46,7 +54,10 @@ export default function Settings() {
     try {
       const text = await file.text();
       await restoreBackup(text);
-      toast({ title: "Backup restaurado", description: "Os dados foram importados." });
+      toast({
+        title: "Backup restaurado",
+        description: "Os dados foram importados.",
+      });
       setTimeout(() => window.location.reload(), 500);
     } catch (error) {
       const err = error as Error;
@@ -63,7 +74,7 @@ export default function Settings() {
 
   return (
     <SidebarLayout title="Configurações">
-      <div className="space-y-6 max-w-md">
+      <div className="space-y-6 max-w-md pt-10">
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -74,7 +85,11 @@ export default function Settings() {
             <p className="text-sm text-muted-foreground">
               Salve uma cópia de todos os dados para restaurar depois.
             </p>
-            <Button onClick={handleBackup} disabled={isBackingUp} className="w-full">
+            <Button
+              onClick={handleBackup}
+              disabled={isBackingUp}
+              className="w-full"
+            >
               {isBackingUp ? "Gerando..." : "Gerar Backup"}
             </Button>
           </CardContent>

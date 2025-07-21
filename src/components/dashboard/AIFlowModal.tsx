@@ -450,7 +450,11 @@ export default function AIFlowModal({ open, onOpenChange, onImport }: Props) {
                                     </Button>
                                   </div>
                                   <SyntaxHighlighter
-                                    style={oneDark as { [key: string]: React.CSSProperties }}
+                                    style={
+                                      oneDark as {
+                                        [key: string]: React.CSSProperties;
+                                      }
+                                    }
                                     language={match[1]}
                                     PreTag="div"
                                     className="!mt-0 !rounded-t-none"

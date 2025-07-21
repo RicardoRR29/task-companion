@@ -113,9 +113,11 @@ export default function CustomComponents() {
     <SidebarLayout title="Componentes">
       <div className="space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between pt-10">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Componentes</h1>
+            <h1 className="text-left text-3xl font-bold tracking-tight">
+              Componentes
+            </h1>
             <p className="text-muted-foreground mt-1">
               Gerencie seus componentes personalizados
             </p>
