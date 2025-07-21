@@ -400,12 +400,12 @@ export default function Dashboard() {
 
           {/* Actions */}
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex gap-2">
-              <Button onClick={handleNew} disabled={isCreating} className="flex-1 sm:flex-none">
+            <div className="flex flex-wrap gap-2">
+              <Button onClick={handleNew} disabled={isCreating} className="flex-1 min-w-[8rem] sm:flex-none">
                 <Plus className="mr-2 h-4 w-4" />
                 {isCreating ? "Criando..." : "Novo"}
               </Button>
-              <Button onClick={() => setAiModalOpen(true)} variant="outline" className="flex-1 sm:flex-none">
+              <Button onClick={() => setAiModalOpen(true)} variant="outline" className="flex-1 min-w-[8rem] sm:flex-none">
                 <Sparkles className="mr-2 h-4 w-4" />
                 IA
               </Button>
@@ -413,7 +413,7 @@ export default function Dashboard() {
                 onClick={() => fileInputRef.current?.click()}
                 disabled={isImporting}
                 variant="outline"
-                className="flex-1 sm:flex-none"
+                className="flex-1 min-w-[8rem] sm:flex-none"
               >
                 <Upload className="mr-2 h-4 w-4" />
                 {isImporting ? "..." : "Importar"}
@@ -425,7 +425,7 @@ export default function Dashboard() {
                     setSelectedIds([])
                   }}
                   variant={isSelecting ? "secondary" : "outline"}
-                  className="flex-1 sm:flex-none"
+                  className="flex-1 min-w-[8rem] sm:flex-none"
                 >
                   {isSelecting ? "Cancelar" : "Selecionar"}
                 </Button>
