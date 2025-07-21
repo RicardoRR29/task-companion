@@ -230,10 +230,10 @@ export default function FlowEditor() {
               </Link>
             </Button>
             <div>
-              <h1 className="font-semibold truncate max-w-[200px]">
+              <h1 className="w-full font-semibold sm:text-xl text-lg ">
                 {flow.title}
               </h1>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs text-muted-foreground text-left">
                 {flow.steps.length}{" "}
                 {flow.steps.length === 1 ? "passo" : "passos"}
               </p>
