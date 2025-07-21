@@ -356,8 +356,10 @@ export default function AIFlowModal({ open, onOpenChange, onImport }: Props) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-full max-w-4xl h-[80vh] flex flex-col p-0">
-        <DialogHeader className="px-6 py-4 border-b">
+      <DialogContent
+        className="w-full max-w-none sm:max-w-4xl h-[100dvh] sm:h-[80vh] flex flex-col p-0 rounded-none sm:rounded-lg left-0 top-0 sm:left-1/2 sm:top-1/2 translate-x-0 translate-y-0 sm:translate-x-[-50%] sm:translate-y-[-50%]"
+      >
+        <DialogHeader className="sm:px-6 px-4 py-4 border-b">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
@@ -384,7 +386,7 @@ export default function AIFlowModal({ open, onOpenChange, onImport }: Props) {
           </div>
         </DialogHeader>
 
-        <ScrollArea ref={scrollAreaRef} className="flex-1 px-6">
+        <ScrollArea ref={scrollAreaRef} className="flex-1 sm:px-6 px-4">
           <div className="space-y-4 py-4">
             {messages.map((message, index) => (
               <div
@@ -567,7 +569,7 @@ export default function AIFlowModal({ open, onOpenChange, onImport }: Props) {
 
         <Separator />
 
-        <div className="p-4">
+        <div className="sm:p-4 p-3">
           <div className="flex gap-3">
             <Textarea
               ref={textareaRef}
