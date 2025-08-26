@@ -55,6 +55,18 @@ if (AI_CONFIG.isConfigured) {
 - **GPT-5**: Melhor modelo para codificação e tarefas agenticas
 - **GPT-5 Nano**: Versão mais rápida e econômica
 - **GPT-4o Mini**: Alternativa mais barata para tarefas simples
+- **GPT-3.5 Turbo**: Modelo de fallback sempre disponível
+
+### Sistema de Fallback Automático
+
+O sistema automaticamente detecta qual modelo está disponível e faz fallback para alternativas:
+
+1. **GPT-5 Mini** (preferido)
+2. **GPT-4o Mini** (alternativa 1)
+3. **GPT-4o** (alternativa 2)
+4. **GPT-3.5 Turbo** (fallback final)
+
+Isso garante que a aplicação sempre funcione, mesmo quando modelos específicos não estão disponíveis.
 
 ## Uso
 
@@ -133,8 +145,10 @@ export const AI_CONFIG = {
 
 ### Erro: "Modelo não encontrado"
 
-- Verifique se o modelo especificado está disponível na sua conta
-- Confirme se o nome do modelo está correto (ex: `gpt-5-mini`, não `gpt-5o-mini`)
+- **Solução automática**: O sistema faz fallback para modelos alternativos automaticamente
+- **Verificação manual**: Use `DYNAMIC_AI_CONFIG.getModel()` para ver qual modelo está disponível
+- **Fallback manual**: Configure `AI_CONFIG.MODEL` para um modelo específico se necessário
+- **Verificação de conta**: Confirme se o modelo está disponível na sua conta OpenAI
 
 ### Erro: "Limite de taxa excedido"
 

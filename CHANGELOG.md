@@ -9,6 +9,8 @@ Todas as mudanças notáveis neste projeto serão documentadas neste arquivo.
 - **GPT-5 Mini Integration**: Sistema atualizado para usar o modelo GPT-5 Mini da OpenAI
 - **Centralized AI Configuration**: Novo arquivo `src/config/ai.ts` para configurações centralizadas de IA
 - **AI Setup Documentation**: Documentação completa em `docs/ai-setup.md` para configuração da IA
+- **Automatic Model Fallback**: Sistema de fallback automático para modelos alternativos quando GPT-5 Mini não está disponível
+- **Model Availability Check**: Verificação automática da disponibilidade dos modelos antes de fazer requisições
 
 ### Changed
 
@@ -21,6 +23,8 @@ Todas as mudanças notáveis neste projeto serão documentadas neste arquivo.
 - **Type Safety**: Adicionados tipos TypeScript para modelos de IA disponíveis
 - **Error Handling**: Melhorado tratamento de erros e validação de configuração
 - **Code Organization**: Reorganizado código para melhor manutenibilidade
+- **Resilience**: Sistema robusto com fallback automático para diferentes cenários de erro
+- **Monitoring**: Verificação automática da disponibilidade dos modelos da API
 
 ## [Previous Versions]
 

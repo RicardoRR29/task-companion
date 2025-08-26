@@ -62,6 +62,8 @@ A raiz também possui `index.css`, `main.tsx` e `vite-env.d.ts` como ponto de en
 - **Assistente conversacional**: interface de chat que entende descrições em linguagem natural e gera JSON estruturado.
 - **Configuração centralizada**: arquivo `config/ai.ts` centraliza todas as configurações de IA, incluindo modelo, URL da API e parâmetros padrão.
 - **Geração automática**: converte descrições em fluxos completos com passos, opções e estrutura de navegação.
+- **Sistema de fallback**: automaticamente detecta modelos disponíveis e faz fallback para alternativas quando necessário.
+- **Verificação de disponibilidade**: checa a disponibilidade dos modelos antes de fazer requisições para evitar erros.
 
 ### Outras Utilidades
 

@@ -20,7 +20,7 @@ import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { Bot, User, Send, Trash2, Copy, Check } from "lucide-react";
 import { cn } from "@/utils/cn";
-import { AI_CONFIG } from "@/config/ai";
+import { AI_CONFIG, DYNAMIC_AI_CONFIG } from "@/config/ai";
 
 interface Props {
   open: boolean;
@@ -242,6 +242,19 @@ export default function AIFlowModal({ open, onOpenChange, onImport }: Props) {
     setIsTyping(true);
 
     try {
+      // Obtém o modelo disponível com fallback automático
+      const availableModel = await DYNAMIC_AI_CONFIG.getModel();
+
+      // Adiciona mensagem informativa sobre o modelo sendo usado
+      if (availableModel !== AI_CONFIG.MODEL) {
+        const fallbackMessage: Message = {
+          role: "assistant",
+          content: `ℹ️ **Modelo alternativo ativado**\n\nO modelo ${AI_CONFIG.MODEL} não está disponível no momento. Usando ${availableModel} como alternativa.`,
+          timestamp: new Date(),
+        };
+        setMessages([...newMessages, fallbackMessage]);
+      }
+
       const res = await fetch(AI_CONFIG.API_URL, {
         method: "POST",
         headers: {
@@ -249,7 +262,7 @@ export default function AIFlowModal({ open, onOpenChange, onImport }: Props) {
           Authorization: `Bearer ${AI_CONFIG.API_KEY}`,
         },
         body: JSON.stringify({
-          model: AI_CONFIG.MODEL,
+          model: availableModel,
           messages: [
             { role: "system", content: SYSTEM_PROMPT },
             ...newMessages.map((m) => ({ role: m.role, content: m.content })),
