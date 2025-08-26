@@ -256,7 +256,7 @@ export const useFlows = create<FlowStore>()(
             const flow: Flow = {
               ...f,
               id: newId,
-              title: `${f.title} (importado)`,
+              title: f.title,
               status: "DRAFT",
               visits: 0,
               completions: 0,
