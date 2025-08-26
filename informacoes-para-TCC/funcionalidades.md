@@ -63,6 +63,7 @@ A raiz também possui `index.css`, `main.tsx` e `vite-env.d.ts` como ponto de en
 - **Configuração centralizada**: arquivo `config/ai.ts` centraliza todas as configurações de IA, incluindo modelo, URL da API e parâmetros padrão.
 - **Geração automática**: converte descrições em fluxos completos com passos, opções e estrutura de navegação.
 - **Sistema de fallback**: automaticamente detecta modelos disponíveis e faz fallback para alternativas quando necessário.
+- **Compatibilidade de parâmetros**: detecta automaticamente quais parâmetros são suportados por cada modelo (ex: GPT-5 Mini só aceita temperature padrão).
 - **Verificação de disponibilidade**: checa a disponibilidade dos modelos antes de fazer requisições para evitar erros.
 
 ### Outras Utilidades

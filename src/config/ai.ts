@@ -12,15 +12,12 @@ export const AI_CONFIG = {
 
   // Configurações padrão para as requisições
   DEFAULT_OPTIONS: {
-    temperature: 0.7,
-    max_completion_tokens: 4000,
     function_call: "auto" as const,
   },
 
   // Configurações específicas por modelo
   getModelSpecificOptions(model: string) {
     const baseOptions = {
-      temperature: 0.7,
       function_call: "auto" as const,
     };
 
@@ -29,13 +26,16 @@ export const AI_CONFIG = {
       return {
         ...baseOptions,
         max_completion_tokens: 4000,
+        // GPT-5 Mini só suporta temperature: 1 (padrão)
+        temperature: 1,
       };
     }
 
-    // Modelos mais antigos usam max_tokens
+    // Modelos mais antigos usam max_tokens e suportam temperature personalizada
     return {
       ...baseOptions,
       max_tokens: 4000,
+      temperature: 0.7, // Valor personalizado para modelos antigos
     };
   },
 

@@ -118,12 +118,27 @@ const customResponse = await fetch(AI_CONFIG.API_URL, {
 export const AI_CONFIG = {
   // ... outras configurações
   DEFAULT_OPTIONS: {
-    temperature: 0.7, // Criatividade (0.0 - 2.0)
-    max_tokens: 4000, // Máximo de tokens de saída
     function_call: "auto", // Chamada de função automática
+  },
+
+  // Configurações específicas por modelo
+  getModelSpecificOptions(model: string) {
+    if (model.includes("gpt-5")) {
+      return {
+        temperature: 1, // GPT-5 Mini só suporta valor padrão
+        max_completion_tokens: 4000,
+      };
+    }
+
+    return {
+      temperature: 0.7, // Modelos antigos suportam valores personalizados
+      max_tokens: 4000,
+    };
   },
 };
 ```
+
+**⚠️ Limitação do GPT-5 Mini**: Este modelo não suporta valores personalizados de `temperature` - apenas o valor padrão `1` é aceito.
 
 ### Trocar Modelo
 
@@ -152,6 +167,16 @@ Este erro indica que o modelo não suporta o parâmetro `max_tokens`. **Soluçã
 - **Solução automática**: O sistema detecta automaticamente qual parâmetro usar
 
 O sistema já está configurado para usar o parâmetro correto automaticamente.
+
+### Erro: "Unsupported value: 'temperature' does not support 0.7 with this model. Only the default (1) value is supported."
+
+Este erro indica que o modelo não suporta valores personalizados de `temperature`. **Solução:**
+
+- **GPT-5 Mini**: Só suporta `temperature: 1` (valor padrão)
+- **Modelos mais antigos**: Suportam valores personalizados (0.0 - 2.0)
+- **Solução automática**: O sistema usa `temperature: 1` para GPT-5 Mini e valores personalizados para outros modelos
+
+**Nota**: O GPT-5 Mini é otimizado para tarefas bem definidas e não permite ajuste de criatividade via temperature.
 
 ### Erro: "missing bearer" na API /completions
 

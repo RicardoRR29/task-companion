@@ -28,6 +28,7 @@ Todas as mudanças notáveis neste projeto serão documentadas neste arquivo.
 - **Authentication Fix**: Resolvido erro "missing bearer" com validação robusta da chave da API
 - **Error Handling**: Melhorado tratamento de erros de autenticação e configuração
 - **Parameter Compatibility**: Corrigido erro de parâmetros incompatíveis entre modelos GPT-5 Mini e modelos antigos
+- **Temperature Limitation Fix**: Resolvido erro de temperature não suportado no GPT-5 Mini (só aceita valor padrão 1)
 
 ## [Previous Versions]
 
