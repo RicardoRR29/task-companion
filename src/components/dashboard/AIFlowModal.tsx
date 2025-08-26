@@ -229,6 +229,23 @@ export default function AIFlowModal({ open, onOpenChange, onImport }: Props) {
   async function send() {
     if (!input.trim() || loading) return;
 
+    // Valida a configuração antes de prosseguir
+    try {
+      DYNAMIC_AI_CONFIG.validateConfig();
+    } catch (error) {
+      const errorMessage: Message = {
+        role: "assistant",
+        content: `❌ **Erro de Configuração**\n\n${
+          error instanceof Error
+            ? error.message
+            : "Chave da API não configurada"
+        }\n\nVerifique se o arquivo .env está configurado corretamente com VITE_OPENAI_API_KEY.`,
+        timestamp: new Date(),
+      };
+      setMessages([...messages, errorMessage]);
+      return;
+    }
+
     const userMessage: Message = {
       role: "user",
       content: input.trim(),
@@ -303,7 +320,6 @@ export default function AIFlowModal({ open, onOpenChange, onImport }: Props) {
       setIsTyping(false);
 
       if (msg?.function_call) {
-        debugger;
         const args = JSON.parse(msg.function_call.arguments);
         const jsonString = JSON.stringify(args, null, 2);
 
@@ -345,8 +361,9 @@ export default function AIFlowModal({ open, onOpenChange, onImport }: Props) {
       };
 
       setMessages([...newMessages, assistantMessage]);
-    } catch (err) {
+    } catch (error) {
       setIsTyping(false);
+      console.error("Erro na requisição de IA:", error);
       const errorMessage: Message = {
         role: "assistant",
         content:
@@ -427,13 +444,8 @@ export default function AIFlowModal({ open, onOpenChange, onImport }: Props) {
                     <div className="prose prose-sm max-w-none dark:prose-invert">
                       <ReactMarkdown
                         components={{
-                          code({
-                            node,
-                            inline,
-                            className,
-                            children,
-                            ...props
-                          }: any) {
+                          code(props: any) {
+                            const { inline, className, children } = props;
                             const match = /language-(\w+)/.exec(
                               className || ""
                             );

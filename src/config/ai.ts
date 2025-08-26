@@ -19,12 +19,32 @@ export const AI_CONFIG = {
 
   // Chave da API (deve ser definida em .env)
   get API_KEY() {
-    return import.meta.env.VITE_OPENAI_API_KEY;
+    const key = import.meta.env.VITE_OPENAI_API_KEY;
+    if (!key) {
+      console.error("❌ VITE_OPENAI_API_KEY não encontrada no arquivo .env");
+      return null;
+    }
+
+    // Valida formato da chave (deve começar com 'sk-')
+    if (!key.startsWith("sk-")) {
+      console.error(
+        "❌ Formato inválido da chave da API. Deve começar com 'sk-'"
+      );
+      return null;
+    }
+
+    return key;
   },
 
   // Verifica se a chave da API está configurada
   get isConfigured() {
     return !!this.API_KEY;
+  },
+
+  // Valida se a chave da API é válida
+  get isValidKey() {
+    const key = this.API_KEY;
+    return key && key.startsWith("sk-") && key.length > 20;
   },
 } as const;
 
@@ -57,6 +77,12 @@ export const MODEL_FALLBACK_ORDER = [
  */
 export async function checkModelAvailability(model: string): Promise<boolean> {
   try {
+    // Verifica se a chave está configurada antes de fazer a requisição
+    if (!AI_CONFIG.isValidKey) {
+      console.error("❌ Chave da API não configurada ou inválida");
+      return false;
+    }
+
     const response = await fetch(
       `${AI_CONFIG.API_URL.replace("/chat/completions", "")}/models`,
       {
@@ -66,11 +92,27 @@ export async function checkModelAvailability(model: string): Promise<boolean> {
       }
     );
 
-    if (!response.ok) return false;
+    if (!response.ok) {
+      if (response.status === 401) {
+        console.error(
+          "❌ Erro de autenticação: Chave da API inválida ou expirada"
+        );
+      } else if (response.status === 403) {
+        console.error(
+          "❌ Erro de permissão: Chave da API não tem acesso a este endpoint"
+        );
+      } else {
+        console.error(
+          `❌ Erro na verificação de modelos: ${response.status} ${response.statusText}`
+        );
+      }
+      return false;
+    }
 
     const data = await response.json();
     return data.data?.some((m: { id: string }) => m.id === model) ?? false;
-  } catch {
+  } catch (error) {
+    console.error("❌ Erro ao verificar disponibilidade do modelo:", error);
     return false;
   }
 }
@@ -79,13 +121,21 @@ export async function checkModelAvailability(model: string): Promise<boolean> {
  * Obtém o primeiro modelo disponível da lista de fallback
  */
 export async function getAvailableModel(): Promise<string> {
+  // Verifica se a chave está configurada
+  if (!AI_CONFIG.isValidKey) {
+    console.error("❌ Chave da API não configurada ou inválida");
+    throw new Error("Chave da API não configurada ou inválida");
+  }
+
   for (const model of MODEL_FALLBACK_ORDER) {
     if (await checkModelAvailability(model)) {
+      console.log(`✅ Modelo ${model} está disponível`);
       return model;
     }
   }
 
   // Fallback para GPT-3.5 Turbo (geralmente sempre disponível)
+  console.log("⚠️ Usando GPT-3.5 Turbo como fallback");
   return AI_MODELS.GPT_3_5_TURBO;
 }
 
@@ -103,5 +153,63 @@ export const DYNAMIC_AI_CONFIG = {
       ...AI_CONFIG,
       MODEL: model,
     };
+  },
+
+  // Valida a configuração completa
+  validateConfig() {
+    if (!AI_CONFIG.isValidKey) {
+      throw new Error("Chave da API não configurada ou inválida");
+    }
+    return true;
+  },
+} as const;
+
+/**
+ * Utilitários para debug e troubleshooting
+ */
+export const AI_DEBUG = {
+  // Verifica o status da configuração
+  checkStatus() {
+    const status = {
+      hasKey: !!AI_CONFIG.API_KEY,
+      isValidKey: AI_CONFIG.isValidKey,
+      isConfigured: AI_CONFIG.isConfigured,
+      keyPrefix: AI_CONFIG.API_KEY?.substring(0, 7) || "N/A",
+      keyLength: AI_CONFIG.API_KEY?.length || 0,
+    };
+
+    console.log("🔍 Status da configuração de IA:", status);
+    return status;
+  },
+
+  // Testa a conexão com a API
+  async testConnection() {
+    try {
+      if (!AI_CONFIG.isValidKey) {
+        throw new Error("Chave da API não configurada");
+      }
+
+      const response = await fetch(
+        `${AI_CONFIG.API_URL.replace("/chat/completions", "")}/models`,
+        {
+          headers: {
+            Authorization: `Bearer ${AI_CONFIG.API_KEY}`,
+          },
+        }
+      );
+
+      if (response.ok) {
+        console.log("✅ Conexão com a API OpenAI estabelecida com sucesso");
+        return true;
+      } else {
+        console.error(
+          `❌ Erro na conexão: ${response.status} ${response.statusText}`
+        );
+        return false;
+      }
+    } catch (error) {
+      console.error("❌ Erro ao testar conexão:", error);
+      return false;
+    }
   },
 } as const;

@@ -143,6 +143,48 @@ export const AI_CONFIG = {
 - Confirme se `VITE_OPENAI_API_KEY` está definido
 - Reinicie o servidor de desenvolvimento
 
+### Erro: "missing bearer" na API /completions
+
+Este erro indica um problema de autenticação. **Soluções:**
+
+1. **Verificar arquivo .env**:
+
+   ```bash
+   # .env (deve estar na raiz do projeto)
+   VITE_OPENAI_API_KEY=sk-sua-chave-real-aqui
+   ```
+
+2. **Formato correto da chave**:
+
+   - ✅ Deve começar com `sk-`
+   - ✅ Deve ter pelo menos 20 caracteres
+   - ❌ Não pode estar vazia ou undefined
+
+3. **Verificar no console**:
+
+   ```typescript
+   import { AI_DEBUG } from "@/config/ai";
+
+   // Verifica status da configuração
+   AI_DEBUG.checkStatus();
+
+   // Testa conexão com a API
+   AI_DEBUG.testConnection();
+   ```
+
+4. **Reiniciar servidor**:
+
+   ```bash
+   npm run dev
+   # ou
+   yarn dev
+   ```
+
+5. **Verificar variável de ambiente**:
+   ```typescript
+   console.log("Chave da API:", import.meta.env.VITE_OPENAI_API_KEY);
+   ```
+
 ### Erro: "Modelo não encontrado"
 
 - **Solução automática**: O sistema faz fallback para modelos alternativos automaticamente
