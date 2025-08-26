@@ -25,6 +25,7 @@ A raiz também possui `index.css`, `main.tsx` e `vite-env.d.ts` como ponto de en
 - **Criação/edição**: os fluxos são mantidos em `db.flows` e manipulados pelo hook `useFlows`. O editor (`pages/FlowEditor`) permite adicionar, ordenar e configurar passos através do componente `StepForm`.
 - **Clone, importação e exportação**: o mesmo hook oferece métodos para clonar um fluxo existente, exportar para JSON e importar arquivos externos.
 - **Dashboard**: listado em `pages/Dashboard`, mostra todos os fluxos com filtros, busca e opções de duplicar, editar, executar ou remover.
+- **Criação com IA**: através do modal `AIFlowModal`, permite criar fluxos usando **GPT-5 Mini** para geração inteligente de estrutura e passos.
 
 ### Execução (`pages/FlowPlayer` e `hooks/usePlayer.ts`)
 
@@ -55,6 +56,13 @@ A raiz também possui `index.css`, `main.tsx` e `vite-env.d.ts` como ponto de en
 - A funcionalidade gera um arquivo JSON contendo todo o banco e entradas de `localStorage` (`createBackup`).
 - É possível restaurar os dados importando o arquivo via `restoreBackup`, reiniciando a aplicação.
 
+### Inteligência Artificial (`components/dashboard/AIFlowModal.tsx` e `config/ai.ts`)
+
+- **GPT-5 Mini**: utiliza o modelo mais recente da OpenAI para criação inteligente de fluxos.
+- **Assistente conversacional**: interface de chat que entende descrições em linguagem natural e gera JSON estruturado.
+- **Configuração centralizada**: arquivo `config/ai.ts` centraliza todas as configurações de IA, incluindo modelo, URL da API e parâmetros padrão.
+- **Geração automática**: converte descrições em fluxos completos com passos, opções e estrutura de navegação.
+
 ### Outras Utilidades
 
 - **`utils/graph.ts`** – Gera conexões e layouts para visualização da estrutura dos passos.
@@ -62,4 +70,3 @@ A raiz também possui `index.css`, `main.tsx` e `vite-env.d.ts` como ponto de en
 - **`hooks/use-toast.ts`** – Sistema de notificações (toasts) utilizado em diversas páginas.
 
 Este resumo complementa o arquivo [`arquivos.md`](./arquivos.md) e ajuda a entender como cada parte da pasta `src` se relaciona para entregar as principais funcionalidades do projeto.
-

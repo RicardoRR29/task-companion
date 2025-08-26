@@ -13,9 +13,9 @@ If you are developing a production application, we recommend updating the config
 
 ```js
 export default tseslint.config([
-  globalIgnores(['dist']),
+  globalIgnores(["dist"]),
   {
-    files: ['**/*.{ts,tsx}'],
+    files: ["**/*.{ts,tsx}"],
     extends: [
       // Other configs...
 
@@ -30,46 +30,47 @@ export default tseslint.config([
     ],
     languageOptions: {
       parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
+        project: ["./tsconfig.node.json", "./tsconfig.app.json"],
         tsconfigRootDir: import.meta.dirname,
       },
       // other options...
     },
   },
-])
+]);
 ```
 
 You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
 
 ```js
 // eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+import reactX from "eslint-plugin-react-x";
+import reactDom from "eslint-plugin-react-dom";
 
 export default tseslint.config([
-  globalIgnores(['dist']),
+  globalIgnores(["dist"]),
   {
-    files: ['**/*.{ts,tsx}'],
+    files: ["**/*.{ts,tsx}"],
     extends: [
       // Other configs...
       // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
+      reactX.configs["recommended-typescript"],
       // Enable lint rules for React DOM
       reactDom.configs.recommended,
     ],
     languageOptions: {
       parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
+        project: ["./tsconfig.node.json", "./tsconfig.app.json"],
         tsconfigRootDir: import.meta.dirname,
       },
       // other options...
     },
   },
-])
+]);
 ```
 
 ## AI powered flows
-To enable the AI assistant for flow creation, set `VITE_OPENAI_API_KEY` in a `.env` file with your OpenAI API key.
+
+To enable the AI assistant for flow creation, set `VITE_OPENAI_API_KEY` in a `.env` file with your OpenAI API key. The system uses **GPT-5 Mini** for intelligent flow generation and assistance.
 
 ## Building for the App Store
 
@@ -80,4 +81,3 @@ npm run ios
 ```
 
 The command will build the web assets and synchronize them with the iOS project. Xcode will then open so you can archive and submit the app to the App Store. Make sure you provide your own app icons in `resources/` before submission.
-

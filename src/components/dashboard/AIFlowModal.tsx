@@ -20,6 +20,7 @@ import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { Bot, User, Send, Trash2, Copy, Check } from "lucide-react";
 import { cn } from "@/utils/cn";
+import { AI_CONFIG } from "@/config/ai";
 
 interface Props {
   open: boolean;
@@ -241,14 +242,14 @@ export default function AIFlowModal({ open, onOpenChange, onImport }: Props) {
     setIsTyping(true);
 
     try {
-      const res = await fetch("https://api.openai.com/v1/chat/completions", {
+      const res = await fetch(AI_CONFIG.API_URL, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${import.meta.env.VITE_OPENAI_API_KEY}`,
+          Authorization: `Bearer ${AI_CONFIG.API_KEY}`,
         },
         body: JSON.stringify({
-          model: "gpt-4o-mini",
+          model: AI_CONFIG.MODEL,
           messages: [
             { role: "system", content: SYSTEM_PROMPT },
             ...newMessages.map((m) => ({ role: m.role, content: m.content })),
@@ -275,8 +276,7 @@ export default function AIFlowModal({ open, onOpenChange, onImport }: Props) {
               },
             },
           ],
-          function_call: "auto",
-          temperature: 0.7,
+          ...AI_CONFIG.DEFAULT_OPTIONS,
         }),
       });
 
