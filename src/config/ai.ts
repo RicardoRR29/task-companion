@@ -13,8 +13,30 @@ export const AI_CONFIG = {
   // Configurações padrão para as requisições
   DEFAULT_OPTIONS: {
     temperature: 0.7,
-    max_tokens: 4000,
+    max_completion_tokens: 4000,
     function_call: "auto" as const,
+  },
+
+  // Configurações específicas por modelo
+  getModelSpecificOptions(model: string) {
+    const baseOptions = {
+      temperature: 0.7,
+      function_call: "auto" as const,
+    };
+
+    // GPT-5 Mini e modelos mais recentes usam max_completion_tokens
+    if (model.includes("gpt-5") || model.includes("gpt-4o")) {
+      return {
+        ...baseOptions,
+        max_completion_tokens: 4000,
+      };
+    }
+
+    // Modelos mais antigos usam max_tokens
+    return {
+      ...baseOptions,
+      max_tokens: 4000,
+    };
   },
 
   // Chave da API (deve ser definida em .env)

@@ -143,6 +143,16 @@ export const AI_CONFIG = {
 - Confirme se `VITE_OPENAI_API_KEY` está definido
 - Reinicie o servidor de desenvolvimento
 
+### Erro: "Unsupported parameter: 'max_tokens' is not supported with this model"
+
+Este erro indica que o modelo não suporta o parâmetro `max_tokens`. **Solução:**
+
+- **GPT-5 Mini e modelos mais recentes**: Use `max_completion_tokens`
+- **Modelos mais antigos**: Use `max_tokens`
+- **Solução automática**: O sistema detecta automaticamente qual parâmetro usar
+
+O sistema já está configurado para usar o parâmetro correto automaticamente.
+
 ### Erro: "missing bearer" na API /completions
 
 Este erro indica um problema de autenticação. **Soluções:**

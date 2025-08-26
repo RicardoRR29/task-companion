@@ -27,6 +27,7 @@ Todas as mudanças notáveis neste projeto serão documentadas neste arquivo.
 - **Monitoring**: Verificação automática da disponibilidade dos modelos da API
 - **Authentication Fix**: Resolvido erro "missing bearer" com validação robusta da chave da API
 - **Error Handling**: Melhorado tratamento de erros de autenticação e configuração
+- **Parameter Compatibility**: Corrigido erro de parâmetros incompatíveis entre modelos GPT-5 Mini e modelos antigos
 
 ## [Previous Versions]
 

@@ -306,7 +306,7 @@ export default function AIFlowModal({ open, onOpenChange, onImport }: Props) {
               },
             },
           ],
-          ...AI_CONFIG.DEFAULT_OPTIONS,
+          ...AI_CONFIG.getModelSpecificOptions(availableModel),
         }),
       });
 
