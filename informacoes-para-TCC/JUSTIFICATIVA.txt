@@ -78,7 +78,7 @@ divertidos, o TACO busca aumentar o interesse dos colaboradores em seguir corret
 orientações, o que se reflete em maior produtividade e qualidade do trabalho realizado.
 Por fim, para facilitar a adoção inicial da ferramenta e minimizar a barreira de cadastramento dos
 processos (um esforço que muitas empresas relutam em despender), o TACO incorpora uma
-funcionalidade de chatbot com IA integrado à API do OpenAI. Com esse recurso, o usuário
+funcionalidade de chatbot com IA integrado à API do Google Gemini. Com esse recurso, o usuário
 (geralmente um gestor ou analista de processos) pode simplesmente descrever em linguagem
 natural o processo em uma conversa com o bot, e o sistema irá sugerir automaticamente um esboço
 de fluxo passo a passo baseado nessa descrição. Se o relato for muito genérico, a IA propõe etapas

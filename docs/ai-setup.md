@@ -1,36 +1,38 @@
-# Configuração da IA - GPT-5 Mini
+# Configuração da IA - Gemini 2.5 Flash
 
-Este documento explica como configurar e usar a funcionalidade de IA no Task Companion.
+Este documento explica como configurar e usar a integração com o **Google Gemini** no Task Companion.
 
 ## Visão Geral
 
-O sistema utiliza o **GPT-5 Mini** da OpenAI para:
+O assistente utiliza os modelos da família **Gemini Flash/Pro** para:
 
-- Criação inteligente de fluxos interativos
-- Assistência na estruturação de passos
-- Geração automática de JSON válido para importação
+- Criar fluxos interativos com base em descrições em linguagem natural
+- Sugerir ajustes nos passos antes da geração do JSON final
+- Gerar automaticamente um JSON válido para importação
+
+O modelo padrão é o `gemini-2.5-flash`, otimizado para respostas rápidas com custo reduzido. Se ele não estiver disponível, o sistema tenta outros modelos compatíveis de forma automática.
 
 ## Configuração
 
-### 1. Obter Chave da API OpenAI
+### 1. Obter uma chave de API Gemini
 
-1. Acesse [https://platform.openai.com/api-keys](https://platform.openai.com/api-keys)
-2. Faça login na sua conta OpenAI
-3. Clique em "Create new secret key"
-4. Copie a chave gerada
+1. Acesse [https://aistudio.google.com/app/apikey](https://aistudio.google.com/app/apikey)
+2. Faça login com a conta Google que possui acesso ao Gemini
+3. Clique em "Create API key" (ou gere uma nova chave existente)
+4. Copie o valor exibido (formato `AIza...`)
 
-### 2. Configurar Variável de Ambiente
+### 2. Definir a variável de ambiente
 
-Crie um arquivo `.env` na raiz do projeto:
+Crie (ou atualize) o arquivo `.env` na raiz do projeto:
 
 ```bash
 # .env
-VITE_OPENAI_API_KEY=sk-your-actual-api-key-here
+VITE_GEMINI_API_KEY=AIza...sua-chave-aqui...
 ```
 
-### 3. Verificar Configuração
+### 3. Verificar a configuração
 
-O sistema automaticamente detecta se a chave está configurada. Você pode verificar no código:
+O sistema valida automaticamente a presença da chave. Você pode checar manualmente usando:
 
 ```typescript
 import { AI_CONFIG } from "@/config/ai";
@@ -42,220 +44,96 @@ if (AI_CONFIG.isConfigured) {
 }
 ```
 
-## Modelos Disponíveis
+## Modelos disponíveis
 
-### GPT-5 Mini (Padrão)
+| Ordem | Modelo              | Uso recomendado                     |
+|-------|---------------------|-------------------------------------|
+| 1     | `gemini-2.5-flash`  | Respostas rápidas, custo otimizado  |
+| 2     | `gemini-2.0-flash`  | Alternativa rápida                  |
+| 3     | `gemini-1.5-flash`  | Compatibilidade ampliada            |
+| 4     | `gemini-1.5-pro`    | Respostas mais extensas e precisas  |
 
-- **ID**: `gpt-5-mini`
-- **Descrição**: Versão rápida e econômica do GPT-5 para tarefas bem definidas
-- **Recomendado para**: Criação de fluxos, tarefas estruturadas
+O fallback é realizado automaticamente seguindo a ordem acima.
 
-### Outros Modelos
+## Uso no código
 
-- **GPT-5**: Melhor modelo para codificação e tarefas agenticas
-- **GPT-5 Nano**: Versão mais rápida e econômica
-- **GPT-4o Mini**: Alternativa mais barata para tarefas simples
-- **GPT-3.5 Turbo**: Modelo de fallback sempre disponível
-
-### Sistema de Fallback Automático
-
-O sistema automaticamente detecta qual modelo está disponível e faz fallback para alternativas:
-
-1. **GPT-5 Mini** (preferido)
-2. **GPT-4o Mini** (alternativa 1)
-3. **GPT-4o** (alternativa 2)
-4. **GPT-3.5 Turbo** (fallback final)
-
-Isso garante que a aplicação sempre funcione, mesmo quando modelos específicos não estão disponíveis.
-
-## Uso
-
-### Interface do Usuário
-
-1. Acesse o Dashboard
-2. Clique em "Criar com IA"
-3. Descreva o fluxo desejado
-4. O assistente irá:
-   - Entender sua solicitação
-   - Mostrar um resumo dos passos
-   - Gerar o JSON para importação automática
-
-### Programático
+### Fluxo padrão
 
 ```typescript
-import { AI_CONFIG, AI_MODELS } from '@/config/ai';
+import { AI_CONFIG, DYNAMIC_AI_CONFIG } from "@/config/ai";
 
-// Usar modelo padrão (GPT-5 Mini)
-const response = await fetch(AI_CONFIG.API_URL, {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json',
-    'Authorization': `Bearer ${AI_CONFIG.API_KEY}`,
-  },
-  body: JSON.stringify({
-    model: AI_CONFIG.MODEL, // gpt-5-mini
-    messages: [...],
-    ...AI_CONFIG.DEFAULT_OPTIONS,
-  }),
-});
+const model = await DYNAMIC_AI_CONFIG.getModel();
+const response = await fetch(
+  `${AI_CONFIG.getGenerateContentUrl(model)}?key=${AI_CONFIG.API_KEY}`,
+  {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      contents: [
+        { role: "user", parts: [{ text: "Descreva o fluxo desejado" }] },
+      ],
+      system_instruction: {
+        parts: [{ text: "Você é um assistente que gera fluxos Task Companion." }],
+      },
+      generationConfig: AI_CONFIG.getModelSpecificOptions(model),
+    }),
+  }
+);
 
-// Usar modelo específico
-const customResponse = await fetch(AI_CONFIG.API_URL, {
-  // ... configuração similar
-  body: JSON.stringify({
-    model: AI_MODELS.GPT_5, // gpt-5
-    // ... outras opções
-  }),
-});
+const data = await response.json();
 ```
 
-## Configurações Avançadas
+### Ferramentas (function calling)
 
-### Personalizar Parâmetros
+O assistente usa **function calling** do Gemini para devolver o JSON final. A configuração enviada inclui:
 
-```typescript
-// src/config/ai.ts
-export const AI_CONFIG = {
-  // ... outras configurações
-  DEFAULT_OPTIONS: {
-    function_call: "auto", // Chamada de função automática
-  },
-
-  // Configurações específicas por modelo
-  getModelSpecificOptions(model: string) {
-    if (model.includes("gpt-5")) {
-      return {
-        temperature: 1, // GPT-5 Mini só suporta valor padrão
-        max_completion_tokens: 4000,
-      };
+```json
+{
+  "tools": [
+    {
+      "functionDeclarations": [
+        {
+          "name": "generate_flow",
+          "description": "Gera o JSON final de um fluxo Task Companion",
+          "parameters": { "type": "object", "properties": { ... } }
+        }
+      ]
     }
-
-    return {
-      temperature: 0.7, // Modelos antigos suportam valores personalizados
-      max_tokens: 4000,
-    };
-  },
-};
+  ]
+}
 ```
 
-**⚠️ Limitação do GPT-5 Mini**: Este modelo não suporta valores personalizados de `temperature` - apenas o valor padrão `1` é aceito.
+Quando o Gemini retorna `functionCall`, o app importa o JSON automaticamente.
 
-### Trocar Modelo
+## Configurações avançadas
 
-```typescript
-// src/config/ai.ts
-export const AI_CONFIG = {
-  MODEL: AI_MODELS.GPT_5, // Trocar para GPT-5 completo
-  // ... outras configurações
-};
-```
+- `AI_CONFIG.DEFAULT_OPTIONS` aplica parâmetros globais (`temperature`, `topP`)
+- `AI_CONFIG.getModelSpecificOptions(model)` ajusta `maxOutputTokens` por modelo
+- `AI_DEBUG.testConnection()` verifica se a chave permite acessar a lista de modelos
 
 ## Troubleshooting
 
-### Erro: "Chave da API não encontrada"
-
-- Verifique se o arquivo `.env` existe na raiz
-- Confirme se `VITE_OPENAI_API_KEY` está definido
-- Reinicie o servidor de desenvolvimento
-
-### Erro: "Unsupported parameter: 'max_tokens' is not supported with this model"
-
-Este erro indica que o modelo não suporta o parâmetro `max_tokens`. **Solução:**
-
-- **GPT-5 Mini e modelos mais recentes**: Use `max_completion_tokens`
-- **Modelos mais antigos**: Use `max_tokens`
-- **Solução automática**: O sistema detecta automaticamente qual parâmetro usar
-
-O sistema já está configurado para usar o parâmetro correto automaticamente.
-
-### Erro: "Unsupported value: 'temperature' does not support 0.7 with this model. Only the default (1) value is supported."
-
-Este erro indica que o modelo não suporta valores personalizados de `temperature`. **Solução:**
-
-- **GPT-5 Mini**: Só suporta `temperature: 1` (valor padrão)
-- **Modelos mais antigos**: Suportam valores personalizados (0.0 - 2.0)
-- **Solução automática**: O sistema usa `temperature: 1` para GPT-5 Mini e valores personalizados para outros modelos
-
-**Nota**: O GPT-5 Mini é otimizado para tarefas bem definidas e não permite ajuste de criatividade via temperature.
-
-### Erro: "missing bearer" na API /completions
-
-Este erro indica um problema de autenticação. **Soluções:**
-
-1. **Verificar arquivo .env**:
-
-   ```bash
-   # .env (deve estar na raiz do projeto)
-   VITE_OPENAI_API_KEY=sk-sua-chave-real-aqui
-   ```
-
-2. **Formato correto da chave**:
-
-   - ✅ Deve começar com `sk-`
-   - ✅ Deve ter pelo menos 20 caracteres
-   - ❌ Não pode estar vazia ou undefined
-
-3. **Verificar no console**:
-
-   ```typescript
-   import { AI_DEBUG } from "@/config/ai";
-
-   // Verifica status da configuração
-   AI_DEBUG.checkStatus();
-
-   // Testa conexão com a API
-   AI_DEBUG.testConnection();
-   ```
-
-4. **Reiniciar servidor**:
-
-   ```bash
-   npm run dev
-   # ou
-   yarn dev
-   ```
-
-5. **Verificar variável de ambiente**:
-   ```typescript
-   console.log("Chave da API:", import.meta.env.VITE_OPENAI_API_KEY);
-   ```
-
-### Erro: "Modelo não encontrado"
-
-- **Solução automática**: O sistema faz fallback para modelos alternativos automaticamente
-- **Verificação manual**: Use `DYNAMIC_AI_CONFIG.getModel()` para ver qual modelo está disponível
-- **Fallback manual**: Configure `AI_CONFIG.MODEL` para um modelo específico se necessário
-- **Verificação de conta**: Confirme se o modelo está disponível na sua conta OpenAI
-
-### Erro: "Limite de taxa excedido"
-
-- Aguarde alguns minutos antes de fazer nova requisição
-- Verifique seu plano de uso na OpenAI
-- Considere usar um modelo mais econômico como GPT-5 Nano
+| Problema                                         | Possível causa / solução                                             |
+|--------------------------------------------------|----------------------------------------------------------------------|
+| "Chave da API não configurada"                   | Verifique se `VITE_GEMINI_API_KEY` está definido no `.env`           |
+| Status 401 ao chamar a API                       | Chave inválida ou revogada. Gere uma nova chave                      |
+| Status 403 ao chamar a API                       | Conta sem acesso ao Gemini. Confira as permissões no AI Studio       |
+| Modelo não encontrado (`404`)                    | O modelo pode não estar disponível na região da conta                |
+| Resposta sem JSON                                | O modelo pode ter optado por resposta textual; tente novamente       |
 
 ## Custos
 
-### GPT-5 Mini
-
-- **Input**: $0.25 por 1M tokens
-- **Output**: $1.00 por 1M tokens
-
-### Comparação
-
-- **GPT-5**: $1.25 / $5.00 por 1M tokens
-- **GPT-5 Nano**: $0.05 / $0.40 por 1M tokens
-- **GPT-4o Mini**: $0.15 / $0.60 por 1M tokens
+Consulte a [página oficial de preços do Gemini](https://ai.google.dev/pricing) para valores atualizados de cada modelo.
 
 ## Segurança
 
-- Nunca commite o arquivo `.env` no repositório
-- A chave da API é exposta apenas no frontend (necessário para funcionalidade)
-- Considere implementar proxy backend para maior segurança em produção
+- Nunca versione o arquivo `.env`
+- Em produção, considere criar um proxy backend para ocultar a chave
+- Restrinja a chave da API no Google Cloud quando possível
 
 ## Suporte
 
-Para problemas relacionados à API OpenAI:
-
-- [Documentação OpenAI](https://platform.openai.com/docs)
-- [Status da API](https://status.openai.com/)
-- [Comunidade OpenAI](https://community.openai.com/)
+- [Documentação Gemini](https://ai.google.dev/docs)
+- [Status da plataforma](https://status.cloud.google.com/)
