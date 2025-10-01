@@ -239,7 +239,7 @@ export default function AIFlowModal({ open, onOpenChange, onImport }: Props) {
           error instanceof Error
             ? error.message
             : "Chave da API não configurada"
-        }\n\nVerifique se o arquivo .env está configurado corretamente com VITE_OPENAI_API_KEY.`,
+        }\n\nVerifique se o arquivo .env está configurado corretamente com VITE_GEMINI_API_KEY.`,
         timestamp: new Date(),
       };
       setMessages([...messages, errorMessage]);
@@ -272,55 +272,89 @@ export default function AIFlowModal({ open, onOpenChange, onImport }: Props) {
         setMessages([...newMessages, fallbackMessage]);
       }
 
-      const res = await fetch(AI_CONFIG.API_URL, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${AI_CONFIG.API_KEY}`,
-        },
-        body: JSON.stringify({
-          model: availableModel,
-          messages: [
-            { role: "system", content: SYSTEM_PROMPT },
-            ...newMessages.map((m) => ({ role: m.role, content: m.content })),
-          ],
-          functions: [
-            {
-              name: "generate_flow",
-              description: "Gera o JSON final de um fluxo Task Companion",
-              parameters: {
-                type: "object",
-                properties: {
-                  version: { type: "string", enum: ["1.1"] },
-                  exportedAt: { type: "integer" },
-                  flows: {
-                    type: "array",
-                    items: { type: "object" },
+      const contents = newMessages
+        .filter((m) => m.role === "assistant" || m.role === "user")
+        .map((m) => ({
+          role: m.role === "assistant" ? "model" : "user",
+          parts: [{ text: m.content }],
+        }));
+
+      const requestBody = {
+        contents,
+        tools: [
+          {
+            functionDeclarations: [
+              {
+                name: "generate_flow",
+                description:
+                  "Gera o JSON final de um fluxo Task Companion",
+                parameters: {
+                  type: "object",
+                  properties: {
+                    version: { type: "string", enum: ["1.1"] },
+                    exportedAt: { type: "integer" },
+                    flows: {
+                      type: "array",
+                      items: { type: "object" },
+                    },
+                    components: {
+                      type: "array",
+                      items: { type: "object" },
+                    },
                   },
-                  components: {
-                    type: "array",
-                    items: { type: "object" },
-                  },
+                  required: ["version", "exportedAt", "flows", "components"],
                 },
-                required: ["version", "exportedAt", "flows", "components"],
               },
-            },
-          ],
-          ...AI_CONFIG.getModelSpecificOptions(availableModel),
-        }),
-      });
+            ],
+          },
+        ],
+        system_instruction: {
+          role: "system",
+          parts: [{ text: SYSTEM_PROMPT }],
+        },
+        generationConfig: AI_CONFIG.getModelSpecificOptions(availableModel),
+      };
+
+      const apiKey = AI_CONFIG.API_KEY;
+      if (!apiKey) {
+        throw new Error("Chave da API não configurada");
+      }
+
+      const res = await fetch(
+        `${AI_CONFIG.getGenerateContentUrl(availableModel)}?key=${apiKey}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(requestBody),
+        }
+      );
 
       if (!res.ok) {
         throw new Error(`HTTP error! status: ${res.status}`);
       }
 
       const data = await res.json();
-      const msg = data.choices?.[0]?.message;
+      const candidate = data.candidates?.[0];
+      const parts = candidate?.content?.parts || [];
 
       setIsTyping(false);
 
-      if (msg?.function_call) {
-        const args = JSON.parse(msg.function_call.arguments);
+      const functionCallPart = parts.find(
+        (part: { functionCall?: unknown }) => !!part.functionCall
+      ) as { functionCall?: { args?: unknown; arguments?: unknown } } | undefined;
+
+      if (functionCallPart?.functionCall) {
+        const { functionCall } = functionCallPart;
+        let rawArgs = functionCall.args ?? functionCall.arguments;
+
+        if (typeof rawArgs === "string") {
+          rawArgs = JSON.parse(rawArgs);
+        }
+
+        const args =
+          typeof rawArgs === "object" && rawArgs !== null ? rawArgs : {};
         const jsonString = JSON.stringify(args, null, 2);
 
         const assistantMessage: Message = {
@@ -352,8 +386,12 @@ export default function AIFlowModal({ open, onOpenChange, onImport }: Props) {
         return;
       }
 
+      const textPart = parts.find(
+        (part: { text?: string }) => typeof part.text === "string"
+      );
+
       const content =
-        msg?.content ?? "Desculpe, não consegui processar sua solicitação.";
+        textPart?.text ?? "Desculpe, não consegui processar sua solicitação.";
       const assistantMessage: Message = {
         role: "assistant",
         content,

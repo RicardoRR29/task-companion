@@ -5,53 +5,52 @@
  */
 export const AI_CONFIG = {
   // Modelo de IA a ser utilizado (com fallback automático)
-  MODEL: "gpt-5-mini",
+  MODEL: "gemini-2.5-flash",
 
-  // URL da API OpenAI
-  API_URL: "https://api.openai.com/v1/chat/completions",
+  // Base da API Gemini
+  API_BASE_URL: "https://generativelanguage.googleapis.com/v1beta",
+
+  // Caminho para a chamada de geração de conteúdo
+  getGenerateContentUrl(model: string) {
+    return `${this.API_BASE_URL}/models/${model}:generateContent`;
+  },
+
+  // Endpoint para listar/checar modelos
+  getModelUrl(model?: string) {
+    if (model) {
+      return `${this.API_BASE_URL}/models/${model}`;
+    }
+    return `${this.API_BASE_URL}/models`;
+  },
 
   // Configurações padrão para as requisições
   DEFAULT_OPTIONS: {
-    function_call: "auto" as const,
+    temperature: 0.7,
+    topP: 0.95,
   },
 
   // Configurações específicas por modelo
   getModelSpecificOptions(model: string) {
     const baseOptions = {
-      function_call: "auto" as const,
+      ...this.DEFAULT_OPTIONS,
+      maxOutputTokens: 4000,
     };
 
-    // GPT-5 Mini e modelos mais recentes usam max_completion_tokens
-    if (model.includes("gpt-5") || model.includes("gpt-4o")) {
+    if (model.includes("flash")) {
       return {
         ...baseOptions,
-        max_completion_tokens: 4000,
-        // GPT-5 Mini só suporta temperature: 1 (padrão)
-        temperature: 1,
+        temperature: 0.6,
       };
     }
 
-    // Modelos mais antigos usam max_tokens e suportam temperature personalizada
-    return {
-      ...baseOptions,
-      max_tokens: 4000,
-      temperature: 0.7, // Valor personalizado para modelos antigos
-    };
+    return baseOptions;
   },
 
   // Chave da API (deve ser definida em .env)
   get API_KEY() {
-    const key = import.meta.env.VITE_OPENAI_API_KEY;
+    const key = import.meta.env.VITE_GEMINI_API_KEY;
     if (!key) {
-      console.error("❌ VITE_OPENAI_API_KEY não encontrada no arquivo .env");
-      return null;
-    }
-
-    // Valida formato da chave (deve começar com 'sk-')
-    if (!key.startsWith("sk-")) {
-      console.error(
-        "❌ Formato inválido da chave da API. Deve começar com 'sk-'"
-      );
+      console.error("❌ VITE_GEMINI_API_KEY não encontrada no arquivo .env");
       return null;
     }
 
@@ -66,7 +65,7 @@ export const AI_CONFIG = {
   // Valida se a chave da API é válida
   get isValidKey() {
     const key = this.API_KEY;
-    return key && key.startsWith("sk-") && key.length > 20;
+    return typeof key === "string" && key.length > 20;
   },
 } as const;
 
@@ -74,13 +73,10 @@ export const AI_CONFIG = {
  * Tipos de modelos disponíveis
  */
 export const AI_MODELS = {
-  GPT_5_MINI: "gpt-5-mini",
-  GPT_5: "gpt-5",
-  GPT_5_NANO: "gpt-5-nano",
-  GPT_4O_MINI: "gpt-4o-mini",
-  GPT_4O: "gpt-4o",
-  GPT_4_TURBO: "gpt-4-turbo-preview",
-  GPT_3_5_TURBO: "gpt-3.5-turbo",
+  GEMINI_25_FLASH: "gemini-2.5-flash",
+  GEMINI_20_FLASH: "gemini-2.0-flash",
+  GEMINI_15_FLASH: "gemini-1.5-flash",
+  GEMINI_15_PRO: "gemini-1.5-pro",
 } as const;
 
 export type AIModel = (typeof AI_MODELS)[keyof typeof AI_MODELS];
@@ -89,9 +85,10 @@ export type AIModel = (typeof AI_MODELS)[keyof typeof AI_MODELS];
  * Lista de modelos em ordem de preferência (fallback automático)
  */
 export const MODEL_FALLBACK_ORDER = [
-  AI_MODELS.GPT_5_MINI,
-  AI_MODELS.GPT_4O_MINI,
-  AI_MODELS.GPT_3_5_TURBO,
+  AI_MODELS.GEMINI_25_FLASH,
+  AI_MODELS.GEMINI_20_FLASH,
+  AI_MODELS.GEMINI_15_FLASH,
+  AI_MODELS.GEMINI_15_PRO,
 ] as const;
 
 /**
@@ -105,14 +102,8 @@ export async function checkModelAvailability(model: string): Promise<boolean> {
       return false;
     }
 
-    const response = await fetch(
-      `${AI_CONFIG.API_URL.replace("/chat/completions", "")}/models`,
-      {
-        headers: {
-          Authorization: `Bearer ${AI_CONFIG.API_KEY}`,
-        },
-      }
-    );
+    const url = `${AI_CONFIG.getModelUrl(model)}?key=${AI_CONFIG.API_KEY}`;
+    const response = await fetch(url);
 
     if (!response.ok) {
       if (response.status === 401) {
@@ -123,6 +114,10 @@ export async function checkModelAvailability(model: string): Promise<boolean> {
         console.error(
           "❌ Erro de permissão: Chave da API não tem acesso a este endpoint"
         );
+      } else if (response.status === 404) {
+        console.error(
+          `❌ Modelo ${model} não encontrado na API Gemini`
+        );
       } else {
         console.error(
           `❌ Erro na verificação de modelos: ${response.status} ${response.statusText}`
@@ -132,7 +127,14 @@ export async function checkModelAvailability(model: string): Promise<boolean> {
     }
 
     const data = await response.json();
-    return data.data?.some((m: { id: string }) => m.id === model) ?? false;
+    if (Array.isArray(data.models)) {
+      return data.models.some((m: { name: string }) =>
+        m.name?.endsWith(model)
+      );
+    }
+
+    // Quando consultar diretamente o modelo específico
+    return data.name?.endsWith(model) ?? false;
   } catch (error) {
     console.error("❌ Erro ao verificar disponibilidade do modelo:", error);
     return false;
@@ -156,9 +158,9 @@ export async function getAvailableModel(): Promise<string> {
     }
   }
 
-  // Fallback para GPT-3.5 Turbo (geralmente sempre disponível)
-  console.log("⚠️ Usando GPT-3.5 Turbo como fallback");
-  return AI_MODELS.GPT_3_5_TURBO;
+  // Fallback final para o modelo flash 1.5
+  console.log("⚠️ Usando gemini-1.5-flash como fallback");
+  return AI_MODELS.GEMINI_15_FLASH;
 }
 
 /**
@@ -212,16 +214,11 @@ export const AI_DEBUG = {
       }
 
       const response = await fetch(
-        `${AI_CONFIG.API_URL.replace("/chat/completions", "")}/models`,
-        {
-          headers: {
-            Authorization: `Bearer ${AI_CONFIG.API_KEY}`,
-          },
-        }
+        `${AI_CONFIG.getModelUrl()}?key=${AI_CONFIG.API_KEY}`
       );
 
       if (response.ok) {
-        console.log("✅ Conexão com a API OpenAI estabelecida com sucesso");
+        console.log("✅ Conexão com a API Gemini estabelecida com sucesso");
         return true;
       } else {
         console.error(

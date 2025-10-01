@@ -58,13 +58,13 @@ A raiz também possui `index.css`, `main.tsx` e `vite-env.d.ts` como ponto de en
 
 ### Inteligência Artificial (`components/dashboard/AIFlowModal.tsx` e `config/ai.ts`)
 
-- **GPT-5 Mini**: utiliza o modelo mais recente da OpenAI para criação inteligente de fluxos.
+- **Gemini 2.5 Flash**: utiliza os modelos Gemini da Google para criação inteligente de fluxos.
 - **Assistente conversacional**: interface de chat que entende descrições em linguagem natural e gera JSON estruturado.
 - **Configuração centralizada**: arquivo `config/ai.ts` centraliza todas as configurações de IA, incluindo modelo, URL da API e parâmetros padrão.
 - **Geração automática**: converte descrições em fluxos completos com passos, opções e estrutura de navegação.
-- **Sistema de fallback**: automaticamente detecta modelos disponíveis e faz fallback para alternativas quando necessário.
-- **Compatibilidade de parâmetros**: detecta automaticamente quais parâmetros são suportados por cada modelo (ex: GPT-5 Mini só aceita temperature padrão).
-- **Verificação de disponibilidade**: checa a disponibilidade dos modelos antes de fazer requisições para evitar erros.
+- **Sistema de fallback**: detecta automaticamente modelos Gemini alternativos quando o principal não está disponível.
+- **Compatibilidade de parâmetros**: ajusta automaticamente `temperature`, `topP` e `maxOutputTokens` conforme o modelo utilizado.
+- **Verificação de disponibilidade**: checa a disponibilidade dos modelos Gemini antes de fazer requisições para evitar erros.
 
 ### Outras Utilidades
 
