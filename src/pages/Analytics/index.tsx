@@ -3,11 +3,9 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useFlows } from "@/hooks/useFlows";
 import type { Flow, PathItem, Session } from "@/types/flow";
 import { useAnalyticsConfig } from "@/hooks/useAnalyticsConfig";
-import { useAnalytics } from "@/hooks/useAnalytics";
-import { db } from "@/db";
+import { getMockFlow, getMockSessions } from "@/mock/mockAnalytics";
 import AnalyticsHeader from "./AnalyticsHeader";
 import TotalTimeChart from "./TotalTimeChart";
 import TimelineChart from "./TimelineChart";
@@ -31,7 +29,6 @@ interface SessionRun {
 
 export default function Analytics() {
   const { id = "" } = useParams<{ id: string }>();
-  const { flows, load, update } = useFlows();
   const { runsToShow, customOptions, setRunsToShow, addCustomOption } =
     useAnalyticsConfig();
   const [newOption, setNewOption] = useState("");
@@ -39,56 +36,50 @@ export default function Analytics() {
   const [totalByStepData, setTotalByStepData] = useState<
     { name: string; totalTime: number; color: string }[]
   >([]);
-
-  useEffect(() => {
-    load();
-  }, [load]);
-
-  const flow = flows.find((f) => f.id === id);
-  const stats = useAnalytics(flow ?? undefined);
+  const flow = getMockFlow(id);
+  const stats = flow
+    ? {
+        visits: flow.visits ?? 0,
+        completions: flow.completions ?? 0,
+        completionRate:
+          flow.visits && flow.visits > 0
+            ? (flow.completions ?? 0) / flow.visits
+            : 0,
+      }
+    : null;
 
   useEffect(() => {
     if (!flow || !stats) return;
-    (async () => {
-      const all: Session[] = await db.sessions
-        .where("flowId")
-        .equals(flow.id)
-        .toArray();
-      const sorted = all.sort((a, b) => b.startedAt - a.startedAt);
-      const limit = runsToShow === "all" ? sorted.length : runsToShow;
-      const lastRuns = sorted.slice(0, limit);
-      setRecentRuns(
-        lastRuns.map((s) => ({
-          sessionId: s.id,
-          startedAt: s.startedAt,
-          path: Array.isArray(s.path) ? s.path : [],
-        }))
-      );
-    })();
+    const all: Session[] = getMockSessions(flow.id);
+    const sorted = all.sort((a, b) => b.startedAt - a.startedAt);
+    const limit = runsToShow === "all" ? sorted.length : runsToShow;
+    const lastRuns = sorted.slice(0, limit);
+    setRecentRuns(
+      lastRuns.map((s) => ({
+        sessionId: s.id,
+        startedAt: s.startedAt,
+        path: Array.isArray(s.path) ? s.path : [],
+      }))
+    );
   }, [flow, stats, runsToShow]);
 
   useEffect(() => {
     if (!flow) return;
-    (async () => {
-      const all: Session[] = await db.sessions
-        .where("flowId")
-        .equals(flow.id)
-        .toArray();
-      const agg: Record<string, number> = {};
-      all.forEach((s) => {
-        if (Array.isArray(s.path)) {
-          s.path.forEach((p: PathItem) => {
-            agg[p.id] = (agg[p.id] || 0) + p.timeSpent;
-          });
-        }
-      });
-      const arr = flow.steps.map((step, idx) => ({
-        name: step.title,
-        totalTime: +(agg[step.id] || 0) / 1000,
-        color: COLORS[idx % COLORS.length],
-      }));
-      setTotalByStepData(arr);
-    })();
+    const all: Session[] = getMockSessions(flow.id);
+    const agg: Record<string, number> = {};
+    all.forEach((s) => {
+      if (Array.isArray(s.path)) {
+        s.path.forEach((p: PathItem) => {
+          agg[p.id] = (agg[p.id] || 0) + p.timeSpent;
+        });
+      }
+    });
+    const arr = flow.steps.map((step, idx) => ({
+      name: step.title,
+      totalTime: +(agg[step.id] || 0) / 1000,
+      color: COLORS[idx % COLORS.length],
+    }));
+    setTotalByStepData(arr);
   }, [flow]);
 
   if (!flow) return <p className="p-6">Carregando analytics…</p>;
@@ -97,17 +88,8 @@ export default function Analytics() {
   const f: Flow = flow;
   const st = stats;
 
-  async function handleClear() {
-    if (!window.confirm("Deseja limpar todas as métricas deste fluxo?")) return;
-    const sessions = await db.sessions.where("flowId").equals(f.id).toArray();
-    const ids = sessions.map((s) => s.id);
-    if (ids.length) {
-      await db.stepEvents.where("sessionId").anyOf(ids).delete();
-      await db.sessions.where("flowId").equals(f.id).delete();
-    }
-    update({ ...f, visits: 0, completions: 0 });
-    setRecentRuns([]);
-    setTotalByStepData([]);
+  function handleClear() {
+    window.alert("Dados de exemplo não podem ser limpos.");
   }
 
   const handleAddCustomOption = () => {
