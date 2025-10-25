@@ -1,13 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useFlows } from "@/hooks/useFlows";
-import type { Flow, PathItem, Session } from "@/types/flow";
 import { useAnalyticsConfig } from "@/hooks/useAnalyticsConfig";
-import { useAnalytics } from "@/hooks/useAnalytics";
-import { db } from "@/db";
+import type { PathItem } from "@/types/flow";
 import AnalyticsHeader from "./AnalyticsHeader";
 import ReportSummary from "./ReportSummary";
 import PerformanceInsights from "./PerformanceInsights";
@@ -31,86 +27,132 @@ interface SessionRun {
   path: PathItem[];
 }
 
+const MOCK_DATA = {
+  flow: {
+    title: "Fluxo de Exemplo",
+    steps: [
+      { id: "intro", title: "Introdução" },
+      { id: "form", title: "Formulário" },
+      { id: "review", title: "Revisão" },
+    ],
+  },
+  sessions: [
+    {
+      sessionId: "s1",
+      startedAt: 1710000000000,
+      path: [
+        {
+          id: "intro",
+          title: "Introdução",
+          enterAt: 0,
+          leaveAt: 5000,
+          timeSpent: 5000,
+        },
+        {
+          id: "form",
+          title: "Formulário",
+          enterAt: 5000,
+          leaveAt: 13000,
+          timeSpent: 8000,
+        },
+        {
+          id: "review",
+          title: "Revisão",
+          enterAt: 13000,
+          leaveAt: 15000,
+          timeSpent: 2000,
+        },
+      ],
+    },
+    {
+      sessionId: "s2",
+      startedAt: 1710001000000,
+      path: [
+        {
+          id: "intro",
+          title: "Introdução",
+          enterAt: 0,
+          leaveAt: 4000,
+          timeSpent: 4000,
+        },
+        {
+          id: "form",
+          title: "Formulário",
+          enterAt: 4000,
+          leaveAt: 13000,
+          timeSpent: 9000,
+        },
+        {
+          id: "review",
+          title: "Revisão",
+          enterAt: 13000,
+          leaveAt: 16000,
+          timeSpent: 3000,
+        },
+      ],
+    },
+    {
+      sessionId: "s3",
+      startedAt: 1710002000000,
+      path: [
+        {
+          id: "intro",
+          title: "Introdução",
+          enterAt: 0,
+          leaveAt: 6000,
+          timeSpent: 6000,
+        },
+        {
+          id: "form",
+          title: "Formulário",
+          enterAt: 6000,
+          leaveAt: 13000,
+          timeSpent: 7000,
+        },
+        // Sessão incompleta: não visitou "review"
+      ],
+    },
+  ] as SessionRun[],
+};
+
 export default function Analytics() {
-  const { id = "" } = useParams<{ id: string }>();
-  const { flows, load, update } = useFlows();
   const { runsToShow, customOptions, setRunsToShow, addCustomOption } =
     useAnalyticsConfig();
   const [newOption, setNewOption] = useState("");
-  const [recentRuns, setRecentRuns] = useState<SessionRun[]>([]);
-  const [totalByStepData, setTotalByStepData] = useState<
-    { name: string; totalTime: number; color: string }[]
-  >([]);
 
-  useEffect(() => {
-    load();
-  }, [load]);
+  const f = MOCK_DATA.flow;
 
-  const flow = flows.find((f) => f.id === id);
-  const stats = useAnalytics(flow ?? undefined);
+  const sortedRuns = [...MOCK_DATA.sessions].sort(
+    (a, b) => b.startedAt - a.startedAt
+  );
+  const limit = runsToShow === "all" ? sortedRuns.length : runsToShow;
+  const recentRuns = sortedRuns.slice(0, limit);
 
-  useEffect(() => {
-    if (!flow || !stats) return;
-    (async () => {
-      const all: Session[] = await db.sessions
-        .where("flowId")
-        .equals(flow.id)
-        .toArray();
-      const sorted = all.sort((a, b) => b.startedAt - a.startedAt);
-      const limit = runsToShow === "all" ? sorted.length : runsToShow;
-      const lastRuns = sorted.slice(0, limit);
-      setRecentRuns(
-        lastRuns.map((s) => ({
-          sessionId: s.id,
-          startedAt: s.startedAt,
-          path: Array.isArray(s.path) ? s.path : [],
-        }))
-      );
-    })();
-  }, [flow, stats, runsToShow]);
+  const totalByStepData = f.steps.map((step, idx) => {
+    const total = MOCK_DATA.sessions.reduce((sum, run) => {
+      const p = run.path.find((p) => p.id === step.id);
+      return sum + (p ? p.timeSpent : 0);
+    }, 0);
+    return {
+      name: step.title,
+      totalTime: +(total / 1000),
+      color: COLORS[idx % COLORS.length],
+    };
+  });
 
-  useEffect(() => {
-    if (!flow) return;
-    (async () => {
-      const all: Session[] = await db.sessions
-        .where("flowId")
-        .equals(flow.id)
-        .toArray();
-      const agg: Record<string, number> = {};
-      all.forEach((s) => {
-        if (Array.isArray(s.path)) {
-          s.path.forEach((p: PathItem) => {
-            agg[p.id] = (agg[p.id] || 0) + p.timeSpent;
-          });
-        }
-      });
-      const arr = flow.steps.map((step, idx) => ({
-        name: step.title,
-        totalTime: +(agg[step.id] || 0) / 1000,
-        color: COLORS[idx % COLORS.length],
-      }));
-      setTotalByStepData(arr);
-    })();
-  }, [flow]);
+  const visits = MOCK_DATA.sessions.length;
+  const completions = MOCK_DATA.sessions.filter(
+    (run) => run.path.length === f.steps.length
+  ).length;
+  const st = {
+    visits,
+    completions,
+    completionRate: completions / visits,
+  };
 
-  if (!flow) return <p className="p-6">Carregando analytics…</p>;
-  if (!stats) return <p className="p-6">Carregando métricas…</p>;
-
-  const f: Flow = flow;
-  const st = stats;
-
-  async function handleClear() {
-    if (!window.confirm("Deseja limpar todas as métricas deste fluxo?")) return;
-    const sessions = await db.sessions.where("flowId").equals(f.id).toArray();
-    const ids = sessions.map((s) => s.id);
-    if (ids.length) {
-      await db.stepEvents.where("sessionId").anyOf(ids).delete();
-      await db.sessions.where("flowId").equals(f.id).delete();
-    }
-    update({ ...f, visits: 0, completions: 0 });
-    setRecentRuns([]);
-    setTotalByStepData([]);
-  }
+  const handleClear = () => {
+    window.alert("Esta é apenas uma demonstração com dados fictícios.");
+  };
 
   const handleAddCustomOption = () => {
     const v = Number.parseInt(newOption, 10);
@@ -122,7 +164,6 @@ export default function Analytics() {
   };
 
   const handleExport = () => {
-    // Adicionar estilos específicos para impressão
     const printStyles = `
       <style>
         @media print {
@@ -151,7 +192,6 @@ export default function Analytics() {
       </style>
     `;
 
-    // Inserir estilos no head
     const existingStyles = document.querySelector("#print-styles");
     if (existingStyles) {
       existingStyles.remove();
@@ -162,17 +202,12 @@ export default function Analytics() {
     styleElement.innerHTML = printStyles;
     document.head.appendChild(styleElement);
 
-    // Imprimir
     window.print();
   };
 
   const slowest = totalByStepData.reduce(
     (p, c) => (c.totalTime > p.totalTime ? c : p),
-    {
-      name: "",
-      totalTime: 0,
-      color: "",
-    }
+    { name: "", totalTime: 0, color: "" }
   );
 
   const steps = f.steps.map((s) => ({ id: s.id, title: s.title }));
@@ -181,7 +216,9 @@ export default function Analytics() {
     const row: { name: string; [key: string]: number | string } = {
       name: `Sessão #${idx + 1}`,
     };
-    run.path.forEach((p) => (row[p.id] = +(p.timeSpent / 1000).toFixed(1)));
+    run.path.forEach(
+      (p) => (row[p.id] = +(p.timeSpent / 1000).toFixed(1))
+    );
     return row;
   });
 
@@ -193,11 +230,12 @@ export default function Analytics() {
     const row: { name: string; [key: string]: number | string } = {
       name: `#${idx + 1}`,
     };
-    run.path.forEach((p) => (row[p.id] = +(p.timeSpent / 1000).toFixed(1)));
+    run.path.forEach(
+      (p) => (row[p.id] = +(p.timeSpent / 1000).toFixed(1))
+    );
     return row;
   });
 
-  // Calcular insights para o relatório
   const insights = {
     averageCompletionTime:
       recentRuns.length > 0
@@ -243,11 +281,15 @@ export default function Analytics() {
             dateRange={{
               from:
                 recentRuns.length > 0
-                  ? new Date(Math.min(...recentRuns.map((r) => r.startedAt)))
+                  ? new Date(
+                      Math.min(...recentRuns.map((r) => r.startedAt))
+                    )
                   : new Date(),
               to:
                 recentRuns.length > 0
-                  ? new Date(Math.max(...recentRuns.map((r) => r.startedAt)))
+                  ? new Date(
+                      Math.max(...recentRuns.map((r) => r.startedAt))
+                    )
                   : new Date(),
             }}
           />
@@ -353,3 +395,4 @@ export default function Analytics() {
     </div>
   );
 }
+
