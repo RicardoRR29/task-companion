@@ -70,7 +70,7 @@ export default tseslint.config([
 
 ## AI powered flows
 
-To enable the AI assistant for flow creation, set `VITE_GEMINI_API_KEY` in a `.env` file with your Google Gemini API key. The system uses **Gemini 2.5 Flash** with automatic fallback for intelligent flow generation and assistance.
+To enable the AI assistant for flow creation, set `VITE_OPENAI_API_KEY` in a `.env` file with your OpenAI API key. The system uses **GPT-4o Mini** with automatic fallback across the GPT-4o family for intelligent flow generation and assistance.
 
 ## Building for the App Store
 
