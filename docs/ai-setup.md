@@ -1,16 +1,16 @@
-# Configuração da IA - OpenAI GPT-4o Mini
+# Configuração da IA - OpenAI GPT-5 Mini
 
 Este documento explica como configurar e usar a integração com a **OpenAI** no Task Companion.
 
 ## Visão Geral
 
-O assistente utiliza a família de modelos **GPT-4o** para:
+O assistente utiliza por padrão o modelo **GPT-5 Mini** para:
 
 - Criar fluxos interativos com base em descrições em linguagem natural
 - Sugerir ajustes nos passos antes da geração do JSON final
 - Gerar automaticamente um JSON válido para importação
 
-O modelo padrão é o `gpt-4o-mini`, otimizado para respostas rápidas com ótimo custo-benefício. Se ele não estiver disponível, o sistema tenta outros modelos compatíveis automaticamente.
+O modelo padrão é o `gpt-5-mini`, otimizado para respostas rápidas com ótimo custo-benefício. Mantivemos somente esse modelo como padrão para simplificar o funcionamento e reduzir pontos de falha.
 
 ## Configuração
 
@@ -40,37 +40,29 @@ O sistema valida automaticamente a presença da chave. Você pode checar manualm
 ```typescript
 import { AI_CONFIG } from "@/config/ai";
 
-if (AI_CONFIG.isConfigured) {
+if (AI_CONFIG.isConfigured()) {
   console.log("IA configurada com sucesso!");
 } else {
   console.log("Chave da API não encontrada");
 }
 ```
 
-## Modelos disponíveis
+## Modelo disponível
 
-| Ordem | Modelo         | Uso recomendado                              |
-|-------|----------------|----------------------------------------------|
-| 1     | `gpt-4o-mini`  | Respostas rápidas e econômicas               |
-| 2     | `gpt-4.1-mini` | Alternativa estável com mesmo estilo         |
-| 3     | `gpt-4o`       | Respostas mais ricas em contexto multimodal  |
-| 4     | `gpt-4.1`      | Respostas extensas e de alta precisão        |
-
-O fallback é realizado automaticamente seguindo a ordem acima.
+Para reduzir a complexidade e evitar falhas de fallback, utilizamos apenas o modelo `gpt-5-mini`. Caso queira experimentar outro modelo da OpenAI, basta editar o valor de `AI_CONFIG.MODEL` no arquivo `src/config/ai.ts`.
 
 ## Uso no código
 
 ### Fluxo padrão
 
 ```typescript
-import { AI_CONFIG, DYNAMIC_AI_CONFIG } from "@/config/ai";
+import { AI_CONFIG } from "@/config/ai";
 
-const model = await DYNAMIC_AI_CONFIG.getModel();
 const response = await fetch(AI_CONFIG.getChatCompletionsUrl(), {
   method: "POST",
-  headers: AI_CONFIG.REQUEST_HEADERS,
+  headers: AI_CONFIG.getRequestHeaders(),
   body: JSON.stringify({
-    model,
+    model: AI_CONFIG.MODEL,
     messages: [
       { role: "system", content: "Você é um assistente que gera fluxos Task Companion." },
       { role: "user", content: "Descreva o fluxo desejado" },
@@ -85,7 +77,9 @@ const response = await fetch(AI_CONFIG.getChatCompletionsUrl(), {
         },
       },
     ],
-    ...AI_CONFIG.getModelSpecificOptions(model),
+    temperature: 0.6,
+    top_p: 0.9,
+    max_tokens: 3000,
   }),
 });
 
@@ -113,12 +107,6 @@ O assistente usa **function calling** da OpenAI para devolver o JSON final. A co
 
 Quando o modelo retorna `tool_calls`, o app importa o JSON automaticamente.
 
-## Configurações avançadas
-
-- `AI_CONFIG.DEFAULT_OPTIONS` aplica parâmetros globais (`temperature`, `top_p`, `max_tokens`)
-- `AI_CONFIG.getModelSpecificOptions(model)` ajusta automaticamente os valores para cada modelo
-- `AI_DEBUG.testConnection()` verifica se a chave consegue acessar o endpoint `/models`
-
 ## Troubleshooting
 
 | Problema                                         | Possível causa / solução                                             |
@@ -126,7 +114,7 @@ Quando o modelo retorna `tool_calls`, o app importa o JSON automaticamente.
 | "Chave da API não configurada"                   | Verifique se `VITE_OPENAI_API_KEY` está definido no `.env`           |
 | Status 401 ao chamar a API                       | Chave inválida ou revogada. Gere uma nova chave                      |
 | Status 403 ao chamar a API                       | Conta sem permissão para o recurso. Confira o painel da OpenAI       |
-| Modelo não encontrado (`404`)                    | O modelo pode não estar disponível para sua conta                    |
+| Modelo não encontrado (`404`)                    | Confirme se o modelo definido em `AI_CONFIG.MODEL` está liberado      |
 | Resposta vazia ou sem tool call                  | O modelo pode ter optado por resposta textual; tente novamente       |
 
 ## Custos

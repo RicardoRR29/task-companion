@@ -20,7 +20,7 @@ import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { Bot, User, Send, Trash2, Copy, Check } from "lucide-react";
 import { cn } from "@/utils/cn";
-import { AI_CONFIG, DYNAMIC_AI_CONFIG } from "@/config/ai";
+import { AI_CONFIG } from "@/config/ai";
 
 interface Props {
   open: boolean;
@@ -229,17 +229,11 @@ export default function AIFlowModal({ open, onOpenChange, onImport }: Props) {
   async function send() {
     if (!input.trim() || loading) return;
 
-    // Valida a configuração antes de prosseguir
-    try {
-      DYNAMIC_AI_CONFIG.validateConfig();
-    } catch (error) {
+    if (!AI_CONFIG.isConfigured()) {
       const errorMessage: Message = {
         role: "assistant",
-        content: `❌ **Erro de Configuração**\n\n${
-          error instanceof Error
-            ? error.message
-            : "Chave da API não configurada"
-        }\n\nVerifique se o arquivo .env está configurado corretamente com VITE_OPENAI_API_KEY.`,
+        content:
+          "❌ **Erro de Configuração**\n\nNão encontrei a chave VITE_OPENAI_API_KEY. Adicione-a ao arquivo .env para usar o assistente.",
         timestamp: new Date(),
       };
       setMessages([...messages, errorMessage]);
@@ -259,19 +253,6 @@ export default function AIFlowModal({ open, onOpenChange, onImport }: Props) {
     setIsTyping(true);
 
     try {
-      // Obtém o modelo disponível com fallback automático
-      const availableModel = await DYNAMIC_AI_CONFIG.getModel();
-
-      // Adiciona mensagem informativa sobre o modelo sendo usado
-      if (availableModel !== AI_CONFIG.MODEL) {
-        const fallbackMessage: Message = {
-          role: "assistant",
-          content: `ℹ️ **Modelo alternativo ativado**\n\nO modelo ${AI_CONFIG.MODEL} não está disponível no momento. Usando ${availableModel} como alternativa.`,
-          timestamp: new Date(),
-        };
-        setMessages([...newMessages, fallbackMessage]);
-      }
-
       const conversationMessages = newMessages
         .filter((m) => m.role === "assistant" || m.role === "user")
         .map((m) => ({
@@ -279,10 +260,8 @@ export default function AIFlowModal({ open, onOpenChange, onImport }: Props) {
           content: m.content,
         }));
 
-      const generationConfig = AI_CONFIG.getModelSpecificOptions(availableModel);
-
       const requestBody = {
-        model: availableModel,
+        model: AI_CONFIG.MODEL,
         messages: [
           { role: "system", content: SYSTEM_PROMPT },
           ...conversationMessages,
@@ -312,18 +291,14 @@ export default function AIFlowModal({ open, onOpenChange, onImport }: Props) {
             },
           },
         ],
-        temperature: generationConfig.temperature,
-        top_p: generationConfig.top_p,
-        max_tokens: generationConfig.max_tokens,
+        temperature: 0.6,
+        top_p: 0.9,
+        max_tokens: 3000,
       } as const;
-
-      if (!AI_CONFIG.API_KEY) {
-        throw new Error("Chave da API não configurada");
-      }
 
       const res = await fetch(AI_CONFIG.getChatCompletionsUrl(), {
         method: "POST",
-        headers: AI_CONFIG.REQUEST_HEADERS,
+        headers: AI_CONFIG.getRequestHeaders(),
         body: JSON.stringify(requestBody),
       });
 
