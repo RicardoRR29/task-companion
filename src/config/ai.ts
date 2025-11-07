@@ -5,7 +5,7 @@
  */
 export const AI_CONFIG = {
   // Modelo de IA a ser utilizado (com fallback automático)
-  MODEL: "gpt-4o-mini",
+  MODEL: "gpt-5-mini",
 
   // Base da API OpenAI
   API_BASE_URL: "https://api.openai.com/v1",
@@ -97,6 +97,7 @@ export const AI_CONFIG = {
  * Tipos de modelos disponíveis
  */
 export const AI_MODELS = {
+  GPT_5_MINI: "gpt-5-mini",
   GPT_4O_MINI: "gpt-4o-mini",
   GPT_41_MINI: "gpt-4.1-mini",
   GPT_4O: "gpt-4o",
@@ -109,6 +110,7 @@ export type AIModel = (typeof AI_MODELS)[keyof typeof AI_MODELS];
  * Lista de modelos em ordem de preferência (fallback automático)
  */
 export const MODEL_FALLBACK_ORDER = [
+  AI_MODELS.GPT_5_MINI,
   AI_MODELS.GPT_4O_MINI,
   AI_MODELS.GPT_41_MINI,
   AI_MODELS.GPT_4O,
@@ -182,7 +184,7 @@ export async function getAvailableModel(): Promise<string> {
     }
   }
 
-  // Fallback final para o modelo flash 1.5
+  // Fallback final para o modelo gpt-4o
   console.log("⚠️ Usando gpt-4o como fallback");
   return AI_MODELS.GPT_4O;
 }
