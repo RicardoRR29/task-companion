@@ -1,18 +1,18 @@
 // src/config/ai.ts
 
 /**
- * Configurações centralizadas para integração com IA
+ * Configurações centralizadas para integração com IA (OpenAI)
  */
 export const AI_CONFIG = {
   // Modelo de IA a ser utilizado (com fallback automático)
-  MODEL: "gemini-2.5-flash",
+  MODEL: "gpt-4o-mini",
 
-  // Base da API Gemini
-  API_BASE_URL: "https://generativelanguage.googleapis.com/v1beta",
+  // Base da API OpenAI
+  API_BASE_URL: "https://api.openai.com/v1",
 
-  // Caminho para a chamada de geração de conteúdo
-  getGenerateContentUrl(model: string) {
-    return `${this.API_BASE_URL}/models/${model}:generateContent`;
+  // Endpoint para chat completions
+  getChatCompletionsUrl() {
+    return `${this.API_BASE_URL}/chat/completions`;
   },
 
   // Endpoint para listar/checar modelos
@@ -26,17 +26,17 @@ export const AI_CONFIG = {
   // Configurações padrão para as requisições
   DEFAULT_OPTIONS: {
     temperature: 0.7,
-    topP: 0.95,
+    top_p: 0.95,
+    max_tokens: 4000,
   },
 
   // Configurações específicas por modelo
   getModelSpecificOptions(model: string) {
     const baseOptions = {
       ...this.DEFAULT_OPTIONS,
-      maxOutputTokens: 4000,
     };
 
-    if (model.includes("flash")) {
+    if (model.includes("mini")) {
       return {
         ...baseOptions,
         temperature: 0.6,
@@ -46,11 +46,35 @@ export const AI_CONFIG = {
     return baseOptions;
   },
 
+  // Cabeçalhos padrão com autenticação
+  get REQUEST_HEADERS() {
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+    };
+
+    const apiKey = this.API_KEY;
+    if (apiKey) {
+      headers["Authorization"] = `Bearer ${apiKey}`;
+    }
+
+    const organization = import.meta.env.VITE_OPENAI_ORG;
+    if (organization) {
+      headers["OpenAI-Organization"] = organization;
+    }
+
+    const project = import.meta.env.VITE_OPENAI_PROJECT;
+    if (project) {
+      headers["OpenAI-Project"] = project;
+    }
+
+    return headers;
+  },
+
   // Chave da API (deve ser definida em .env)
   get API_KEY() {
-    const key = import.meta.env.VITE_GEMINI_API_KEY;
+    const key = import.meta.env.VITE_OPENAI_API_KEY;
     if (!key) {
-      console.error("❌ VITE_GEMINI_API_KEY não encontrada no arquivo .env");
+      console.error("❌ VITE_OPENAI_API_KEY não encontrada no arquivo .env");
       return null;
     }
 
@@ -65,7 +89,7 @@ export const AI_CONFIG = {
   // Valida se a chave da API é válida
   get isValidKey() {
     const key = this.API_KEY;
-    return typeof key === "string" && key.length > 20;
+    return typeof key === "string" && key.startsWith("sk-") && key.length > 20;
   },
 } as const;
 
@@ -73,10 +97,10 @@ export const AI_CONFIG = {
  * Tipos de modelos disponíveis
  */
 export const AI_MODELS = {
-  GEMINI_25_FLASH: "gemini-2.5-flash",
-  GEMINI_20_FLASH: "gemini-2.0-flash",
-  GEMINI_15_FLASH: "gemini-1.5-flash",
-  GEMINI_15_PRO: "gemini-1.5-pro",
+  GPT_4O_MINI: "gpt-4o-mini",
+  GPT_41_MINI: "gpt-4.1-mini",
+  GPT_4O: "gpt-4o",
+  GPT_41: "gpt-4.1",
 } as const;
 
 export type AIModel = (typeof AI_MODELS)[keyof typeof AI_MODELS];
@@ -85,10 +109,10 @@ export type AIModel = (typeof AI_MODELS)[keyof typeof AI_MODELS];
  * Lista de modelos em ordem de preferência (fallback automático)
  */
 export const MODEL_FALLBACK_ORDER = [
-  AI_MODELS.GEMINI_25_FLASH,
-  AI_MODELS.GEMINI_20_FLASH,
-  AI_MODELS.GEMINI_15_FLASH,
-  AI_MODELS.GEMINI_15_PRO,
+  AI_MODELS.GPT_4O_MINI,
+  AI_MODELS.GPT_41_MINI,
+  AI_MODELS.GPT_4O,
+  AI_MODELS.GPT_41,
 ] as const;
 
 /**
@@ -102,8 +126,9 @@ export async function checkModelAvailability(model: string): Promise<boolean> {
       return false;
     }
 
-    const url = `${AI_CONFIG.getModelUrl(model)}?key=${AI_CONFIG.API_KEY}`;
-    const response = await fetch(url);
+    const response = await fetch(AI_CONFIG.getModelUrl(model), {
+      headers: AI_CONFIG.REQUEST_HEADERS,
+    });
 
     if (!response.ok) {
       if (response.status === 401) {
@@ -116,7 +141,7 @@ export async function checkModelAvailability(model: string): Promise<boolean> {
         );
       } else if (response.status === 404) {
         console.error(
-          `❌ Modelo ${model} não encontrado na API Gemini`
+          `❌ Modelo ${model} não encontrado na API OpenAI`
         );
       } else {
         console.error(
@@ -127,14 +152,13 @@ export async function checkModelAvailability(model: string): Promise<boolean> {
     }
 
     const data = await response.json();
-    if (Array.isArray(data.models)) {
-      return data.models.some((m: { name: string }) =>
-        m.name?.endsWith(model)
-      );
+
+    if (Array.isArray(data.data)) {
+      return data.data.some((m: { id: string }) => m.id === model);
     }
 
     // Quando consultar diretamente o modelo específico
-    return data.name?.endsWith(model) ?? false;
+    return data.id === model;
   } catch (error) {
     console.error("❌ Erro ao verificar disponibilidade do modelo:", error);
     return false;
@@ -159,8 +183,8 @@ export async function getAvailableModel(): Promise<string> {
   }
 
   // Fallback final para o modelo flash 1.5
-  console.log("⚠️ Usando gemini-1.5-flash como fallback");
-  return AI_MODELS.GEMINI_15_FLASH;
+  console.log("⚠️ Usando gpt-4o como fallback");
+  return AI_MODELS.GPT_4O;
 }
 
 /**
@@ -213,12 +237,12 @@ export const AI_DEBUG = {
         throw new Error("Chave da API não configurada");
       }
 
-      const response = await fetch(
-        `${AI_CONFIG.getModelUrl()}?key=${AI_CONFIG.API_KEY}`
-      );
+      const response = await fetch(AI_CONFIG.getModelUrl(), {
+        headers: AI_CONFIG.REQUEST_HEADERS,
+      });
 
       if (response.ok) {
-        console.log("✅ Conexão com a API Gemini estabelecida com sucesso");
+        console.log("✅ Conexão com a API OpenAI estabelecida com sucesso");
         return true;
       } else {
         console.error(

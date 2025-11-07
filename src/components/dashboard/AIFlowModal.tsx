@@ -239,7 +239,7 @@ export default function AIFlowModal({ open, onOpenChange, onImport }: Props) {
           error instanceof Error
             ? error.message
             : "Chave da API não configurada"
-        }\n\nVerifique se o arquivo .env está configurado corretamente com VITE_GEMINI_API_KEY.`,
+        }\n\nVerifique se o arquivo .env está configurado corretamente com VITE_OPENAI_API_KEY.`,
         timestamp: new Date(),
       };
       setMessages([...messages, errorMessage]);
@@ -272,99 +272,126 @@ export default function AIFlowModal({ open, onOpenChange, onImport }: Props) {
         setMessages([...newMessages, fallbackMessage]);
       }
 
-      const contents = newMessages
+      const conversationMessages = newMessages
         .filter((m) => m.role === "assistant" || m.role === "user")
         .map((m) => ({
-          role: m.role === "assistant" ? "model" : "user",
-          parts: [{ text: m.content }],
+          role: m.role,
+          content: m.content,
         }));
 
+      const generationConfig = AI_CONFIG.getModelSpecificOptions(availableModel);
+
       const requestBody = {
-        contents,
+        model: availableModel,
+        messages: [
+          { role: "system", content: SYSTEM_PROMPT },
+          ...conversationMessages,
+        ],
         tools: [
           {
-            functionDeclarations: [
-              {
-                name: "generate_flow",
-                description:
-                  "Gera o JSON final de um fluxo Task Companion",
-                parameters: {
-                  type: "object",
-                  properties: {
-                    version: { type: "string", enum: ["1.1"] },
-                    exportedAt: { type: "integer" },
-                    flows: {
-                      type: "array",
-                      items: { type: "object" },
-                    },
-                    components: {
-                      type: "array",
-                      items: { type: "object" },
-                    },
+            type: "function",
+            function: {
+              name: "generate_flow",
+              description: "Gera o JSON final de um fluxo Task Companion",
+              parameters: {
+                type: "object",
+                properties: {
+                  version: { type: "string", enum: ["1.1"] },
+                  exportedAt: { type: "integer" },
+                  flows: {
+                    type: "array",
+                    items: { type: "object" },
                   },
-                  required: ["version", "exportedAt", "flows", "components"],
+                  components: {
+                    type: "array",
+                    items: { type: "object" },
+                  },
                 },
+                required: ["version", "exportedAt", "flows", "components"],
               },
-            ],
+            },
           },
         ],
-        system_instruction: {
-          role: "system",
-          parts: [{ text: SYSTEM_PROMPT }],
-        },
-        generationConfig: AI_CONFIG.getModelSpecificOptions(availableModel),
-      };
+        temperature: generationConfig.temperature,
+        top_p: generationConfig.top_p,
+        max_tokens: generationConfig.max_tokens,
+      } as const;
 
-      const apiKey = AI_CONFIG.API_KEY;
-      if (!apiKey) {
+      if (!AI_CONFIG.API_KEY) {
         throw new Error("Chave da API não configurada");
       }
 
-      const res = await fetch(
-        `${AI_CONFIG.getGenerateContentUrl(availableModel)}?key=${apiKey}`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(requestBody),
-        }
-      );
+      const res = await fetch(AI_CONFIG.getChatCompletionsUrl(), {
+        method: "POST",
+        headers: AI_CONFIG.REQUEST_HEADERS,
+        body: JSON.stringify(requestBody),
+      });
 
       if (!res.ok) {
         throw new Error(`HTTP error! status: ${res.status}`);
       }
 
       const data = await res.json();
-      const candidate = data.candidates?.[0];
-      const parts = candidate?.content?.parts || [];
+      const choice = data.choices?.[0];
+      const toolCalls = choice?.message?.tool_calls;
+
+      const rawContent = choice?.message?.content;
+      let responseText = "";
+
+      if (typeof rawContent === "string") {
+        responseText = rawContent;
+      } else if (Array.isArray(rawContent)) {
+        responseText = rawContent
+          .map((part: unknown) => {
+            if (!part) return "";
+            if (typeof part === "string") return part;
+            if (typeof part === "object" && "text" in part) {
+              const textPart = (part as { text?: string }).text;
+              return typeof textPart === "string" ? textPart : "";
+            }
+            return "";
+          })
+          .filter(Boolean)
+          .join("\n\n")
+          .trim();
+      }
+
+      const updatedMessages = [...newMessages];
+
+      if (responseText) {
+        updatedMessages.push({
+          role: "assistant",
+          content: responseText,
+          timestamp: new Date(),
+        });
+      }
 
       setIsTyping(false);
 
-      const functionCallPart = parts.find(
-        (part: { functionCall?: unknown }) => !!part.functionCall
-      ) as { functionCall?: { args?: unknown; arguments?: unknown } } | undefined;
+      if (Array.isArray(toolCalls) && toolCalls.length > 0) {
+        const firstCall = toolCalls[0];
+        const argsString = firstCall?.function?.arguments ?? "{}";
 
-      if (functionCallPart?.functionCall) {
-        const { functionCall } = functionCallPart;
-        let rawArgs = functionCall.args ?? functionCall.arguments;
-
-        if (typeof rawArgs === "string") {
-          rawArgs = JSON.parse(rawArgs);
+        let parsedArgs: unknown = {};
+        try {
+          parsedArgs = JSON.parse(argsString);
+        } catch (err) {
+          console.error("Erro ao analisar argumentos da função:", err);
         }
 
         const args =
-          typeof rawArgs === "object" && rawArgs !== null ? rawArgs : {};
+          typeof parsedArgs === "object" && parsedArgs !== null ? parsedArgs : {};
         const jsonString = JSON.stringify(args, null, 2);
 
-        const assistantMessage: Message = {
+        const successMessage: Message = {
           role: "assistant",
           content:
             "✅ **Fluxo gerado com sucesso!**\n\nO JSON foi criado e será importado automaticamente. Você pode revisar e editar o fluxo após a importação.",
           timestamp: new Date(),
         };
 
-        setMessages([...newMessages, assistantMessage]);
+        const messagesWithSuccess = [...updatedMessages, successMessage];
+        setMessages(messagesWithSuccess);
 
         try {
           await onImport(jsonString);
@@ -372,8 +399,7 @@ export default function AIFlowModal({ open, onOpenChange, onImport }: Props) {
         } catch (error) {
           console.error("Erro ao importar fluxo:", error);
           setMessages([
-            ...newMessages,
-            assistantMessage,
+            ...messagesWithSuccess,
             {
               role: "assistant",
               content:
@@ -386,19 +412,19 @@ export default function AIFlowModal({ open, onOpenChange, onImport }: Props) {
         return;
       }
 
-      const textPart = parts.find(
-        (part: { text?: string }) => typeof part.text === "string"
-      );
-
-      const content =
-        textPart?.text ?? "Desculpe, não consegui processar sua solicitação.";
-      const assistantMessage: Message = {
-        role: "assistant",
-        content,
-        timestamp: new Date(),
-      };
-
-      setMessages([...newMessages, assistantMessage]);
+      if (responseText) {
+        setMessages(updatedMessages);
+      } else {
+        setMessages([
+          ...newMessages,
+          {
+            role: "assistant",
+            content:
+              "Desculpe, não consegui processar sua solicitação. Tente novamente em instantes.",
+            timestamp: new Date(),
+          },
+        ]);
+      }
     } catch (error) {
       setIsTyping(false);
       console.error("Erro na requisição de IA:", error);
