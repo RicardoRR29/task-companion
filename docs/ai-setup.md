@@ -1,16 +1,16 @@
-# Configuração da IA - OpenAI GPT-4o Mini
+# Configuração da IA - OpenAI GPT-5 Mini
 
 Este documento explica como configurar e usar a integração com a **OpenAI** no Task Companion.
 
 ## Visão Geral
 
-O assistente utiliza a família de modelos **GPT-4o** para:
+O assistente utiliza por padrão o modelo **GPT-5 Mini** para:
 
 - Criar fluxos interativos com base em descrições em linguagem natural
 - Sugerir ajustes nos passos antes da geração do JSON final
 - Gerar automaticamente um JSON válido para importação
 
-O modelo padrão é o `gpt-4o-mini`, otimizado para respostas rápidas com ótimo custo-benefício. Se ele não estiver disponível, o sistema tenta outros modelos compatíveis automaticamente.
+O modelo padrão é o `gpt-5-mini`, otimizado para respostas rápidas com ótimo custo-benefício. Se ele não estiver disponível, o sistema tenta outros modelos compatíveis automaticamente, priorizando a família **GPT-4o**.
 
 ## Configuração
 
@@ -51,10 +51,11 @@ if (AI_CONFIG.isConfigured) {
 
 | Ordem | Modelo         | Uso recomendado                              |
 |-------|----------------|----------------------------------------------|
-| 1     | `gpt-4o-mini`  | Respostas rápidas e econômicas               |
-| 2     | `gpt-4.1-mini` | Alternativa estável com mesmo estilo         |
-| 3     | `gpt-4o`       | Respostas mais ricas em contexto multimodal  |
-| 4     | `gpt-4.1`      | Respostas extensas e de alta precisão        |
+| 1     | `gpt-5-mini`   | Respostas rápidas e econômicas               |
+| 2     | `gpt-4o-mini`  | Alternativa ágil dentro da família GPT-4o    |
+| 3     | `gpt-4.1-mini` | Alternativa estável com mesmo estilo         |
+| 4     | `gpt-4o`       | Respostas mais ricas em contexto multimodal  |
+| 5     | `gpt-4.1`      | Respostas extensas e de alta precisão        |
 
 O fallback é realizado automaticamente seguindo a ordem acima.
 
